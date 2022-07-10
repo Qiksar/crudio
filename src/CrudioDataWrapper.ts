@@ -36,17 +36,45 @@ export default class CrudioDataWrapper {
 
       var fields = "";
 
+      const insert_fieldnames = [];
+      var insert_fields = `"${key.fieldName}"`;
+      insert_fieldnames.push(key.fieldName);
+
       e.fields.map((f: CrudioField) => {
         if (f.fieldName != key.fieldName) {
           fields += `,${f.fieldName} ${f.GetDatabaseFieldType} `;
 
           if (f.defaultValue) fields += `DEFAULT "${f.defaultValue} "`;
+
+          insert_fields += `,"${f.fieldName}"`;
+          insert_fieldnames.push(f.fieldName);
         }
       });
 
-      const sql = `CREATE TABLE "public"."${t.name}" (${keyField} ${fields});`;
+      var insert = `INSERT INTO "public"."${t.name}" (${insert_fields}) VALUES`;
+      const rows = t.rows;
 
+      for (var r = 0; r < rows.length; r++) {
+        const entity = rows[r];
+        if (!entity) throw new Error("NULL data row");
+
+        var values = "";
+
+        insert_fieldnames.map((i) => {
+          values += `${
+            entity.values[i] ? "'" + entity.values[i] + "'" : "NULL"
+          },`;
+        });
+
+        values = values.substring(0, values.length - 1);
+
+        insert += `(${values}),`;
+      }
+      insert = insert.substring(0, insert.length - 1);
+
+      const sql = `CREATE TABLE "public"."${t.name}" (${keyField} ${fields});`;
       await this.gql.ExecuteSQL(sql);
+      await this.gql.ExecuteSQL(insert);
     }
   }
 }

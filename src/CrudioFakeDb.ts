@@ -546,7 +546,9 @@ export default class CrudioFakeDb implements ICrudioRepository {
         return DateTime.TIME_24_WITH_SECONDS;
 
       case "timestamp":
-        return DateTime.now();
+        //const v = new Date(Date.now()).toISOString().replace('T',' ').replace('Z','');
+        const v = new Date(Date.now()).toISOString().replace('Z','');
+        return v;
     }
 
     var content: string = this.generators[generatorName] as string;
