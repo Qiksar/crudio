@@ -1,3 +1,7 @@
+# Output files
+test/unit/output/*.json
+
+
 # Logs
 logs
 *.log
