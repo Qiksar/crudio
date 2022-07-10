@@ -77,7 +77,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
   }
 
   GetKey(): CrudioField | null {
-    var fields: CrudioField[] = this.fields.filter((f) => f.key);
+    var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isKey)
     return fields.length > 0 ? fields[0] : null;
   }
 
@@ -99,7 +99,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
       fieldType || "number",
       fieldName
     );
-    keyField.key = true;
+    keyField.fieldOptions.isKey = true;
     keyField.fieldOptions.readonly = true;
 
     this.fields.push(keyField);
@@ -170,11 +170,14 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldOptions?: ICrudioFieldOptions
   ): ICrudioEntityType {
     if (!fieldOptions) {
-      fieldOptions = {};
+      fieldOptions = {
+        isKey: false
+      };
     }
 
     var options: ICrudioFieldOptions = {
       ...fieldOptions,
+      isKey: fieldOptions.isKey,
       readonly: true,
       entityName: entityName,
       fieldList: fieldList,

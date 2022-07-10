@@ -2,14 +2,14 @@
   "schema": {
     "Entity": {
       "abstract": true,
-      "id": { "type": "string", "name": "id", "generator": "[uuid]" },
+      "id": { "type": "uuid", "name": "id", "key": true, "generator": "[uuid]" },
       "created": { "type": "timestamp", "name": "created", "generator": "[timestamp]" },
       "deleted": { "type": "timestamp", "name": "deleted" }
     },
     "Cactus":{
       "inherits": "Entity",
       "height": {
-        "type": "number",
+        "type": "integer",
         "name": "height",
         "generator": "[length]"
 
@@ -48,8 +48,8 @@
         "generator": "[!firstname].[!lastname]@[server].[tld]"
       },
       "dob": { "type": "date", "name": "dob", "generator": "[dob]" },
-      "height": {"type": "number", "name": "height", "generator": "[height]" },
-      "weight": {"type": "number", "name": "weight", "generator": "[weight]" }
+      "height": {"type": "integer", "name": "height", "generator": "[height]" },
+      "weight": {"type": "integer", "name": "weight", "generator": "[weight]" }
     },
 
     "Organisation": {

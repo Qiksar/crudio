@@ -257,6 +257,10 @@ export default class CrudioGQL {
 
 		try {
 			var results: any = await axios.post(this.config.hasuraQueryEndpoint, sqlQuery, requestConfig);
+			if(results.data.errors && results.data.errors.length > 0){
+				throw new Error(results.data.errors)
+			}
+
 			return results.data.result;
 		} catch (e:any) {
 			console.log('** ERROR');

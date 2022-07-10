@@ -46,6 +46,8 @@ export interface ICrudioConfig {
 }
 
 export interface ICrudioFieldOptions {
+  isKey:boolean,
+
   readonly?: boolean;
   defaultValue?: any;
 
@@ -76,7 +78,6 @@ export interface ICrudioField {
   fieldName: string;
   caption?: string;
   fieldType: string;
-  key: boolean;
   defaultValue?: any;
   fieldOptions: ICrudioFieldOptions;
   GetCaption(): string;
@@ -204,27 +205,6 @@ export interface ICrudioReadResult {
   totalItems: number;
   graphData: CrudioEntityInstance[];
   query: string;
-}
-
-export interface ICrudioDataWrapper {
-  entities: ICrudioEntityType[];
-  aliases: any;
-  graphFields: any;
-  augment: any;
-
-  GetEntityDefinition(
-    name: string,
-    failIfNotFound: boolean
-  ): ICrudioEntityType | null;
-
-  GetEntityDefinitionFromTableName(
-    name: string,
-    failIfNotFound: boolean
-  ): ICrudioEntityType | null;
-
-  ImportSchema(): void;
-  AugmentSchema(map: any): ICrudioDataWrapper;
-  ExecuteSQL(sql_statement: string): Promise<{}[]>;
 }
 
 export interface ISchemaTable {

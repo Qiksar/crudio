@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 import YAML from "yaml";
 
-import { ICrudioRepository } from "./CrudioTypes";
+import { ICrudioFieldOptions, ICrudioRepository } from "./CrudioTypes";
 import CrudioEntityType from "./CrudioEntityType";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -92,27 +92,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
     for (var index: number = 0; index < eKeys.length; index++) {
       var entityname: string = eKeys[index];
       var schema: any = schemaNode[entityname];
-
-      var entity: CrudioEntityType = this.CreateEntityType(entityname);
-
-      var fKeys: string[] = Object.keys(schema).filter(
-        (f) => !["inherits"].includes(f)
-      );
-
-      for (var findex: number = 0; findex < fKeys.length; findex++) {
-        var fieldname: string = fKeys[findex];
-        var fieldSchema: any = schema[fieldname];
-
-        entity.AddField(fieldname, fieldSchema.type, fieldname, {
-          generator: fieldSchema.generator,
-          sensitiveData:
-            fieldSchema.sensitiveData === undefined
-              ? false
-              : fieldSchema.sensitiveData,
-          defaultValue:
-            fieldSchema.default === undefined ? null : fieldSchema.default,
-        });
-      }
+      this.CreateEntity(schema, entityname);
     }
 
     // process inheritance from base type
@@ -123,6 +103,34 @@ export default class CrudioFakeDb implements ICrudioRepository {
         this.InheritBaseFields(schema_node.inherits, entityName);
       }
     });
+  }
+
+  private CreateEntity(schema: any, entityname: string) {
+    var entity: CrudioEntityType = this.CreateEntityType(entityname);
+
+    var fKeys: string[] = Object.keys(schema).filter(
+      (f) => !["inherits"].includes(f)
+    );
+
+    if (schema.abstract) entity.abstract = true;
+
+    for (var findex: number = 0; findex < fKeys.length; findex++) {
+      var fieldname: string = fKeys[findex];
+      var fieldSchema: any = schema[fieldname];
+
+      const fieldOptions: ICrudioFieldOptions ={
+        generator: fieldSchema.generator,
+        isKey: fieldSchema.key,
+        sensitiveData:
+          fieldSchema.sensitiveData === undefined
+            ? false
+            : fieldSchema.sensitiveData,
+        defaultValue:
+          fieldSchema.default === undefined ? null : fieldSchema.default,
+      };
+
+      entity.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
+    }
   }
 
   private ProcessIncludes(includes: string[]): void {
@@ -183,7 +191,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
   }
 
   // Find an entity type which has already been defined in the repo
-  private GetEntityDefinition(
+  public GetEntityDefinition(
     entityName: string,
     failIfNotFound: boolean = true
   ): CrudioEntityType | null {
@@ -295,7 +303,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
     const repo = JSON.parse(input);
     CrudioFakeDb.SetPrototypes(repo);
 
-    return repo;
+    return new CrudioFakeDb(repo);
   }
 
   public static FromString(input: string): CrudioFakeDb {

@@ -1,12 +1,13 @@
 // tslint:disable: max-line-length
 // tslint:disable: no-unused-expression
 
-
 import { stringify, parse } from "flatted";
 
 import CrudioFakeDb from "../../src/CrudioFakeDb";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
-import CrudioRepositoryTable from "./../../src/CrudioRepositoryTable";
+import CrudioRepositoryTable from "../../src/CrudioRepositoryTable";
+import { ICrudioConfig } from "../../src/CrudioTypes";
+import CrudioDataWrapper from "../../src/CrudioDataWrapper";
 
 import TestRepository from "./input/test_repo";
 
@@ -27,26 +28,28 @@ describe("Create fake data", () => {
   test("Load repository definition from JSON file", () => {
     const repo = CrudioFakeDb.FromJson("test/unit/input/repo.json");
 
-    const db: CrudioFakeDb = new CrudioFakeDb(repo);
+    expect(() => repo.GetTable("Entitys")).toThrow();
 
-    const cactii: CrudioRepositoryTable = db.GetTable("Cactii");
+    const cactii: CrudioRepositoryTable = repo.GetTable("Cactii");
     expect(cactii).not.toBeNull();
     expect(cactii.rows.length).toBeGreaterThan(0);
 
-    const users: CrudioEntityInstance[] = db.GetTable("Users").rows;
+    const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
     expect(users.length).toBeGreaterThan(0);
   });
 
   test("Use typescript defined repository", () => {
-    const db: CrudioFakeDb = new CrudioFakeDb(TestRepository);
+    const repo: CrudioFakeDb = new CrudioFakeDb(TestRepository);
 
-    const users: CrudioEntityInstance[] = db.GetTable("Users").rows;
+    expect(() => repo.GetTable("Entitys")).toThrow();
+
+    const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
     const organizations: CrudioEntityInstance[] =
-      db.GetTable("Organisations").rows;
-    const cohorts: CrudioEntityInstance[] = db.GetTable("Cohorts").rows;
-    const clients: CrudioEntityInstance[] = db.GetTable("Clients").rows;
-    const programs: CrudioEntityInstance[] = db.GetTable("Programs").rows;
-    const surveys: CrudioEntityInstance[] = db.GetTable("Surveys").rows;
+      repo.GetTable("Organisations").rows;
+    const cohorts: CrudioEntityInstance[] = repo.GetTable("Cohorts").rows;
+    const clients: CrudioEntityInstance[] = repo.GetTable("Clients").rows;
+    const programs: CrudioEntityInstance[] = repo.GetTable("Programs").rows;
+    const surveys: CrudioEntityInstance[] = repo.GetTable("Surveys").rows;
 
     expect(users).not.toBeNull();
     expect(organizations).not.toBeNull();
@@ -145,5 +148,23 @@ describe("Create fake data", () => {
 
     const cohort: any = cohorts[0] as any;
     expect(cohort.values.Clients.length).toBeGreaterThan(0);
+  });
+
+  test("Populate database", async () => {
+    const config: ICrudioConfig = {
+      hasuraEndpoint: "http://localhost:6789",
+      hasuraQueryEndpoint: "http://localhost:6789/v2/query",
+      hasuraAdminSecret: "crudio",
+      idFieldName: "id",
+      readonlyFields: [],
+    };
+
+    const repo = CrudioFakeDb.FromJson("test/unit/input/repo.json");
+    const db = new CrudioDataWrapper(config, repo);
+    expect(db).not.toBeNull;
+    expect(db.gql).not.toBeNull;
+
+    await db.DropTables();
+    await db.CreateTables();
   });
 });
