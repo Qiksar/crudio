@@ -1,17 +1,16 @@
 import {
   ICrudioEntityType,
   ICrudioFieldOptions,
-  ICrudioField,
   ICrudioEntityInstance,
 } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioRelationship from "./CrudioRelationship";
-import { DateTime } from "luxon";
 
 export default class CrudioEntityType implements ICrudioEntityType {
   public name: string;
+  public abstract: boolean;
   public tableAlias: string = "";
   public tableName: string;
   public fields: CrudioField[] = [];

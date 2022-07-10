@@ -25,7 +25,7 @@ describe("Create fake data", () => {
   });
 
   test("Load repository definition from JSON file", () => {
-    const repo = CrudioFakeDb.LoadJSON("test/unit/input/repo.json");
+    const repo = CrudioFakeDb.FromJson("test/unit/input/repo.json");
 
     const db: CrudioFakeDb = new CrudioFakeDb(repo);
 
@@ -104,7 +104,7 @@ describe("Create fake data", () => {
     const demo: CrudioFakeDb = new CrudioFakeDb(TestRepository);
     demo.Save("test/unit/output/fake.flat.json");
 
-    const db = CrudioFakeDb.Deserialize(demo.Serialize());
+    const db = CrudioFakeDb.FromString(demo.ToString());
     expect(db).not.toBeNull();
 
     const users: CrudioEntityInstance[] = db.GetTable("Users").rows;

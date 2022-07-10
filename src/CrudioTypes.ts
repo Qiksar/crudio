@@ -27,9 +27,9 @@ export enum CrudioWhere {
 }
 
 export interface ICrudioRepository {
-  include: CrudioRepositoryInclude[];
-  schema: {};
-  generators: {};
+  include: string[];
+  schema: Record<string,unknown>;
+  generators: Record<string,unknown>;
   record_counts?: {};
   relationships: {}[];
   entities: CrudioEntityType[];
