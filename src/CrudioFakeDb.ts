@@ -504,41 +504,28 @@ class CrudioFakeDb implements ICrudioRepository {
     var records: CrudioEntityInstance[] = [];
 
     for (var c: number = 0; c < count; c++) {
-      records.push(this.CreateDataObject(entity));
+      records.push(this.CreateEntityInstance(entity));
     }
 
     table.rows = records;
   }
 
-  CreateDataObject(entity: CrudioEntityType): CrudioEntityInstance {
+  CreateEntityInstance(entity: CrudioEntityType): CrudioEntityInstance {
     var record: CrudioEntityInstance = entity.CreateInstance({});
 
     entity.fields.map((field) => {
-      // skip special fields
       var generator: string | undefined = field.fieldOptions.generator;
 
-      if (generator === "unknown" || generator === undefined) {
-        generator = "!!!GENERATOR!!!";
-        // hak - don't throw an error, let the user see the missing generator message
-        // throw new Error(`Entity ${entity.name} : Field '${field.fieldName}' has 'unknown' or undefined as generator value, assign a generator`);
+      if (generator && generator != "unknown") {
+        var value: any = this.ReplaceTokens(generator, record);
+        record.values[field.fieldName] = value;
       }
-
-      var value: any = this.ReplaceTokens(generator, record);
-      record.values[field.fieldName] = value;
     });
 
     return record;
   }
 
   ReplaceTokens(definition: string, target: any): string {
-    if (
-      definition === null ||
-      definition === undefined ||
-      definition === "unknown"
-    ) {
-      var whoops: any = true;
-    }
-
     var tokens: string[] | null = definition.match(/\[.*?\]+/g);
 
     if (tokens === null) {
@@ -607,7 +594,7 @@ class CrudioFakeDb implements ICrudioRepository {
 
       case "time":
         return DateTime.TIME_24_WITH_SECONDS;
-        
+
       case "timestamp":
         return DateTime.now();
     }
