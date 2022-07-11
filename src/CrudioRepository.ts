@@ -2,26 +2,26 @@ import { stringify, parse } from "flatted";
 import * as fs from "fs";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
-import YAML from "yaml";
 
-import { ICrudioFieldOptions, ICrudioRepository } from "./CrudioTypes";
+import {
+  ICrudioFieldOptions,
+  ICrudioSchemaDefinition,
+  ISchemaRelationship,
+} from "./CrudioTypes";
 import CrudioEntityType from "./CrudioEntityType";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
-import CrudioRepositoryInclude from "./CrudioRepositoryInclude";
-import CrudioRepositoryRelationship from "./CrudioRepositoryRelationship";
-import CrudioRepositoryTable from "./CrudioRepositoryTable";
+import CrudioEntityRelationship from "./CrudioEntityRelationship";
+import CrudioTable from "./CrudioTable";
 import StandardGenerators from "./CrudioStandardGenerators";
 
-export default class CrudioFakeDb implements ICrudioRepository {
+export default class CrudioRepository {
   //#region Properties
 
-  public include: string[] = [];
   public generators: Record<string, unknown> = {};
-  public tables: CrudioRepositoryTable[] = [];
-  public schema: Record<string, unknown> = {};
+  public tables: CrudioTable[] = [];
   public entities: CrudioEntityType[] = [];
-  public relationships: CrudioRepositoryRelationship[] = [];
+  public relationships: CrudioEntityRelationship[] = [];
 
   private entityId: number = 1;
   public getEntityId(): number {
@@ -30,17 +30,13 @@ export default class CrudioFakeDb implements ICrudioRepository {
 
   //#endregion
 
-  constructor(repo: ICrudioRepository) {
-    CrudioFakeDb.SetPrototypes(repo);
+  constructor(repo: ICrudioSchemaDefinition) {
+    // Combine the standard generators with custom generations
+    this.generators = { ...StandardGenerators, ...repo.generators };
 
-    this.generators = repo.generators;
-    this.schema = repo.schema;
-    this.include = repo.include;
-
-    this.ProcessSchema(this.schema);
-    this.ProcessIncludes(this.include);
-    this.CreateTables(this.entities);
-    this.CreateRelationships(repo);
+    this.ProcessIncludes(repo);
+    this.LoadEntities(repo);
+    this.CreateDataTables(this.entities);
 
     Object.keys(repo.record_counts).map((k) => {
       this.SetTableRecordCount(k, repo.record_counts[k]);
@@ -51,20 +47,18 @@ export default class CrudioFakeDb implements ICrudioRepository {
 
   //#region Initialise repository, entities and relationships
 
-  private static SetPrototypes(fkdb: ICrudioRepository) {
-    if (!fkdb.include) fkdb.include = [];
-    if (!fkdb.generators) fkdb.generators = {};
-    if (!fkdb.entities) fkdb.entities = [];
-    if (!fkdb.tables) fkdb.tables = [];
-    if (!fkdb.relationships) fkdb.relationships = [];
+  private static SetPrototypes(schema: CrudioRepository) {
+    if (!schema.entities) schema.entities = [];
+    if (!schema.generators) schema.generators = {};
+    if (!schema.relationships) schema.relationships = [];
 
     Object.keys(StandardGenerators).map(
-      (k) => (fkdb.generators[k] = StandardGenerators[k])
+      (k) => (schema.generators[k] = StandardGenerators[k])
     );
 
-    Object.setPrototypeOf(fkdb, CrudioFakeDb.prototype);
+    Object.setPrototypeOf(schema, CrudioRepository.prototype);
 
-    fkdb.entities.map((e: any) => {
+    schema.entities.map((e: any) => {
       Object.setPrototypeOf(e, CrudioEntityType.prototype);
 
       e.fields.map((f: any) => {
@@ -72,53 +66,54 @@ export default class CrudioFakeDb implements ICrudioRepository {
       });
     });
 
-    fkdb.tables.map((t: any) => {
-      Object.setPrototypeOf(t, CrudioRepositoryTable.prototype);
+    schema.tables.map((t: any) => {
+      Object.setPrototypeOf(t, CrudioTable.prototype);
       t.rows.map((r: any) =>
         Object.setPrototypeOf(r, CrudioEntityInstance.prototype)
       );
     });
   }
 
-  private ProcessSchema(schemaNode: any): void {
+  private ProcessIncludes(repo: ICrudioSchemaDefinition): void {
+    if (repo.include) {
+      repo.include.map((filename: any) => {
+        // TODO import another repo or fragment
+      });
+    }
+  }
+
+  private LoadEntities(repo: ICrudioSchemaDefinition): void {
     this.entities = [];
 
-    if (schemaNode === undefined) {
-      return;
-    }
+    var eKeys: string[] = Object.keys(repo.entities);
 
-    var eKeys: string[] = Object.keys(schemaNode);
-
+    // create the basic entity structures
     for (var index: number = 0; index < eKeys.length; index++) {
       var entityname: string = eKeys[index];
-      var schema: any = schemaNode[entityname];
+      var schema: any = repo.entities[entityname];
       this.CreateEntity(schema, entityname);
     }
 
-    // process inheritance from base type
-    Object.keys(this.schema).map((entityName: any) => {
-      var schema_node: any = this.schema[entityName];
-
-      if (schema_node.inherits) {
-        this.InheritBaseFields(schema_node.inherits, entityName);
-      }
-    });
+    this.LoadRelationships(repo);
   }
 
   private CreateEntity(schema: any, entityname: string) {
     var entity: CrudioEntityType = this.CreateEntityType(entityname);
 
     var fKeys: string[] = Object.keys(schema).filter(
-      (f) => !["inherits"].includes(f)
+      (f) => !["inherits","abstract", "relationships"].includes(f)
     );
 
     if (schema.abstract) entity.abstract = true;
+
+    // copy inherited fields from the base entity
+    if (schema.inherits) this.InheritBaseFields(schema.inherits, entity);
 
     for (var findex: number = 0; findex < fKeys.length; findex++) {
       var fieldname: string = fKeys[findex];
       var fieldSchema: any = schema[fieldname];
 
-      const fieldOptions: ICrudioFieldOptions ={
+      const fieldOptions: ICrudioFieldOptions = {
         generator: fieldSchema.generator,
         isKey: fieldSchema.key,
         sensitiveData:
@@ -131,51 +126,28 @@ export default class CrudioFakeDb implements ICrudioRepository {
 
       entity.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
     }
+
+    if (schema.relationships) {
+      schema.relationships.map((r: ISchemaRelationship) => {
+        const new_rel = new CrudioEntityRelationship({
+          from: entity.name,
+          ...r,
+        });
+
+        entity.relationships.push(new_rel);
+
+        // cache relationships globally
+        this.relationships.push(new_rel);
+      });
+    }
   }
 
-  private ProcessIncludes(includes: string[]): void {
-    includes.map((filename: any) => {
-      // TODO import another repo or fragment
-    });
-  }
-
-  private CreateTables(entities: CrudioEntityType[]) {
-    entities.map((e: CrudioEntityType) => {
-      if (!e.abstract) {
-        var t: CrudioRepositoryTable = new CrudioRepositoryTable();
-        t.name = this.GetClassName(e.tableName);
-        t.entity = this.GetClassName(e.name);
-        t.count = 50;
-
-        this.tables.push(t);
-      }
-    });
-  }
-
-  private CreateRelationships(repo: any): void {
-    this.relationships = [];
-
-    repo.relationships.map((r: any) => {
-      var rel: CrudioRepositoryRelationship =
-        new CrudioRepositoryRelationship();
-
-      rel.from = r.from;
-      rel.to = r.to;
-      rel.type = r.type;
-
-      this.relationships.push(rel);
-    });
-  }
-
-  // copy fields from base entity to child entity
   private InheritBaseFields(
     baseEntityName: string,
-    childEntityName: string
+    targetEntity: CrudioEntityType
   ): void {
     var baseEntity: CrudioEntityType =
       this.GetEntityDefinition(baseEntityName)!;
-    var targetEntity: CrudioEntityType =
-      this.GetEntityDefinition(childEntityName)!;
 
     baseEntity.fields.map((f: CrudioField) => {
       if (f.fieldName.toLocaleLowerCase() != "abstract") {
@@ -187,6 +159,16 @@ export default class CrudioFakeDb implements ICrudioRepository {
 
         targetEntity.fields.push(f);
       }
+    });
+  }
+
+  private LoadRelationships(repo: ICrudioSchemaDefinition): void {
+    this.relationships = [];
+
+    repo.relationships.map((r) => {
+      var rel: CrudioEntityRelationship = new CrudioEntityRelationship(r);
+
+      this.relationships.push(rel);
     });
   }
 
@@ -230,32 +212,53 @@ export default class CrudioFakeDb implements ICrudioRepository {
     throw new Error(`Entity '${name} already exists'`);
   }
 
-  private ConnectRelationships(): void {
-    this.relationships.map((r: any) => {
-      if (r.type === "one") {
-        this.JoinOneToMany(r);
-      } else {
-        throw new Error(`${r.type} is not a valid relationship type`);
+  private CreateDataTables(entities: CrudioEntityType[]) {
+    entities.map((e: CrudioEntityType) => {
+      if (!e.abstract) {
+        var t: CrudioTable = new CrudioTable();
+        t.name = this.GetClassName(e.tableName);
+        t.entity = this.GetClassName(e.name);
+        t.count = 50;
+
+        this.tables.push(t);
       }
     });
   }
 
-  private JoinOneToMany(r: any): void {
-    var sourceTable: CrudioRepositoryTable = this.GetTable(r.from)!;
-    var targetTable: CrudioRepositoryTable = this.GetTable(r.to)!;
+  private ConnectRelationships(): void {
+    this.entities.map((e) => {
+      e.relationships.map((r) => {
+        if (r.RelationshipType === "one") this.JoinOneToMany(r);
+      });
+    });
+
+    this.relationships.map((r: any) => {
+      if (r.RelationshipType === "one") {
+        this.JoinOneToMany(r);
+      } else {
+        throw new Error(
+          `${r.RelationshipType} is not a valid relationship type`
+        );
+      }
+    });
+  }
+
+  private JoinOneToMany(r: CrudioEntityRelationship): void {
+    var sourceTable: CrudioTable = this.GetTableForEntity(r.From)!;
+    var targetTable: CrudioTable = this.GetTableForEntity(r.To)!;
 
     if (sourceTable === null) {
-      throw new Error(`Can not find source '${r.from}'`);
+      throw new Error(`Can not find source '${r.From}'`);
     }
 
     if (targetTable === null) {
-      throw new Error(`Can not find target '${r.to}'`);
+      throw new Error(`Can not find target '${r.To}'`);
     }
 
     // initialise all target entities with an empty array to receive referencing entities
     targetTable.rows.map((row: CrudioEntityInstance) => {
-      if (row.values[r.from] === undefined) {
-        row.values[r.from] = [];
+      if (row.values[r.From] === undefined) {
+        row.values[sourceTable.name] = [];
       }
     });
 
@@ -263,7 +266,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
     // randomly distribute the source records over the target table
     sourceTable.rows.map((sourceRow: CrudioEntityInstance) => {
       // every target must get at least one source record connected to it
-      // as ths avoids having empty arrays
+      // as this avoids having empty arrays
       // use index to assign the first n relationships and after that use
       // random values to distribute the records
       var targetRow: CrudioEntityInstance =
@@ -277,14 +280,14 @@ export default class CrudioFakeDb implements ICrudioRepository {
       sourceRow.values[targetTable.entity] = targetRow;
 
       // the target has a list of records which it points back to
-      targetRow.values[r.from].push(sourceRow);
+      targetRow.values[sourceTable.name].push(sourceRow);
     });
   }
 
   // Get the datatable of values for an entity type
-  public GetTable(name: string): CrudioRepositoryTable {
-    var matches: CrudioRepositoryTable[] = this.tables.filter(
-      (e: CrudioRepositoryTable) => e.name === name
+  public GetTable(name: string): CrudioTable {
+    var matches: CrudioTable[] = this.tables.filter(
+      (t: CrudioTable) => t.name === name
     );
 
     if (matches.length === 0) {
@@ -294,26 +297,37 @@ export default class CrudioFakeDb implements ICrudioRepository {
     return matches[0];
   }
 
+  // Get the datatable of values for an entity type
+  public GetTableForEntity(name: string): CrudioTable {
+    var matches: CrudioTable[] = this.tables.filter(
+      (t: CrudioTable) => t.entity === name
+    );
+
+    if (matches.length === 0) {
+      throw new Error(`Table for entity '${name}' not found`);
+    }
+
+    return matches[0];
+  }
   //#endregion
 
   //#region Serialisation
 
-  public static FromJson(filename: string): CrudioFakeDb {
+  public static FromJson(filename: string): CrudioRepository {
     var input = fs.readFileSync(filename, "utf8");
     const repo = JSON.parse(input);
-    CrudioFakeDb.SetPrototypes(repo);
 
-    return new CrudioFakeDb(repo);
+    return new CrudioRepository(repo);
   }
 
-  public static FromString(input: string): CrudioFakeDb {
+  public static FromString(input: string): CrudioRepository {
     input = input.trim();
 
     // wrap JSON in array
     if (input[0] != "[") input = "[" + input + "]";
 
-    const repo: CrudioFakeDb = parse(input);
-    CrudioFakeDb.SetPrototypes(repo);
+    const repo: CrudioRepository = parse(input);
+    CrudioRepository.SetPrototypes(repo);
 
     return repo;
   }
@@ -353,7 +367,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
     // create data for each table
     const tables = this.tables.filter((t: any) => !t.abstract);
 
-    tables.map((t: CrudioRepositoryTable) => {
+    tables.map((t: CrudioTable) => {
       this.FillTable(t);
     });
 
@@ -362,12 +376,12 @@ export default class CrudioFakeDb implements ICrudioRepository {
   }
 
   private DropData(): void {
-    this.tables.map((t: CrudioRepositoryTable) => {
+    this.tables.map((t: CrudioTable) => {
       delete t.rows;
     });
   }
 
-  FillTable(table: CrudioRepositoryTable): void {
+  FillTable(table: CrudioTable): void {
     var count: number = table.count;
 
     if (count === undefined || count < 1) {
@@ -396,7 +410,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
   }
 
   GetAllRows(tableName: string): CrudioEntityInstance[] {
-    var t: CrudioRepositoryTable | null = this.GetTable(tableName);
+    var t: CrudioTable | null = this.GetTable(tableName);
     if (t !== null) {
       return t.rows;
     } else {
@@ -529,6 +543,8 @@ export default class CrudioFakeDb implements ICrudioRepository {
   }
 
   private GetGeneratedValue(generatorName: string): any {
+    if (!generatorName) throw new Error("generatorName must specify a standard or customer generator");
+
     var value: any = "";
 
     if (!Object.keys(this.generators).includes(generatorName)) {
@@ -547,7 +563,7 @@ export default class CrudioFakeDb implements ICrudioRepository {
 
       case "timestamp":
         //const v = new Date(Date.now()).toISOString().replace('T',' ').replace('Z','');
-        const v = new Date(Date.now()).toISOString().replace('Z','');
+        const v = new Date(Date.now()).toISOString().replace("Z", "");
         return v;
     }
 

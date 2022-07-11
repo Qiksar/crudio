@@ -1,11 +1,11 @@
-import { ICrudioEntityType, ICrudioEntityInstance } from './CrudioTypes'
+import CrudioEntityType from './CrudioEntityType'
 
-export default class CrudioEntityInstance implements ICrudioEntityInstance {
-  public entityType: ICrudioEntityType
+export default class CrudioEntityInstance  {
+  public entityType: CrudioEntityType
   public values: any = {}
 
   constructor(
-    entityType: ICrudioEntityType,
+    entityType: CrudioEntityType,
     source: {} = {},
     strict: boolean = false
   ) {

@@ -1,12 +1,14 @@
-import CrudioFakeDb from './CrudioFakeDb';
+// TODO fix code generation
+
+import CrudioRepository from './CrudioRepository';
 import CrudioEntityType from './CrudioEntityType';
 import CrudioField from './CrudioField';
 
 export default class CrudioCodeGenerator {
-	db: CrudioFakeDb;
+	db: CrudioRepository;
 	fs: any;
 
-	constructor(fakedb: CrudioFakeDb, filesys: any) {
+	constructor(fakedb: CrudioRepository, filesys: any) {
 		this.db = fakedb;
 		this.fs = filesys;
 	}

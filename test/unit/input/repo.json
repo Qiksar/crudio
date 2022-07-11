@@ -1,18 +1,26 @@
 {
-  "schema": {
+  "entities": {
     "Entity": {
       "abstract": true,
-      "id": { "type": "uuid", "name": "id", "key": true, "generator": "[uuid]" },
-      "created": { "type": "timestamp", "name": "created", "generator": "[timestamp]" },
+      "id": {
+        "type": "uuid",
+        "name": "id",
+        "key": true,
+        "generator": "[uuid]"
+      },
+      "created": {
+        "type": "timestamp",
+        "name": "created",
+        "generator": "[timestamp]"
+      },
       "deleted": { "type": "timestamp", "name": "deleted" }
     },
-    "Cactus":{
+    "Cactus": {
       "inherits": "Entity",
       "height": {
         "type": "integer",
         "name": "height",
         "generator": "[length]"
-
       }
     },
     "Person": {
@@ -48,8 +56,12 @@
         "generator": "[!firstname].[!lastname]@[server].[tld]"
       },
       "dob": { "type": "date", "name": "dob", "generator": "[dob]" },
-      "height": {"type": "integer", "name": "height", "generator": "[height]" },
-      "weight": {"type": "integer", "name": "weight", "generator": "[weight]" }
+      "height": {
+        "type": "integer",
+        "name": "height",
+        "generator": "[height]"
+      },
+      "weight": { "type": "integer", "name": "weight", "generator": "[weight]" }
     },
 
     "Organisation": {
@@ -82,25 +94,55 @@
         "type": "string",
         "name": "mission",
         "generator": "[program_mission]"
-      }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
     },
 
     "Cohort": {
       "inherits": "Entity",
-      "name": { "type": "string", "name": "name", "generator": "[cohort_name]" }
+      "name": { "type": "string", "name": "name", "generator": "[cohort_name]" },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
     },
 
     "Survey": {
       "inherits": "Entity",
-      "name": { "type": "string", "name": "name", "generator": "[survey_name]" }
+      "name": { "type": "string", "name": "name", "generator": "[survey_name]" },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
     },
 
     "Client": {
-      "inherits": "Person"
+      "inherits": "Person",
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Cohort"
+        }
+      ]
     },
 
     "User": {
-      "inherits": "Person"
+      "inherits": "Person",
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
     }
   },
 
@@ -119,30 +161,5 @@
   },
 
   "relationships": [
-    {
-      "from": "Users",
-      "to": "Organisations",
-      "type": "one"
-    },
-    {
-      "from": "Clients",
-      "to": "Cohorts",
-      "type": "one"
-    },
-    {
-      "from": "Cohorts",
-      "to": "Programs",
-      "type": "one"
-    },
-    {
-      "from": "Programs",
-      "to": "Organisations",
-      "type": "one"
-    },
-    {
-      "from": "Surveys",
-      "to": "Programs",
-      "type": "one"
-    }
   ]
 }

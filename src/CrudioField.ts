@@ -13,6 +13,9 @@ export default class CrudioField implements ICrudioField {
     caption?: string,
     options?: ICrudioFieldOptions
   ) {
+    if (!fieldType) 
+      throw new Error("fieldType must specify a valud entity field type");
+
     if (!options) {
       options = { canSort: true, isKey: false };
     }
@@ -58,13 +61,13 @@ export default class CrudioField implements ICrudioField {
   }
 
   // https://www.postgresql.org/docs/current/datatype.html
-    public get GetDatabaseFieldType(){
-	switch(this.fieldType.toLowerCase()){
-		case "string":
-			return "text";
+  public get GetDatabaseFieldType() {
+    switch (this.fieldType.toLowerCase()) {
+      case "string":
+        return "text";
 
-		default:
-			return this.fieldType;
-	}
+      default:
+        return this.fieldType;
+    }
   }
 }

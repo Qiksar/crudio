@@ -60,7 +60,7 @@ const CompanyGenerators = {
 
 const MetricGenerators = {
   length: "10>100",
-  height: "10>100",
+  height: "100>250",
   depth: "10>100",
   volume: "100>2000",
   weight: "20>200",

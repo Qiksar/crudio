@@ -2,19 +2,21 @@ import {
   ICrudioEntityType,
   ICrudioFieldOptions,
   ICrudioEntityInstance,
+  ICrudioEntityRelationship,
+  ISchemaRelationship,
 } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
-import CrudioRelationship from "./CrudioRelationship";
+import CrudioEntityRelationship from "./CrudioEntityRelationship";
 
-export default class CrudioEntityType implements ICrudioEntityType {
+export default class CrudioEntityType {
   public name: string;
   public abstract: boolean;
   public tableAlias: string = "";
   public tableName: string;
   public fields: CrudioField[] = [];
-  public relationships: CrudioRelationship[] = [];
+  public relationships: CrudioEntityRelationship[] = [];
   public editor: string = "none";
   public icon: string = "none";
   public caption: string = "none";
@@ -34,7 +36,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     this.tableName = table;
   }
 
-  SetAlias(alias: string): ICrudioEntityType {
+  SetAlias(alias: string): CrudioEntityType {
     //console.log(`SetAlias ${this.entityTypeName} -> ${alias}`);
     // hak ignore aliasing or now
     this.tableAlias = this.name;
@@ -81,7 +83,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     return fields.length > 0 ? fields[0] : null;
   }
 
-  AddKey(fieldName: string, fieldType?: string): ICrudioEntityType {
+  AddKey(fieldName: string, fieldType?: string): CrudioEntityType {
     if (this.GetKey() !== null) {
       throw new Error(
         "a key field is already defined on entity '" + this.name + "'"
@@ -111,7 +113,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldName: string,
     caption?: string,
     options?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     this.AddField(fieldName, "string", caption, options);
 
     return this;
@@ -121,7 +123,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldName: string,
     caption?: string,
     options?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     this.AddField(fieldName, "number", caption, options);
 
     return this;
@@ -131,7 +133,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldName: string,
     caption?: string,
     options?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     this.AddField(fieldName, "boolean", caption, options);
 
     return this;
@@ -141,7 +143,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldName: string,
     caption?: string,
     options?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     this.AddField(fieldName, "date", caption, options);
 
     return this;
@@ -152,7 +154,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     fieldType: string,
     caption?: string,
     options?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     if (this.GetField(fieldName)) {
       throw new Error(
         "'" + fieldName + "' is already defined on entity '" + this.name + "'"
@@ -168,7 +170,7 @@ export default class CrudioEntityType implements ICrudioEntityType {
     entityName: string,
     fieldList: string,
     fieldOptions?: ICrudioFieldOptions
-  ): ICrudioEntityType {
+  ): CrudioEntityType {
     if (!fieldOptions) {
       fieldOptions = {
         isKey: false
@@ -196,19 +198,14 @@ export default class CrudioEntityType implements ICrudioEntityType {
   }
 
   AddRelation(
-    source: ICrudioEntityType,
-    sourceColumn: string,
-    target: CrudioEntityType,
-    targetColumn: string,
-    name: string
-  ): ICrudioEntityType {
-    this.relationships.push(
-      new CrudioRelationship(source, sourceColumn, target, targetColumn, name)
-    );
+    rel: CrudioEntityRelationship
+  ): CrudioEntityType {
+    this.relationships.push(rel);
+    
     return this;
   }
 
-  CreateInstance(values: {}): ICrudioEntityInstance {
-    return new CrudioEntityInstance(this, values) as ICrudioEntityInstance;
+  CreateInstance(values: {}): CrudioEntityInstance {
+    return new CrudioEntityInstance(this, values);
   }
 }

@@ -1,6 +1,6 @@
 import CrudioEntityInstance from './CrudioEntityInstance'
 
-export default class CrudioRepositoryTable {
+export default class CrudioTable {
   public name: string = ''
   public entity: string = ''
   public count: number = 0

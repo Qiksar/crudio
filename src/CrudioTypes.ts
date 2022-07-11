@@ -1,6 +1,4 @@
-import CrudioRepositoryTable from "./CrudioRepositoryTable";
 import CrudioEntityInstance from "./CrudioEntityInstance";
-import CrudioRepositoryInclude from "./CrudioRepositoryInclude";
 import CrudioEntityType from "./CrudioEntityType";
 
 export enum CrudioSort {
@@ -26,14 +24,12 @@ export enum CrudioWhere {
   NotIn = "_nin",
 }
 
-export interface ICrudioRepository {
+export interface ICrudioSchemaDefinition {
   include: string[];
-  schema: Record<string,unknown>;
+  entities: CrudioEntityType[];
   generators: Record<string,unknown>;
   record_counts?: {};
-  relationships: {}[];
-  entities: CrudioEntityType[];
-  tables: CrudioRepositoryTable[];
+  relationships: ISchemaRelationship[];
 }
 
 export interface ICrudioConfig {
@@ -43,6 +39,7 @@ export interface ICrudioConfig {
   targetSchema?: string;
   idFieldName: string;
   readonlyFields: string[];
+  schema: string;
 }
 
 export interface ICrudioFieldOptions {
@@ -84,11 +81,12 @@ export interface ICrudioField {
 }
 
 export interface ICrudioEntityRelationship {
-  source: ICrudioEntityType;
-  sourceColumn: string;
+  from: ICrudioEntityType;
+  from_column: string;
   target: ICrudioEntityType;
-  targetColumn: string;
-  relationshipName: string;
+  target_column: string;
+  relationship_type: string;
+  relationship_name: string;
 }
 
 export interface ICrudioEntityType {
@@ -120,13 +118,13 @@ export interface ICrudioEntityType {
     fieldOptions?: ICrudioFieldOptions
   ): ICrudioEntityType;
 
+  // Add a relationship between the current entity.sourceColumn and the target.id
   AddRelation(
-    source: ICrudioEntityType,
     sourceColumn: string,
-    target: ICrudioEntityType,
+    target: CrudioEntityType,
     targetColumn: string,
-    relationshipName: string
-  ): ICrudioEntityType;
+    name: string
+    ): ICrudioEntityType;
 
   AddKey(fieldName: string, fieldType?: string): ICrudioEntityType;
 
@@ -212,10 +210,13 @@ export interface ISchemaTable {
 }
 
 export interface ISchemaRelationship {
-  source: string;
-  sourcecolumn: string;
-  target: string;
-  targetcolumn: string;
+  from: string;
+  from_column: string;
+  to: string;
+  to_column: string;
+  
+  name: string;
+  type: string;
 }
 
 export interface ISchemaColumn {

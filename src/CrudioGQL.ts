@@ -1,10 +1,12 @@
 import axios from 'axios';
 
-import { ICrudioConfig, ICrudioQuery, ICrudioEntityInstance, ICrudioFilter, ICrudioField } from './CrudioTypes';
+import { ICrudioConfig  } from './CrudioTypes';
 import CrudioInclude from './CrudioInclude';
 import CrudioQuery from './CrudioQuery';
 import CrudioField from './CrudioField';
 import CrudioDataWrapper from './CrudioDataWrapper';
+import CrudioFilter from './CrudioFilter';
+import CrudioEntityInstance from './CrudioEntityInstance';
 
 export default class CrudioGQL {
 	config: ICrudioConfig;
@@ -21,7 +23,7 @@ export default class CrudioGQL {
 		return { subscription: `{ ${this.GetEntityGql(model, query)} }` };
 	}
 
-	GetGqlInsertAndGetId(entity: ICrudioEntityInstance): {} {
+	GetGqlInsertAndGetId(entity: CrudioEntityInstance): {} {
 		var values: string[] = this.GetWriteableValues(entity);
 
 		var mutation: {} = {
@@ -43,7 +45,7 @@ export default class CrudioGQL {
 		return mutation;
 	}
 
-	GetGqlUpdate(entity: ICrudioEntityInstance): {} {
+	GetGqlUpdate(entity: CrudioEntityInstance): {} {
 		var values: string[] = this.GetWriteableValues(entity);
 
 		var mutation: {} = {
@@ -61,10 +63,10 @@ export default class CrudioGQL {
 		return mutation;
 	}
 
-	private GetWriteableValues(entity: ICrudioEntityInstance): string[] {
+	private GetWriteableValues(entity: CrudioEntityInstance): string[] {
 		// only process fields which are not readonly and have a value
 
-		var fields: ICrudioField[] = entity.entityType.fields.filter((f) => {
+		var fields: CrudioField[] = entity.entityType.fields.filter((f) => {
 			if (entity.values[f.fieldName] !== null && (f.fieldOptions.readonly || false) !== true) {
 				return true;
 			} else {
@@ -83,7 +85,7 @@ export default class CrudioGQL {
 		return values;
 	}
 
-	GetGqlDelete(entity: ICrudioEntityInstance): {} {
+	GetGqlDelete(entity: CrudioEntityInstance): {} {
 		var mutation: {} = {
 			query: `
             mutation {
@@ -150,17 +152,17 @@ export default class CrudioGQL {
 		return query;
 	}
 
-	private GetWhereClause(query: ICrudioQuery): string | null {
+	private GetWhereClause(query: CrudioQuery): string | null {
 		var filters: string[] = query.filters.map((f) => this.GetFilterClause(f));
 
 		return filters.length > 0 ? `where: { ${filters} } ` : null;
 	}
 
-	private GetFilterClause(filter: ICrudioFilter): string {
+	private GetFilterClause(filter: CrudioFilter): string {
 		return `${filter.fieldName}: { ${filter.filterType}: "${filter.filterValue}" } `;
 	}
 
-	private GetOrderByClause(model: CrudioDataWrapper, query: ICrudioQuery): string | null {
+	private GetOrderByClause(model: CrudioDataWrapper, query: CrudioQuery): string | null {
 		if (query.sortField && query.sortDirection) {
 			if (query.sortField.fieldOptions.entityName) {
 				return `order_by: { ${query.sortField.fieldOptions
