@@ -15,6 +15,46 @@
       },
       "deleted": { "type": "timestamp", "name": "deleted" }
     },
+
+    "Organisation": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[organisation_name]"
+      },
+      "address": {
+        "type": "string",
+        "name": "address",
+        "generator": "[address]"
+      },
+      "email": {
+        "type": "string",
+        "name": "email",
+        "generator": "contact@[!name].org.au"
+      }
+    },
+
+    "Program": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[program_name]"
+      },
+      "mission": {
+        "type": "string",
+        "name": "mission",
+        "generator": "[program_mission]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+
     "Cactus": {
       "inherits": "Entity",
       "height": {
@@ -23,6 +63,7 @@
         "generator": "[length]"
       }
     },
+    
     "Person": {
       "inherits": "Entity",
       "firstname": {
@@ -64,48 +105,13 @@
       "weight": { "type": "integer", "name": "weight", "generator": "[weight]" }
     },
 
-    "Organisation": {
-      "inherits": "Entity",
-      "name": {
-        "type": "string",
-        "name": "name",
-        "generator": "[organisation_name]"
-      },
-      "address": {
-        "type": "string",
-        "name": "address",
-        "generator": "[address]"
-      },
-      "email": {
-        "type": "string",
-        "name": "email",
-        "generator": "contact@[!name].org.au"
-      }
-    },
-
-    "Program": {
-      "inherits": "Entity",
-      "name": {
-        "type": "string",
-        "name": "name",
-        "generator": "[program_name]"
-      },
-      "mission": {
-        "type": "string",
-        "name": "mission",
-        "generator": "[program_mission]"
-      },
-      "relationships": [
-        {
-          "type": "one",
-          "to": "Organisation"
-        }
-      ]
-    },
-
     "Cohort": {
       "inherits": "Entity",
-      "name": { "type": "string", "name": "name", "generator": "[cohort_name]" },
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[cohort_name]"
+      },
       "relationships": [
         {
           "type": "one",
@@ -116,7 +122,11 @@
 
     "Survey": {
       "inherits": "Entity",
-      "name": { "type": "string", "name": "name", "generator": "[survey_name]" },
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[survey_name]"
+      },
       "relationships": [
         {
           "type": "one",
@@ -160,6 +170,5 @@
     "Users": 4000
   },
 
-  "relationships": [
-  ]
+  "relationships": []
 }
