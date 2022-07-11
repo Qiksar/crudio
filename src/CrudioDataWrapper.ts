@@ -26,6 +26,7 @@ export default class CrudioDataWrapper {
 
   public async CreateTables() {
     const tables = this.repo.tables;
+    var create_foreign_keys = "";
 
     for (var index = 0; index < tables.length; index++) {
       const table: CrudioTable = tables[index];
@@ -68,7 +69,6 @@ export default class CrudioDataWrapper {
 
       // -------------- Build foreign keys
 
-      var create_foreign_keys = "";
       entity.relationships.map((r) => {
         const target = tables.filter((t) => t.entity === r.To)[0];
 
