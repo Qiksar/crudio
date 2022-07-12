@@ -13,7 +13,6 @@ import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
 import CrudioEntityRelationship from "./CrudioEntityRelationship";
 import CrudioTable from "./CrudioTable";
-import StandardGenerators from "./CrudioStandardGenerators";
 
 export default class CrudioRepository {
   //#region Properties
@@ -31,10 +30,10 @@ export default class CrudioRepository {
   //#endregion
 
   constructor(repo: ICrudioSchemaDefinition) {
-    // Combine the standard generators with custom generations
-    this.generators = { ...StandardGenerators, ...repo.generators };
-
     this.ProcessIncludes(repo);
+
+    this.generators = { ...repo.generators };
+
     this.LoadEntities(repo);
     this.CreateDataTables(this.entities);
 
@@ -51,10 +50,6 @@ export default class CrudioRepository {
     if (!schema.entities) schema.entities = [];
     if (!schema.generators) schema.generators = {};
     if (!schema.relationships) schema.relationships = [];
-
-    Object.keys(StandardGenerators).map(
-      (k) => (schema.generators[k] = StandardGenerators[k])
-    );
 
     Object.setPrototypeOf(schema, CrudioRepository.prototype);
 
@@ -77,9 +72,31 @@ export default class CrudioRepository {
   private ProcessIncludes(repo: ICrudioSchemaDefinition): void {
     if (repo.include) {
       repo.include.map((filename: any) => {
-        // TODO import another repo or fragment
+        this.Merge(filename, repo);
       });
     }
+  }
+
+  // Merge an external repository into the current one
+  // This works recursively so the repository being merged can also include (merge) other repositories
+  private Merge(filename: string, repo: ICrudioSchemaDefinition) {
+    const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename);
+
+    if (input.include) this.ProcessIncludes(input);
+
+    if (input.generators) {
+      Object.values(input.generators).map((group: any) => {
+        repo.generators = { ...repo.generators, ...group };
+      });
+    }
+
+    if (input.entities) repo.entities = { ...repo.entities, ...input.entities };
+
+    if (input.record_counts)
+      repo.record_counts = { ...repo.record_counts, ...input.record_counts };
+
+    if (input.relationships)
+      repo.relationships = { ...repo.relationships, ...input.relationships };
   }
 
   private LoadEntities(repo: ICrudioSchemaDefinition): void {
@@ -101,7 +118,7 @@ export default class CrudioRepository {
     var entity: CrudioEntityType = this.CreateEntityType(entityname);
 
     var fKeys: string[] = Object.keys(schema).filter(
-      (f) => !["inherits","abstract", "relationships"].includes(f)
+      (f) => !["inherits", "abstract", "relationships"].includes(f)
     );
 
     if (schema.abstract) entity.abstract = true;
@@ -314,10 +331,15 @@ export default class CrudioRepository {
   //#region Serialisation
 
   public static FromJson(filename: string): CrudioRepository {
-    var input = fs.readFileSync(filename, "utf8");
-    const repo = JSON.parse(input);
+    const json_object = this.LoadJson(filename);
+    return new CrudioRepository(json_object);
+  }
 
-    return new CrudioRepository(repo);
+  public static LoadJson(filename: string): any {
+    var input = fs.readFileSync(filename, "utf8");
+    const json_object = JSON.parse(input);
+
+    return json_object;
   }
 
   public static FromString(input: string): CrudioRepository {
@@ -543,7 +565,10 @@ export default class CrudioRepository {
   }
 
   private GetGeneratedValue(generatorName: string): any {
-    if (!generatorName) throw new Error("generatorName must specify a standard or customer generator");
+    if (!generatorName)
+      throw new Error(
+        "generatorName must specify a standard or customer generator"
+      );
 
     var value: any = "";
 

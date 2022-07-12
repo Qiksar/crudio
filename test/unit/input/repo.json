@@ -1,4 +1,7 @@
 {
+  "include":[
+    "test/unit/input/standard_generators.json"
+  ],
   "entities": {
     "Entity": {
       "abstract": true,
