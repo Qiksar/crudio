@@ -1,8 +1,5 @@
 import {
   ICrudioQuery,
-  ICrudioFilter,
-  ICrudioInclude,
-  ICrudioEntityType,
   ICrudioField
 } from './CrudioTypes'
 import CrudioEntityType from './CrudioEntityType'

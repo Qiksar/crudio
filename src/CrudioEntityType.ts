@@ -1,14 +1,11 @@
 import {
-  ICrudioEntityType,
   ICrudioFieldOptions,
-  ICrudioEntityInstance,
-  ICrudioEntityRelationship,
-  ISchemaRelationship,
 } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioEntityRelationship from "./CrudioEntityRelationship";
+import CrudioUtils from "./CrudioUtils";
 
 export default class CrudioEntityType {
   public name: string;
@@ -24,13 +21,7 @@ export default class CrudioEntityType {
   source: string = "";
 
   constructor(name: string, table: string | null = null) {
-    if (!table) {
-      if (name.substring(name.length - 2).toLowerCase() === "us")
-        table = name.substring(0, name.length - 2) + "ii";
-      else if (name[name.length - 2].toLowerCase() === "ty")
-        table = name.substring(0, name.length - 2) + "ies";
-      else table = name + "s";
-    }
+    if (!table) table = CrudioUtils.Plural(name);
 
     this.name = name;
     this.tableName = table;
@@ -79,7 +70,7 @@ export default class CrudioEntityType {
   }
 
   GetKey(): CrudioField | null {
-    var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isKey)
+    var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isKey);
     return fields.length > 0 ? fields[0] : null;
   }
 
@@ -173,7 +164,7 @@ export default class CrudioEntityType {
   ): CrudioEntityType {
     if (!fieldOptions) {
       fieldOptions = {
-        isKey: false
+        isKey: false,
       };
     }
 
@@ -197,11 +188,9 @@ export default class CrudioEntityType {
     return this;
   }
 
-  AddRelation(
-    rel: CrudioEntityRelationship
-  ): CrudioEntityType {
+  AddRelation(rel: CrudioEntityRelationship): CrudioEntityType {
     this.relationships.push(rel);
-    
+
     return this;
   }
 
