@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioRepository from "./CrudioRepository";
 import { ICrudioConfig } from "./CrudioTypes";
