@@ -1,8 +1,8 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
-  "bin": "./bin/cli/js",
+  "bin": "lib/crudio.js",
   "main": "lib/crudio.js",
   "typings": "lib/src/index.d.ts",
   "repository": "github.com:/qiksar/crudio",
@@ -11,7 +11,7 @@
   "scripts": {
     "test": "jest --env=node --colors --coverage test",
     "build": "tsc -p tsconfig.json",
-    "start_cli": "node lib/crudio.js test/unit/input/repo.json",
+    "start_cli": "node lib/crudio.js repo/repo.json",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
     "remove": "docker-compose down --rmi all"
@@ -33,5 +33,11 @@
     "jquery-csv": "^1.0.5",
     "luxon": "^1.19.3",
     "yaml": "^1.6.0"
-  }
+  },
+  "keywords": [
+    "hasura",
+    "postgres",
+    "test_data_generation",
+    "rapid_prototyping"
+  ]
 }

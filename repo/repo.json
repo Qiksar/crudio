@@ -1,6 +1,6 @@
 {
   "include":[
-    "test/unit/input/standard_generators.json"
+    "repo/standard_generators.json"
   ],
   
   "generators": {

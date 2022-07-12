@@ -24,7 +24,7 @@ describe("Create fake data", () => {
   });
 
   test("Load repository definition from JSON file", () => {
-    const repo = CrudioRepository.FromJson("test/unit/input/repo.json");
+    const repo = CrudioRepository.FromJson("repo/repo.json");
 
     expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -37,7 +37,7 @@ describe("Create fake data", () => {
   });
 
   test("Save and load database using flatted form", () => {
-    const repo = CrudioRepository.FromJson("test/unit/input/repo.json");
+    const repo = CrudioRepository.FromJson("repo/repo.json");
     repo.Save("test/unit/output/fake.flat.json");
 
     const db = CrudioRepository.FromString(repo.ToString());
@@ -93,12 +93,12 @@ describe("Create fake data", () => {
       schema: "public"
     };
 
-    const repo = CrudioRepository.FromJson("test/unit/input/repo.json");
+    const repo = CrudioRepository.FromJson("repo/repo.json");
     const db = new CrudioDataWrapper(config, repo);
     expect(db).not.toBeNull;
     expect(db.gql).not.toBeNull;
 
-    await db.DropTables();
+    await db.CreateEmptySchema();
     await db.CreateTables();
   });
 });
