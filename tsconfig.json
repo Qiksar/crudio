@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "CommonJS",
     "target": "esnext",
-    "module": "esnext",
     "strict": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
@@ -27,11 +28,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.spec.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.spec.ts"
   ],
   "exclude": [
     "node_modules",

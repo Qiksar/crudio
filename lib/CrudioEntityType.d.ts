@@ -1,0 +1,30 @@
+import { ICrudioFieldOptions } from "./CrudioTypes";
+import CrudioField from "./CrudioField";
+import CrudioEntityInstance from "./CrudioEntityInstance";
+import CrudioEntityRelationship from "./CrudioEntityRelationship";
+export default class CrudioEntityType {
+    name: string;
+    abstract: boolean;
+    tableAlias: string;
+    tableName: string;
+    fields: CrudioField[];
+    relationships: CrudioEntityRelationship[];
+    editor: string;
+    icon: string;
+    caption: string;
+    source: string;
+    constructor(name: string, table?: string | null);
+    SetAlias(alias: string): CrudioEntityType;
+    GetFieldNames(): string[];
+    GetField(fieldName: string, failIfNotFound?: boolean): CrudioField;
+    GetKey(): CrudioField | null;
+    AddKey(fieldName: string, fieldType?: string): CrudioEntityType;
+    AddString(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType;
+    AddNumber(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType;
+    AddBoolean(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType;
+    AddDate(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType;
+    AddField(fieldName: string, fieldType: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType;
+    AddGraphField(entityName: string, fieldList: string, fieldOptions?: ICrudioFieldOptions): CrudioEntityType;
+    AddRelation(rel: CrudioEntityRelationship): CrudioEntityType;
+    CreateInstance(values: {}): CrudioEntityInstance;
+}

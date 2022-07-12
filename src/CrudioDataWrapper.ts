@@ -15,13 +15,18 @@ export default class CrudioDataWrapper {
     this.repo = repo;
   }
 
-  public async DropTables() {
+  public async CreateEmptySchema() {
+/*
     const list = this.repo.tables;
     for (var index = 0; index < list.length; index++) {
       var t: CrudioTable = list[index];
       var sql = `DROP TABLE IF EXISTS "${this.config.schema}"."${t.name}" CASCADE;`;
       await this.gql.ExecuteSQL(sql);
     }
+    */
+
+    await this.gql.ExecuteSQL(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
+
   }
 
   public async CreateTables() {
