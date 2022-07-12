@@ -2,6 +2,16 @@
   "include":[
     "test/unit/input/standard_generators.json"
   ],
+  
+  "generators": {
+    "cohort_name": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me",
+    "program_name": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk",
+    "program_mission": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;",
+    "survey1": "Measure;Assess;Understand;",
+    "survey2": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;",
+    "survey_name": "[survey1] [survey2] of the [cohort_name] community"
+  },
+  
   "entities": {
     "Entity": {
       "abstract": true,
@@ -159,14 +169,6 @@
     }
   },
 
-  "generators": {
-    "cohort_name": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me",
-    "program_name": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk",
-    "program_mission": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;",
-    "survey1": "Measure;Assess;Understand;",
-    "survey2": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;",
-    "survey_name": "[survey1] [survey2] of the [cohort_name] community"
-  },
 
   "record_counts": {
     "Organisations": 1,
