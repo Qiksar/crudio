@@ -210,7 +210,5 @@
   "record_counts": {
     "Organisations": 1,
     "Users": 4000
-  },
-
-  "relationships": []
+  }
 }

@@ -45,6 +45,7 @@ export default class CrudioDataWrapper {
       var sql_column_names = `"${key.fieldName}"`;
       const insert_fieldnames = [key.fieldName];
 
+      // Create a list of SQL columns from the basic entity fields
       entity.fields.map((f: CrudioField) => {
         if (f.fieldName != key.fieldName) {
           sql_fields_definitions += `, "${f.fieldName}" ${f.GetDatabaseFieldType} `;
@@ -57,32 +58,53 @@ export default class CrudioDataWrapper {
         }
       });
 
-      // add foreign keys to insert columns
-      entity.relationships.map((r) => {
+      const one_to_many = entity.relationships.filter(
+        (r) => r.RelationshipType.toLowerCase() === "one"
+      );
+      const many_to_many = entity.relationships.filter(
+        (r) => r.RelationshipType.toLowerCase() === "many"
+      );
+
+      // add foreign keys to insert columns for one to many
+      one_to_many.map((r) => {
         sql_column_names += `,"${r.FromColumn}"`;
         sql_fields_definitions += `, "${r.FromColumn}" uuid`;
 
         insert_fieldnames.push(r.FromColumn);
       });
 
+      var create_fk_tables = "";
+
+      // add foreign keys to insert columns for one to many
+      many_to_many.map((r) => {
+        sql_column_names += `,"${r.FromEntity}"`;
+        sql_fields_definitions += `, "${r.FromEntity}" uuid`;
+        insert_fieldnames.push(r.FromEntity);
+
+        sql_column_names += `,"${r.ToEntity}"`;
+        sql_fields_definitions += `, "${r.ToEntity}" uuid`;
+        insert_fieldnames.push(r.ToEntity);
+      });
+
       // -------------- Build create table statement
 
-      const create_table = `CREATE TABLE "${this.config.schema}"."${table.name}" (${keyField} ${sql_fields_definitions});`;
+      var create_table = `CREATE TABLE "${this.config.schema}"."${table.name}" (${keyField} ${sql_fields_definitions});`;
 
       var insert_rows = `INSERT INTO "${this.config.schema}"."${table.name}" (${sql_column_names}) VALUES`;
       const rows = table.rows;
 
       // -------------- Build foreign keys
 
-      entity.relationships.map((r) => {
-        const target = tables.filter((t) => t.entity === r.To)[0];
+      one_to_many.map((r) => {
+        const target = tables.filter((t) => t.entity === r.ToEntity)[0];
 
-        if (!target)
+        if (!target) {
           throw new Error(
             `Unable to find a table for ${JSON.stringify(r)} using name ${
-              r.To
+              r.ToEntity
             }. Ensure entity names are singular, like Article, not Articles.`
           );
+        }
 
         create_foreign_keys += `
         ALTER TABLE "${this.config.schema}"."${table.name}"
@@ -90,6 +112,61 @@ export default class CrudioDataWrapper {
         FOREIGN KEY("${r.FromColumn}") 
         REFERENCES "${this.config.schema}"."${target.name}"("${r.ToColumn}");
         `;
+      });
+
+      many_to_many.map((relationship_definition) => {
+        const from_table = tables.filter(
+          (t) => t.entity === relationship_definition.FromEntity
+        )[0];
+        const to_table = tables.filter(
+          (t) => t.entity === relationship_definition.ToEntity
+        )[0];
+
+        if (!from_table) {
+          throw new Error(
+            `Many to Many - Unable to find a table for ${JSON.stringify(
+              relationship_definition
+            )} using name ${
+              relationship_definition.FromEntity
+            }. Ensure entity names are singular, like Article, not Articles.`
+          );
+        }
+
+        if (!to_table) {
+          throw new Error(
+            `Many to Many - Unable to find a table for ${JSON.stringify(
+              relationship_definition
+            )} using name ${
+              relationship_definition.ToEntity
+            }. Ensure entity names are singular, like Article, not Articles.`
+          );
+        }
+
+        const rel_name = `${from_table.name}_${to_table.name}`;
+
+        create_fk_tables += `
+        CREATE TABLE "${this.config.schema}"."${rel_name}" 
+        (
+          "id" uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+          "${from_table.name}" uuid NOT NULL,
+          "${to_table.name}" uuid NOT NULL
+        );
+        `;
+
+        create_foreign_keys += `
+        ALTER TABLE "${this.config.schema}"."${rel_name}"
+        ADD CONSTRAINT FK_${rel_name}_FROM
+        FOREIGN KEY("${from_table.name}") 
+        REFERENCES "${this.config.schema}"."${from_table.name}"("id");
+        `;
+
+        create_foreign_keys += `
+        ALTER TABLE "${this.config.schema}"."${rel_name}"
+        ADD CONSTRAINT FK_${rel_name}_TO
+        FOREIGN KEY("${to_table.name}") 
+        REFERENCES "${this.config.schema}"."${to_table.name}"("id");
+        `;
+
       });
 
       // -------------- Build insert rows
@@ -128,6 +205,9 @@ export default class CrudioDataWrapper {
       await this.gql.ExecuteSQL(create_table);
       await this.gql.ExecuteSQL(insert_rows);
     }
+
+    if (create_fk_tables.length > 0)
+      await this.gql.ExecuteSQL(create_fk_tables);
 
     if (create_foreign_keys.length > 0)
       await this.gql.ExecuteSQL(create_foreign_keys);

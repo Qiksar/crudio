@@ -1,5 +1,6 @@
 # Output files
 test/unit/output/*.json
+lib/
 
 
 # Logs

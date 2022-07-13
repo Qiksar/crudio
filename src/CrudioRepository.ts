@@ -113,8 +113,6 @@ export default class CrudioRepository {
       var schema: any = repo.entities[entityname];
       this.CreateEntity(schema, entityname);
     }
-
-    this.LoadRelationships(repo);
   }
 
   private CreateEntity(schema: any, entityname: string) {
@@ -182,16 +180,6 @@ export default class CrudioRepository {
     });
   }
 
-  private LoadRelationships(repo: ICrudioSchemaDefinition): void {
-    this.relationships = [];
-
-    repo.relationships.map((r) => {
-      var rel: CrudioEntityRelationship = new CrudioEntityRelationship(r);
-
-      this.relationships.push(rel);
-    });
-  }
-
   // Find an entity type which has already been defined in the repo
   public GetEntityDefinition(
     entityName: string,
@@ -251,33 +239,23 @@ export default class CrudioRepository {
         if (r.RelationshipType === "one") this.JoinOneToMany(r);
       });
     });
-
-    this.relationships.map((r: any) => {
-      if (r.RelationshipType === "one") {
-        this.JoinOneToMany(r);
-      } else {
-        throw new Error(
-          `${r.RelationshipType} is not a valid relationship type`
-        );
-      }
-    });
   }
 
   private JoinOneToMany(r: CrudioEntityRelationship): void {
-    var sourceTable: CrudioTable = this.GetTableForEntity(r.From)!;
-    var targetTable: CrudioTable = this.GetTableForEntity(r.To)!;
+    var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
+    var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
 
     if (sourceTable === null) {
-      throw new Error(`Can not find source '${r.From}'`);
+      throw new Error(`Can not find source '${r.FromEntity}'`);
     }
 
     if (targetTable === null) {
-      throw new Error(`Can not find target '${r.To}'`);
+      throw new Error(`Can not find target '${r.ToEntity}'`);
     }
 
     // initialise all target entities with an empty array to receive referencing entities
     targetTable.rows.map((row: CrudioEntityInstance) => {
-      if (row.values[r.From] === undefined) {
+      if (row.values[r.FromEntity] === undefined) {
         row.values[sourceTable.name] = [];
       }
     });

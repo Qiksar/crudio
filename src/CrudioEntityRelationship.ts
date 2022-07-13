@@ -18,14 +18,14 @@ export default class CrudioEntityRelationship {
     if (!relationship.to_column) relationship.to_column = "id";
   }
 
-  get From(): string {
+  get FromEntity(): string {
     return this.relationship.from;
   }
   get FromColumn(): string {
     return this.relationship.from_column;
   }
 
-  get To(): string {
+  get ToEntity(): string {
     return this.relationship.to;
   }
 
