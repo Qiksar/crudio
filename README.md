@@ -1,5 +1,7 @@
 # Crudio
 
+Github: `https://github.com/Qiksar/crudio`
+
 Crudio creates test data in memory and the automatically saves it to a postgres database, via Hasura GraphQL. 
 
 ## Get started quick - Let's create a database and fill it with data!

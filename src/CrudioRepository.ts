@@ -17,6 +17,9 @@ import CrudioTable from "./CrudioTable";
 export default class CrudioRepository {
   //#region Properties
 
+  // This entity properties are ignored when looking for fields to populate with random data
+  private ignoreFields = ["inherits", "abstract", "relationships"];
+
   public generators: Record<string, unknown> = {};
   public tables: CrudioTable[] = [];
   public entities: CrudioEntityType[] = [];
@@ -118,7 +121,7 @@ export default class CrudioRepository {
     var entity: CrudioEntityType = this.CreateEntityType(entityname);
 
     var fKeys: string[] = Object.keys(schema).filter(
-      (f) => !["inherits", "abstract", "relationships"].includes(f)
+      (f) => !this.ignoreFields.includes(f)
     );
 
     if (schema.abstract) entity.abstract = true;

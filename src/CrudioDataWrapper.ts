@@ -16,7 +16,7 @@ export default class CrudioDataWrapper {
   }
 
   public async CreateEmptySchema() {
-/*
+    /*
     const list = this.repo.tables;
     for (var index = 0; index < list.length; index++) {
       var t: CrudioTable = list[index];
@@ -25,8 +25,9 @@ export default class CrudioDataWrapper {
     }
     */
 
-    await this.gql.ExecuteSQL(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
-
+    await this.gql.ExecuteSQL(
+      `DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`
+    );
   }
 
   public async CreateTables() {
@@ -43,7 +44,6 @@ export default class CrudioDataWrapper {
       var sql_fields_definitions = "";
       var sql_column_names = `"${key.fieldName}"`;
       const insert_fieldnames = [key.fieldName];
-
 
       entity.fields.map((f: CrudioField) => {
         if (f.fieldName != key.fieldName) {
@@ -77,6 +77,13 @@ export default class CrudioDataWrapper {
       entity.relationships.map((r) => {
         const target = tables.filter((t) => t.entity === r.To)[0];
 
+        if (!target)
+          throw new Error(
+            `Unable to find a table for ${JSON.stringify(r)} using name ${
+              r.To
+            }. Ensure entity names are singular, like Article, not Articles.`
+          );
+
         create_foreign_keys += `
         ALTER TABLE "${this.config.schema}"."${table.name}"
         ADD CONSTRAINT FK_${r.RelationshipName}
@@ -96,11 +103,20 @@ export default class CrudioDataWrapper {
         insert_fieldnames.map((i) => {
           var v = entity.values[i];
 
+          // Save foreign key values
+          // Check if the value is an object which as an id field
+          // If so, take the id of the object and use it as the field value
           if (v && v.values) {
             v = v.values.id;
           }
 
-          values += `${v ? "'" + v + "'" : "NULL"},`;
+          //Escape ' characters
+          var insert_value = v;
+          if (typeof insert_value === "string") {
+            insert_value = v.replaceAll("'", "''").trim();
+          }
+
+          values += `${insert_value ? "'" + insert_value + "'" : "NULL"},`;
         });
 
         values = values.substring(0, values.length - 1);

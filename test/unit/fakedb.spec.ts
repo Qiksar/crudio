@@ -90,7 +90,7 @@ describe("Create fake data", () => {
       hasuraAdminSecret: "crudio",
       idFieldName: "id",
       readonlyFields: [],
-      schema: "public"
+      schema: "crudio"
     };
 
     const repo = CrudioRepository.FromJson("repo/repo.json");

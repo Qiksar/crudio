@@ -14,7 +14,7 @@ export default class CrudioField implements ICrudioField {
     options?: ICrudioFieldOptions
   ) {
     if (!fieldType) 
-      throw new Error("fieldType must specify a valud entity field type");
+      throw new Error(`Field:${fieldName} - fieldType has not been specified.`);
 
     if (!options) {
       options = { canSort: true, isKey: false };

@@ -14,23 +14,28 @@ setTimeout(async () => {
     schema: "crudio",
   };
 
-  const def = process.argv[2];
+  const definition = process.argv[2];
+  const target_schema = process.argv[3];
 
-  if (!def) {
-    console.log("Usage: crudio repo_path.json");
+  if (target_schema) config.schema = target_schema;
+
+  if (!definition) {
     console.log(
-      "repo_path.json is the path to the repository definition, which is a JSON file."
-    );
+`Usage: crudio repo_path.json [target_schema]
+        repo_path.json : the path to the repository definition, which is a JSON file.
+        target_schema  : Optional schema name - default value is 'crudio'
+`);
+
     console.log();
     console.log("Refer to test/unit/input/repo.json for an example.");
 
     process.exit(-1);
   }
 
-  console.log(`Loading Crudio repository definition from: "${def}"`);
+  console.log(`Loading Crudio repository definition from: "${definition}"`);
   console.log();
 
-  const repo = CrudioRepository.FromJson(def);
+  const repo = CrudioRepository.FromJson(definition);
   console.log("Data repository definition loaded");
 
   const db = new CrudioDataWrapper(config, repo);
