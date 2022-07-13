@@ -185,7 +185,7 @@
 
     "Article": {
       "inherits": "Entity",
-      "article": {
+      "article_text": {
         "type": "string",
         "name": "article",
         "generator": "[article]"

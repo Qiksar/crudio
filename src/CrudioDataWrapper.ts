@@ -75,16 +75,6 @@ export default class CrudioDataWrapper {
 
       var create_fk_tables = "";
 
-      // add foreign keys to insert columns for one to many
-      many_to_many.map((r) => {
-        sql_column_names += `,"${r.FromEntity}"`;
-        sql_fields_definitions += `, "${r.FromEntity}" uuid`;
-        insert_fieldnames.push(r.FromEntity);
-
-        sql_column_names += `,"${r.ToEntity}"`;
-        sql_fields_definitions += `, "${r.ToEntity}" uuid`;
-        insert_fieldnames.push(r.ToEntity);
-      });
 
       // -------------- Build create table statement
 
@@ -148,22 +138,22 @@ export default class CrudioDataWrapper {
         CREATE TABLE "${this.config.schema}"."${rel_name}" 
         (
           "id" uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-          "${from_table.name}" uuid NOT NULL,
-          "${to_table.name}" uuid NOT NULL
+          "${relationship_definition.FromEntity}" uuid NOT NULL,
+          "${relationship_definition.ToEntity}" uuid NOT NULL
         );
         `;
 
         create_foreign_keys += `
         ALTER TABLE "${this.config.schema}"."${rel_name}"
         ADD CONSTRAINT FK_${rel_name}_FROM
-        FOREIGN KEY("${from_table.name}") 
+        FOREIGN KEY("${relationship_definition.FromEntity}") 
         REFERENCES "${this.config.schema}"."${from_table.name}"("id");
         `;
 
         create_foreign_keys += `
         ALTER TABLE "${this.config.schema}"."${rel_name}"
         ADD CONSTRAINT FK_${rel_name}_TO
-        FOREIGN KEY("${to_table.name}") 
+        FOREIGN KEY("${relationship_definition.ToEntity}") 
         REFERENCES "${this.config.schema}"."${to_table.name}"("id");
         `;
 
