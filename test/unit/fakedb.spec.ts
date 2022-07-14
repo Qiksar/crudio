@@ -8,6 +8,7 @@ import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
 import { ICrudioConfig } from "../../src/CrudioTypes";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
+import CrudioField from "../../src/CrudioField";
 
 describe("Create fake data", () => {
   test("Test flatted", () => {
@@ -31,6 +32,15 @@ describe("Create fake data", () => {
     const cactii: CrudioTable = repo.GetTable("Cactii");
     expect(cactii).not.toBeNull();
     expect(cactii.rows.length).toBeGreaterThan(0);
+
+    const user = repo.GetEntityDefinition("User");
+    expect(user).not.toBeNull;
+
+    if (user) {
+      expect(user.GetUniqueKey).not.toBeNull;
+      const key: CrudioField = user.GetUniqueKey();
+      expect(key.fieldName).toEqual("email");
+    }
 
     const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
     expect(users.length).toBeGreaterThan(0);
@@ -90,7 +100,7 @@ describe("Create fake data", () => {
       hasuraAdminSecret: "crudio",
       idFieldName: "id",
       readonlyFields: [],
-      schema: "crudio"
+      schema: "crudio",
     };
 
     const repo = CrudioRepository.FromJson("repo/repo.json");
