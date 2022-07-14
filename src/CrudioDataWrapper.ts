@@ -68,7 +68,6 @@ export default class CrudioDataWrapper {
 
       var create_fk_tables = "";
 
-
       // -------------- Build create table statement
 
       var create_table = `CREATE TABLE "${this.config.schema}"."${table.name}" (${keyField} ${sql_fields_definitions});`;
@@ -125,10 +124,10 @@ export default class CrudioDataWrapper {
           );
         }
 
-        const rel_name = `${from_table.name}_${to_table.name}`;
+        const fk_table_name = `${from_table.name}_${to_table.name}`;
 
         create_fk_tables += `
-        CREATE TABLE "${this.config.schema}"."${rel_name}" 
+        CREATE TABLE "${this.config.schema}"."${fk_table_name}" 
         (
           "id" uuid DEFAULT gen_random_uuid() PRIMARY KEY,
           "${relationship_definition.FromEntity}" uuid NOT NULL,
@@ -137,19 +136,18 @@ export default class CrudioDataWrapper {
         `;
 
         create_foreign_keys += `
-        ALTER TABLE "${this.config.schema}"."${rel_name}"
-        ADD CONSTRAINT FK_${rel_name}_FROM
+        ALTER TABLE "${this.config.schema}"."${fk_table_name}"
+        ADD CONSTRAINT FK_${fk_table_name}_FROM
         FOREIGN KEY("${relationship_definition.FromEntity}") 
         REFERENCES "${this.config.schema}"."${from_table.name}"("id");
         `;
 
         create_foreign_keys += `
-        ALTER TABLE "${this.config.schema}"."${rel_name}"
-        ADD CONSTRAINT FK_${rel_name}_TO
+        ALTER TABLE "${this.config.schema}"."${fk_table_name}"
+        ADD CONSTRAINT FK_${fk_table_name}_TO
         FOREIGN KEY("${relationship_definition.ToEntity}") 
         REFERENCES "${this.config.schema}"."${to_table.name}"("id");
         `;
-
       });
 
       // -------------- Build insert rows
@@ -189,10 +187,15 @@ export default class CrudioDataWrapper {
       await this.gql.ExecuteSQL(insert_rows);
     }
 
-    if (create_fk_tables.length > 0)
+    if (create_fk_tables.length > 0) {
       await this.gql.ExecuteSQL(create_fk_tables);
+    }
 
-    if (create_foreign_keys.length > 0)
+    if (create_foreign_keys.length > 0) {
+      const insert_foreign_key_rows = "";
       await this.gql.ExecuteSQL(create_foreign_keys);
+      
+      //await this.gql.ExecuteSQL(insert_foreign_key_rows);
+    }
   }
 }

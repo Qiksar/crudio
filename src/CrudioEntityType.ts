@@ -71,6 +71,11 @@ export default class CrudioEntityType {
     var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isKey);
     return fields.length > 0 ? fields[0] : null;
   }
+  
+  GetUniqueKey(): CrudioField | null {
+    var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isUnique);
+    return fields.length > 0 ? fields[0] : null;
+  }
 
   AddKey(fieldName: string, fieldType?: string): CrudioEntityType {
     if (this.GetKey() !== null) {

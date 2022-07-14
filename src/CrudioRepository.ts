@@ -37,7 +37,7 @@ export default class CrudioRepository {
 
     this.generators = { ...repo.generators };
 
-    this.LoadEntities(repo);
+    this.LoadEntityDefinitions(repo);
     this.CreateDataTables(this.entities);
 
     Object.keys(repo.record_counts).map((k) => {
@@ -103,7 +103,7 @@ export default class CrudioRepository {
       repo.relationships = { ...repo.relationships, ...input.relationships };
   }
 
-  private LoadEntities(repo: ICrudioSchemaDefinition): void {
+  private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
     this.entities = [];
 
     var eKeys: string[] = Object.keys(repo.entities);
@@ -116,25 +116,26 @@ export default class CrudioRepository {
     }
   }
 
-  private CreateEntity(schema: any, entityname: string) {
+  private CreateEntity(entityDefinition: any, entityname: string) {
     var entity: CrudioEntityType = this.CreateEntityType(entityname);
 
-    var fKeys: string[] = Object.keys(schema).filter(
+    var fKeys: string[] = Object.keys(entityDefinition).filter(
       (f) => !this.ignoreFields.includes(f)
     );
 
-    if (schema.abstract) entity.abstract = true;
+    if (entityDefinition.abstract) entity.abstract = true;
 
     // copy inherited fields from the base entity
-    if (schema.inherits) {
-      this.InheritBaseFields(schema.inherits, entity);
+    if (entityDefinition.inherits) {
+      this.InheritBaseFields(entityDefinition.inherits, entity);
     }
 
     for (var findex: number = 0; findex < fKeys.length; findex++) {
       var fieldname: string = fKeys[findex];
-      var fieldSchema: any = schema[fieldname];
+      var fieldSchema: any = entityDefinition[fieldname];
 
       const fieldOptions: ICrudioFieldOptions = {
+        isUnique: fieldSchema.unique,
         generator: fieldSchema.generator,
         isKey: fieldSchema.key,
         sensitiveData:
@@ -148,8 +149,8 @@ export default class CrudioRepository {
       entity.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
     }
 
-    if (schema.relationships) {
-      schema.relationships.map((r: ISchemaRelationship) => {
+    if (entityDefinition.relationships) {
+      entityDefinition.relationships.map((r: ISchemaRelationship) => {
         const new_rel = new CrudioEntityRelationship({
           from: entity.name,
           ...r,
@@ -239,20 +240,17 @@ export default class CrudioRepository {
     });
   }
 
-  private ProcessDeferredTokens(): void {
-    this.tables.map((t) => {
-      t.rows.map((r) => {
-        Object.keys(r.values).map((field_name) => {
-          const value: string = r.values[field_name];
-          if (typeof value === "string" && value.indexOf("[") >= 0) {
-            const detokenised_value = this.ReplaceTokens(value, r, false);
-            r.values[field_name] = detokenised_value;
-          }
-        });
-      });
-    });
-  }
+  GetClassName(input: string): string {
+    var converter: any = function (matches: string[]) {
+      return matches[1].toUpperCase();
+    };
 
+    var result: any = input.replace(/(\-\w)/g, converter);
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+
+    return result;
+  }
+  
   private ConnectRelationships(): void {
     this.entities.map((e) => {
       e.relationships.map((r) => {
@@ -375,7 +373,7 @@ export default class CrudioRepository {
 
   //#endregion
 
-  //#region Data Handling
+  //#region Fill data tables
 
   private SetTableRecordCount(name: string, count: number) {
     const tables = this.tables.filter((t) => t.name === name);
@@ -434,6 +432,10 @@ export default class CrudioRepository {
     table.rows = records;
   }
 
+  //#endregion
+
+  //#region Get data from tables
+
   GetAllRows(tableName: string): CrudioEntityInstance[] {
     var t: CrudioTable | null = this.GetTable(tableName);
     if (t !== null) {
@@ -456,48 +458,9 @@ export default class CrudioRepository {
     return null;
   }
 
-  GetClassName(input: string): string {
-    var converter: any = function (matches: string[]) {
-      return matches[1].toUpperCase();
-    };
-
-    var result: any = input.replace(/(\-\w)/g, converter);
-    result = result.charAt(0).toUpperCase() + result.slice(1);
-
-    return result;
-  }
-
-  GetFieldType(fieldType: any): string {
-    if (typeof fieldType !== "string") {
-      var typedec: string = fieldType[0];
-      fieldType.slice(1).map((t: string) => {
-        typedec += "|" + this.GetFieldType(t);
-      });
-
-      return typedec;
-    }
-
-    switch (fieldType) {
-      case "array":
-        return "[]";
-
-      case "int":
-      case "integer":
-      case "double":
-      case "float":
-        return "number";
-
-      case "date":
-      case "datetime":
-        return "DateTime";
-    }
-
-    return fieldType;
-  }
-
   //#endregion
 
-  //#region Entity data population
+  //#region Populate entity data fields
 
   private CreateEntityInstance(
     entityType: CrudioEntityType
@@ -545,7 +508,7 @@ export default class CrudioRepository {
 
       if (lookup) {
         // get field value from current context
-        value = this.ProcessLookup(
+        value = this.ProcessLookupToken(
           entity,
           fieldName,
           token,
@@ -578,7 +541,21 @@ export default class CrudioRepository {
     return fieldValue;
   }
 
-  private ProcessLookup(
+  private ProcessDeferredTokens(): void {
+    this.tables.map((t) => {
+      t.rows.map((r) => {
+        Object.keys(r.values).map((field_name) => {
+          const value: string = r.values[field_name];
+          if (typeof value === "string" && value.indexOf("[") >= 0) {
+            const detokenised_value = this.ReplaceTokens(value, r, false);
+            r.values[field_name] = detokenised_value;
+          }
+        });
+      });
+    });
+  }
+
+  private ProcessLookupToken(
     entity: CrudioEntityInstance,
     fieldName: string,
     token: string,
@@ -613,7 +590,7 @@ export default class CrudioRepository {
         value = `[${token}]`;
       }
     }
-    
+
     if (clean && !deferred) {
       value = value.trim().replaceAll(" ", "").toLowerCase();
     }

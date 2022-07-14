@@ -69,6 +69,7 @@ export interface ICrudioFieldOptions {
   help?: string;
 
   generator?: string;
+  isUnique?: string;
 }
 
 export interface ICrudioField {

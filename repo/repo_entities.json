@@ -35,35 +35,6 @@
       }
     },
 
-    "Program": {
-      "inherits": "Entity",
-      "name": {
-        "type": "string",
-        "name": "name",
-        "generator": "[program_name]"
-      },
-      "mission": {
-        "type": "string",
-        "name": "mission",
-        "generator": "[program_mission]"
-      },
-      "relationships": [
-        {
-          "type": "one",
-          "to": "Organisation"
-        }
-      ]
-    },
-
-    "Cactus": {
-      "inherits": "Entity",
-      "height": {
-        "type": "integer",
-        "name": "height",
-        "generator": "[length]"
-      }
-    },
-
     "Person": {
       "inherits": "Entity",
       "firstname": {
@@ -103,6 +74,49 @@
         "generator": "[height]"
       },
       "weight": { "type": "integer", "name": "weight", "generator": "[weight]" }
+    },
+
+    "User": {
+      "inherits": "Person",
+      "email": {
+        "unique": "true",
+        "generator": "[user_email]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+
+    "Program": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[program_name]"
+      },
+      "mission": {
+        "type": "string",
+        "name": "mission",
+        "generator": "[program_mission]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+
+    "Cactus": {
+      "inherits": "Entity",
+      "height": {
+        "type": "integer",
+        "name": "height",
+        "generator": "[length]"
+      }
     },
 
     "Cohort": {
@@ -145,22 +159,10 @@
       ]
     },
 
-    "User": {
-      "inherits": "Person",
-      "email":{
-        "generator":"[user_email]"
-      },
-      "relationships": [
-        {
-          "type": "one",
-          "to": "Organisation"
-        }
-      ]
-    },
-
     "Tag": {
       "inherits": "Entity",
       "name": {
+        "unique": "true",
         "type": "string",
         "name": "name",
         "generator": "[tag]"
@@ -184,7 +186,8 @@
       "relationships": [
         {
           "type": "many",
-          "to": "Tag"
+          "to": "Tag",
+          "count": 2
         }
       ]
     }
