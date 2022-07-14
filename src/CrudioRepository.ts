@@ -522,81 +522,103 @@ export default class CrudioRepository {
     deferNestedExpansion = false
   ): string {
     var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
+    var value: any;
 
     if (tokens === null) {
+      // the value is harcoded
       return fieldValue;
     }
 
-    var value: any;
-
     tokens.map((token) => {
-      var tk: string = token.replace(/\[|\]/g, "");
-      var name: string = tk;
+      var token: string = token.replace(/\[|\]/g, "");
+      var fieldName: string = token;
 
       // find parameter characters:
       // ! : get field from context
-      // - : remove all spaces and convert to lower case
-      var params: string[] = name.match(/^\?|!|~|\*/g) || [];
+      // ~ : remove all spaces and convert to lower case
+      var params: string[] = fieldName.match(/^\?|!|~|\*/g) || [];
+      fieldName = fieldName.slice(params.length);
 
       const lookup = params.indexOf("!") >= 0;
       const clean = params.indexOf("~") >= 0;
       var deferred = false;
 
-      name = name.slice(params.length);
-
       if (lookup) {
         // get field value from current context
-
-        value = entity.values[name];
-
-        if (!value) {
-          // we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
-          // so we get here after all of the data is generated and entities connected (e.g. user->organisation).
-          deferred = true;
-
-          if (!deferNestedExpansion) {
-            const path = name.split(".");
-            var source = entity;
-
-            for (var i = 0; i < path.length - 1; i++) {
-              const child_entity_name = path[i];
-              source = source.values[child_entity_name];
-            }
-
-            const source_field_name = path[path.length - 1];
-            value = source.values[source_field_name];
-
-            // Now we have the final value for the generator we can allow it to be cleaned of spaces and lower cased
-            deferred = false;
-          } else {
-            // we may be waiting to get an organisation, so a user can lookup the organisation name
-            // e.g. "user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
-            // So retain the token for expansion when the whole data set has been generated and entities like user and organisation are connected
-            value = `[${tk}]`;
-          }
-        }
+        value = this.ProcessLookup(
+          entity,
+          fieldName,
+          token,
+          clean,
+          deferNestedExpansion
+        );
       } else {
-        value = this.GetGeneratedValue(name);
+        // use a generator
+        value = this.GetGeneratedValue(fieldName);
 
-        // recurse - there are still more tokens in the string
+        // recurse if there are still more tokens in the string
         if (
           typeof value === "string" &&
           value.includes("[") &&
           value.includes("]")
-        )
+        ) {
           value = this.ReplaceTokens(value, entity, true);
+        }
+
+        // ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
+        // We don't clean when deferred otherwise we will change the case of field names used in generators
+        if (value && !deferred && clean) {
+          value = value.trim().replaceAll(" ", "").toLowerCase();
+        }
       }
 
-      // ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
-      // We don't clean when deferred otherwise we will change the case of field names used in generators
-      if (!deferred && value && clean) {
-        value = value.trim().toLowerCase().replaceAll(" ", "");
-      }
-
-      fieldValue = fieldValue.replace(`[${tk}]`, value);
+      fieldValue = fieldValue.replace(`[${token}]`, value);
     });
 
     return fieldValue;
+  }
+
+  private ProcessLookup(
+    entity: CrudioEntityInstance,
+    fieldName: string,
+    token: string,
+    clean: boolean,
+    deferNestedExpansion = false
+  ): string {
+    var value = entity.values[fieldName];
+
+    if (!value) {
+      // we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
+      // so we get here after all of the data is generated and entities connected (e.g. user->organisation).
+      var deferred = true;
+
+      if (!deferNestedExpansion) {
+        const path = fieldName.split(".");
+        var source = entity;
+
+        for (var i = 0; i < path.length - 1; i++) {
+          const child_entity_name = path[i];
+          source = source.values[child_entity_name];
+        }
+
+        const source_field_name = path[path.length - 1];
+        value = source.values[source_field_name];
+
+        // Now we have the final value for the generator we can allow it to be cleaned of spaces and lower cased
+        deferred = false;
+      } else {
+        // we may be waiting to get an organisation, so a user can lookup the organisation name
+        // e.g. "user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+        // So retain the token for expansion when the whole data set has been generated and entities like user and organisation are connected
+        value = `[${token}]`;
+      }
+    }
+    
+    if (clean && !deferred) {
+      value = value.trim().replaceAll(" ", "").toLowerCase();
+    }
+
+    return value;
   }
 
   private GetGeneratedValue(generatorName: string): any {
