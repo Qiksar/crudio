@@ -1,0 +1,192 @@
+{
+  "entities": {
+    "Entity": {
+      "abstract": true,
+      "id": {
+        "type": "uuid",
+        "name": "id",
+        "key": true,
+        "generator": "[uuid]"
+      },
+      "created": {
+        "type": "timestamp",
+        "name": "created",
+        "generator": "[timestamp]"
+      },
+      "deleted": { "type": "timestamp", "name": "deleted" }
+    },
+
+    "Organisation": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[organisation_name]"
+      },
+      "address": {
+        "type": "string",
+        "name": "address",
+        "generator": "[address]"
+      },
+      "email": {
+        "type": "string",
+        "name": "email",
+        "generator": "contact@[!name].org.au"
+      }
+    },
+
+    "Program": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[program_name]"
+      },
+      "mission": {
+        "type": "string",
+        "name": "mission",
+        "generator": "[program_mission]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+
+    "Cactus": {
+      "inherits": "Entity",
+      "height": {
+        "type": "integer",
+        "name": "height",
+        "generator": "[length]"
+      }
+    },
+
+    "Person": {
+      "inherits": "Entity",
+      "firstname": {
+        "type": "string",
+        "name": "firstname",
+        "generator": "[firstname]"
+      },
+      "middlename": {
+        "type": "string",
+        "name": "middlename",
+        "generator": "[middlename]"
+      },
+      "lastname": {
+        "type": "string",
+        "name": "lastname",
+        "generator": "[lastname]"
+      },
+      "fullname": {
+        "type": "string",
+        "name": "fullname",
+        "generator": "[!firstname] [!middlename] [!lastname]"
+      },
+      "address": {
+        "type": "string",
+        "name": "address",
+        "generator": "[address]"
+      },
+      "email": {
+        "type": "string",
+        "name": "email",
+        "generator": "[!firstname].[!lastname]@[server].[tld]"
+      },
+      "dob": { "type": "date", "name": "dob", "generator": "[dob]" },
+      "height": {
+        "type": "integer",
+        "name": "height",
+        "generator": "[height]"
+      },
+      "weight": { "type": "integer", "name": "weight", "generator": "[weight]" }
+    },
+
+    "Cohort": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[cohort_name]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
+    },
+
+    "Survey": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[survey_name]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
+    },
+
+    "Client": {
+      "inherits": "Person",
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Cohort"
+        }
+      ]
+    },
+
+    "User": {
+      "inherits": "Person",
+      "email":{
+        "generator":"[user_email]"
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+
+    "Tag": {
+      "inherits": "Entity",
+      "name": {
+        "type": "string",
+        "name": "name",
+        "generator": "[tag]"
+      }
+    },
+
+    "Article": {
+      "inherits": "Entity",
+      "article_text": {
+        "type": "string",
+        "name": "article",
+        "generator": "[article]"
+      },
+
+      "published_date": {
+        "type": "timestamp",
+        "name": "published_date",
+        "generator": "[timestamp]"
+      },
+
+      "relationships": [
+        {
+          "type": "many",
+          "to": "Tag"
+        }
+      ]
+    }
+  }
+}

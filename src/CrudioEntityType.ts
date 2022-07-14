@@ -1,6 +1,4 @@
-import {
-  ICrudioFieldOptions,
-} from "./CrudioTypes";
+import { ICrudioFieldOptions } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
@@ -146,13 +144,17 @@ export default class CrudioEntityType {
     caption?: string,
     options?: ICrudioFieldOptions
   ): CrudioEntityType {
-    if (this.GetField(fieldName)) {
-      throw new Error(
-        "'" + fieldName + "' is already defined on entity '" + this.name + "'"
-      );
-    }
+    var field = this.GetField(fieldName);
 
-    this.fields.push(new CrudioField(fieldName, fieldType, caption, options));
+    if (!field) {
+      // If the field does not exist, create it
+      field = new CrudioField(fieldName, fieldType, caption, options);
+      this.fields.push(field);
+    } else {
+      // Else allow a type which inherits fields from a base, to override the values of the inherited field
+      if (caption) field.caption = caption;
+      if (options) field.fieldOptions = options;
+    }
 
     return this;
   }

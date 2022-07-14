@@ -45,6 +45,7 @@ export default class CrudioRepository {
     });
 
     this.FillDataTables();
+    this.ProcessDeferredTokens();
   }
 
   //#region Initialise repository, entities and relationships
@@ -125,7 +126,9 @@ export default class CrudioRepository {
     if (schema.abstract) entity.abstract = true;
 
     // copy inherited fields from the base entity
-    if (schema.inherits) this.InheritBaseFields(schema.inherits, entity);
+    if (schema.inherits) {
+      this.InheritBaseFields(schema.inherits, entity);
+    }
 
     for (var findex: number = 0; findex < fKeys.length; findex++) {
       var fieldname: string = fKeys[findex];
@@ -175,7 +178,10 @@ export default class CrudioRepository {
           );
         }
 
-        targetEntity.fields.push(f);
+        // Duplicate the field from the base type onto the child entity
+        targetEntity.fields.push(
+          new CrudioField(f.fieldName, f.fieldType, f.caption, f.fieldOptions)
+        );
       }
     });
   }
@@ -233,10 +239,26 @@ export default class CrudioRepository {
     });
   }
 
+  private ProcessDeferredTokens(): void {
+    this.tables.map((t) => {
+      t.rows.map((r) => {
+        Object.keys(r.values).map((field_name) => {
+          const value: string = r.values[field_name];
+          if (typeof value === "string" && value.indexOf("[") >= 0) {
+            const detokenised_value = this.ReplaceTokens(value, r, false);
+            r.values[field_name] = detokenised_value;
+          }
+        });
+      });
+    });
+  }
+
   private ConnectRelationships(): void {
     this.entities.map((e) => {
       e.relationships.map((r) => {
-        if (r.RelationshipType === "one") this.JoinOneToMany(r);
+        if (r.RelationshipType === "one") {
+          this.JoinOneToMany(r);
+        }
       });
     });
   }
@@ -477,26 +499,32 @@ export default class CrudioRepository {
 
   //#region Entity data population
 
-  private CreateEntityInstance(entity: CrudioEntityType): CrudioEntityInstance {
-    var record: CrudioEntityInstance = entity.CreateInstance({});
+  private CreateEntityInstance(
+    entityType: CrudioEntityType
+  ): CrudioEntityInstance {
+    var entity: CrudioEntityInstance = entityType.CreateInstance({});
 
-    entity.fields.map((field) => {
+    entityType.fields.map((field) => {
       var generator: string | undefined = field.fieldOptions.generator;
 
       if (generator && generator != "unknown") {
-        var value: any = this.ReplaceTokens(generator, record);
-        record.values[field.fieldName] = value;
+        var value: any = this.ReplaceTokens(generator, entity, true);
+        entity.values[field.fieldName] = value;
       }
     });
 
-    return record;
+    return entity;
   }
 
-  private ReplaceTokens(definition: string, target: any): string {
-    var tokens: string[] | null = definition.match(/\[.*?\]+/g);
+  private ReplaceTokens(
+    fieldValue: string,
+    entity: CrudioEntityInstance,
+    deferNestedExpansion = false
+  ): string {
+    var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
 
     if (tokens === null) {
-      return definition;
+      return fieldValue;
     }
 
     var value: any;
@@ -508,18 +536,45 @@ export default class CrudioRepository {
       // find parameter characters:
       // ! : get field from context
       // - : remove all spaces and convert to lower case
-      var params: string[] = name.match(/^\?|!|-|\*/g) || [];
+      var params: string[] = name.match(/^\?|!|~|\*/g) || [];
+
+      const lookup = params.indexOf("!") >= 0;
+      const clean = params.indexOf("~") >= 0;
+      var deferred = false;
+
       name = name.slice(params.length);
 
-      if (params.includes("*")) {
-        // get field value by fetching an array
-        value = "ARRAY FETCH/BUILD NOT DONE YET -" + target.values[name];
-      } else if (params.includes("?")) {
-        // get field value by looking up an object
-        value = "LOOKUP NOT DONE YET -" + target.values[name];
-      } else if (params.includes("!")) {
+      if (lookup) {
         // get field value from current context
-        value = target.values[name];
+
+        value = entity.values[name];
+
+        if (!value) {
+          // we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
+          // so we get here after all of the data is generated and entities connected (e.g. user->organisation).
+          deferred = true;
+
+          if (!deferNestedExpansion) {
+            const path = name.split(".");
+            var source = entity;
+
+            for (var i = 0; i < path.length - 1; i++) {
+              const child_entity_name = path[i];
+              source = source.values[child_entity_name];
+            }
+
+            const source_field_name = path[path.length - 1];
+            value = source.values[source_field_name];
+
+            // Now we have the final value for the generator we can allow it to be cleaned of spaces and lower cased
+            deferred = false;
+          } else {
+            // we may be waiting to get an organisation, so a user can lookup the organisation name
+            // e.g. "user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+            // So retain the token for expansion when the whole data set has been generated and entities like user and organisation are connected
+            value = `[${tk}]`;
+          }
+        }
       } else {
         value = this.GetGeneratedValue(name);
 
@@ -528,21 +583,20 @@ export default class CrudioRepository {
           typeof value === "string" &&
           value.includes("[") &&
           value.includes("]")
-        ) {
-          value = this.ReplaceTokens(value, target);
-        }
+        )
+          value = this.ReplaceTokens(value, entity, true);
       }
 
-      if (params.includes("-")) {
-        // remove spaces and convert to lower case
-        value = value.replace(/\s/g, "");
-        value = value.toLowerCase();
+      // ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
+      // We don't clean when deferred otherwise we will change the case of field names used in generators
+      if (!deferred && value && clean) {
+        value = value.trim().toLowerCase().replaceAll(" ", "");
       }
 
-      definition = definition.replace(`[${tk}]`, value);
+      fieldValue = fieldValue.replace(`[${tk}]`, value);
     });
 
-    return definition;
+    return fieldValue;
   }
 
   private GetGeneratedValue(generatorName: string): any {
