@@ -230,3 +230,10 @@ In the above example we also say that an `Organisation` inherits some fields fro
 # Wrapping up
 
 Take some time to examine the full `repo.json` and `standard_generators.json` files. You will quickly understand how you can break large repos into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
+
+# Credits
+
+Thank you to the key repository owners below:
+
+Data sources
+Used to create a large list of first names: https://github.com/hadley/data-baby-names/blob/master/baby-names.csv

@@ -16,8 +16,6 @@ export default class CrudioEntityType {
   public icon: string = "none";
   public caption: string = "none";
 
-  source: string = "";
-
   constructor(name: string, table: string | null = null) {
     if (!table) table = CrudioUtils.Plural(name);
 
@@ -69,11 +67,6 @@ export default class CrudioEntityType {
 
   GetKey(): CrudioField | null {
     var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isKey);
-    return fields.length > 0 ? fields[0] : null;
-  }
-  
-  GetUniqueKey(): CrudioField {
-    var fields: CrudioField[] = this.fields.filter((f) => f.fieldOptions.isUnique);
     return fields.length > 0 ? fields[0] : null;
   }
 

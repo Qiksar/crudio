@@ -34,7 +34,6 @@ import { Relationships, Customise } from './CustomiseFakeDb'
 		this.db.entities.map((e: CrudioEntityType) => {
 			write(`\r\n/*`);
 			write(`ENTITY ${e.name}`);
-			write(`\r\nSource ${e.source}`);
 			write(`*/`);
 
 			write(`\r\nexport class ${this.db.GetClassName(e.name)} extends CrudioEntityInstance {`);

@@ -8,7 +8,7 @@
     "survey1": "Measure;Assess;Understand;",
     "survey2": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;",
     "survey_name": "[survey1] [survey2] of the [cohort_name] community",
-    "tag": "finance;health;technology;property;art;music;3D Printing",
+    "tag": "finance;health;technology;property;art;music;3D Printing;",
     "article_subject": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;",
     "article_line1": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;",
     "article_line2": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;",
@@ -20,7 +20,8 @@
   },
 
   "record_counts": {
-    "Organisations": 1,
-    "Users": 4000
+    "Organisations": 4,
+    "Users": 20000,
+    "Tags": 7
   }
 }
