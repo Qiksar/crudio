@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.3.76",
+  "version": "0.3.92",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "lib/crudio.js",
   "main": "lib/crudio.js",
@@ -14,8 +14,7 @@
     "start_cli": "node lib/crudio.js repo/repo.json",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
-    "remove": "docker-compose down --rmi all",
-    "publish": "npm run build && npm publish --access=public"
+    "remove": "docker-compose down --rmi all"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
