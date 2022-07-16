@@ -97,7 +97,7 @@ export default class CrudioDataWrapper {
 					throw new Error(`Many to Many - Unable to find a table for ${JSON.stringify(relationship_definition)} using name ${relationship_definition.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);
 				}
 
-				const fk_table_name = `${from_table.name}_${to_table.name}`;
+				const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.name}_${to_table.name}`;
 
 				create_fk_tables += `
         CREATE TABLE "${this.config.schema}"."${fk_table_name}" 
@@ -172,7 +172,7 @@ export default class CrudioDataWrapper {
 			const insert_foreign_key_rows = "";
 			await this.gql.ExecuteSQL(create_foreign_keys);
 
-			//await this.gql.ExecuteSQL(insert_foreign_key_rows);
+			//TODO await this.gql.ExecuteSQL(insert_foreign_key_rows);
 		}
 	}
 }
