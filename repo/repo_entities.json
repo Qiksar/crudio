@@ -167,7 +167,7 @@
 
 		"Tag": {
 			"inherits": "Entity",
-			"count": 7,
+			"count": 20,
 			"name": {
 				"unique": "true",
 				"type": "string",
@@ -195,7 +195,7 @@
 					"type": "many",
 					"to": "Tag",
 					"name": "BlogTags",
-					"count": 1
+					"count": 2
 				},
 				{
 					"type": "one",

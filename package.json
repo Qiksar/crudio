@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.3.92",
+  "version": "0.4.0",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "lib/crudio.js",
   "main": "lib/crudio.js",

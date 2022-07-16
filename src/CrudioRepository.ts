@@ -253,7 +253,7 @@ export default class CrudioRepository {
 			// as this avoids having empty arrays
 			// use index to assign the first n relationships and after that use
 			// random values to distribute the records
-			var targetRow: CrudioEntityInstance = targetTable.rows[index > targetTable.rows.length - 1 ? this.GetRandomNumber(0, targetTable.rows.length - 1) : index++];
+			var targetRow: CrudioEntityInstance = targetTable.rows[index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.rows.length - 1) : index++];
 
 			// the source points to a single target record
 			sourceRow.values[targetTable.entity] = targetRow;
@@ -576,7 +576,7 @@ export default class CrudioRepository {
 			value = words[index];
 		} else if (content.includes(">")) {
 			var vals: string[] = content.split(">");
-			value = this.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
+			value = CrudioRepository.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
 		} else {
 			value = content;
 		}
@@ -584,7 +584,7 @@ export default class CrudioRepository {
 		return value;
 	}
 
-	private GetRandomNumber(min: number, max: number): number {
+	public static GetRandomNumber(min: number, max: number): number {
 		var rndValue: number = Math.random();
 		return Math.floor((max - min) * rndValue) + min;
 	}

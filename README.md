@@ -25,6 +25,11 @@ By setting up traacking in Hasura, you have instantly gained an API to help you 
 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
+## Next Steps
+
+Read more detail about the value of creating test data, and how Crudio helps your prototyping and testing activities go faster.
+
+Once you have your Postgres and Hasura containers running, refer to the Sample Queries section below for some quick graphql query examples. The examples are intended to show you how easy it is to explore the test data with the Hasura Console, and prove the data is easy to understand and looks sensible.
 
 # About Crudio
 
@@ -265,6 +270,27 @@ Take some time to examine the full `repo.json`, `repo_entities.json` and `standa
 Please do join the effort to make Crudio even more awesome. Our mission is to expand Crudio to generate data for almost every scenario. We need your help, ideas, feedback and encouragement to achieve that.
 
 And by the way...Crudio is free forever. We don't intend to start launching "Enterprise Versions" and subscriptions etc. Crudio belongs to all of us, is free to use for all of us, forever. 
+
+# Example Queries
+
+Simply copy, paste and execute the queries below, using the Hasura Console 
+
+URL: `http://localhost:6789/console/`
+
+
+## Get a list of blog posts with their related tags
+```
+{
+  crudio_Blogs {
+    article_text
+    BlogTags {
+      tagByTag {
+        name
+      }
+    }
+  }
+}
+```
 
 # Credits
 

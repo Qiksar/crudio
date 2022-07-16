@@ -217,6 +217,8 @@ export interface ISchemaRelationship {
   
   name: string;
   type: string;
+  
+  count: number;
 }
 
 export interface ISchemaColumn {

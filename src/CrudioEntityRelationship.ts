@@ -12,6 +12,7 @@ export default class CrudioEntityRelationship {
 		if (!relationship.name && relationship.type != "many") relationship.name = relationship.to;
 		if (!relationship.from_column) relationship.from_column = relationship.to;
 		if (!relationship.to_column) relationship.to_column = "id";
+		if (!relationship.count) relationship.count = 0;
 	}
 
 	get FromEntity(): string {
@@ -35,5 +36,9 @@ export default class CrudioEntityRelationship {
 
 	get RelationshipName(): string {
 		return this.relationship.name;
+	}
+
+	get NumberOfSeededRelations():number {
+		return this.relationship.count;
 	}
 }
