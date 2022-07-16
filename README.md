@@ -6,6 +6,8 @@ Crudio creates test data in memory and the automatically saves it to a postgres 
 
 ## Get started quick - Let's create a database and fill it with data!
 
+If you already understand the value of automatically generated test data, and you love Postgres and Hasura as much as we do, and you're impatient, then you can't wait to read to the end of this line and find out how to actually try it out without any fuss, or verbose instructions...ok we'll stop teasing you now!
+
 `wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash`
 
 - Fetches the demonstration initialisation script from Github and executes it
@@ -23,20 +25,29 @@ By setting up traacking in Hasura, you have instantly gained an API to help you 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
 
-# Crudio - Fake Data
-Crudio provides a means of creating test data for rapid prototyping and automated testing.
+# About Crudio
 
-The low down: You're asked to build a system to gather feedback from the community which various organizations can use to measure stakeholder sentiment. But you don't have any data for organizations, their staff, the clients they service, the survey designs or responses to surveys. 
+Automatically creating test data, which you know nothing about, other than the structure, is a powerful way to build prototypes and test software systems.
+
+All you need to do is describe the basic shape of your data model, like organisations (customers, perhaps), who have users. If your model uses pre-defined entities (schema of data records), then you can include and use the entity definitions, and be up and running in minutes.
+
+You could take Crudio yourself and make it do lots of things. We love GraphQL, so we adopted the powerful combination of Postgres and Hasura. We did this because we can use two docker containers and in seconds we have a fast and modern way to access our data, either through an API or through the Hasura Console.
+
+So imagine this...your horrible boss (seen the movie?), demands that, by tommorrow, you build a demonstration system that manages multiple organisations, each with a collection of users, where each organisation provides community services to people who are grouped by their specific needs. 
+
+How do you respond to that when you don't even have a database setup, you don't have any data to work with, and you don't have any APIs that a prototype app could use?!
 
 You got nothing! So, how might you quickly create test data that looks sensible when you show a prototype application to users and seek their feedback?
 
-Well the answer is fake it, til you make it!
+Well the answer is, "fake it, til you make it!""
 
-For our above example, we need a fake database, one which we can describe as needing organisations, programs, clients, and cohorts.
-
- We need to create users and organizations, randomly assign the users to organizations. Create fake programs, which are services that organisations deliver to their local communities.  Create clients and chorts who are serviced through the program. Next, distribute clients into cohorts and cohorts to programs. Now we have a lot of fake people, in fake cohorts, in fake programs all assigned to fake organisations. 
+For our above example, we need a fake database, one which we can describe as needing organisations, users, programs, clients, and cohorts. We need to populate data tables, create users and organizations, randomly assign the users to organizations. Create fake programs, which are services that organisations deliver to their local communities.  Create clients and chorts who are serviced through the program. Next, distribute clients into cohorts and cohorts to programs. Now we have a lot of fake people, in fake cohorts, in fake programs all assigned to fake organisations. 
 
 Essentially, just by describing the data you want, Crudio will create a rich data graph, generating data entities, and connecting them to each other...  user->organisation  client->cohort->program etc.
+
+The data will be created rapidly, saved into a Postgres database, and then Hasura can be used to query and manage the data.
+
+Phew! That's what Crudio does. It can't save the world, but it can help you change a Horrible Boss into a Happy Boss!
 
 ### Here's a simple view of what our fake data model might look like
 
@@ -44,21 +55,24 @@ Essentially, just by describing the data you want, Crudio will create a rich dat
 
 `View this file on Github: https://github.com/Qiksar/crudio/blob/main/README.md`
 
+See how the model depicts not for profit organisations that have users (their staff). Each has many programs that provide services to the community. Different groups of clients are based in cohorts which are serviced through a program. The organisation publishes a blog, and articles have tags to group the blog posts together by special interest.
+
+This is what the data model might look like:
+
 ```mermaid
 classDiagram
 organisation "0..*"-->"0..*" program
 organisation "0..*"-->"0..*" user
 program "0..*" --> "0..*" cohort
 cohort "0..*" --> "0..*" client
+blog "0..*" --> "0..*" tag
 client --|> Person
 ```
 
-Let's imagine we have a large not for profit organisation. It has many programs that provide services to the community. So we can think of the different groups of people as clients, and clients having similar needs form a cohort, which is supported through a program. 
+Crudio creates this example data model, then fills it with meaningful data. That way you can get to prototyping your app faster, without having to create large amounts of test data.
 
 ## Key Objectives
-These are the key objectives of Fake Data
-
-Bear this one point in mind, every time we run our fake data generation process, we get a completely new and unique set of data. If right now we have fake data with a person in it called, "Joe Bloggs", next time we might not have a person of that name, as the data will change.
+These are the key objectives of automating the creation of test data:
 
 1. Fake data can be saved to a database.
    
@@ -78,10 +92,21 @@ Bear this one point in mind, every time we run our fake data generation process,
 
 Simply put, fake data should be sensible and useful to help build systems faster,  that can be used to engage stakeholders to gather feedback. As far as practicable, the data should be coherent and not create questions about why it doesn't appear to be sensible and relevant to the problem domain.
 
+## Test Data Changes Constantly
+
+Bear this one point in mind, every time we run our data generation process, we get a completely new and unique set of data. 
+
+Let's say you run Crudio right now, and search the users table and find "Joe Bloggs", if you run Crudio again, moments later, you might not see "Joe Bloggs", because that name might not be randomly generated again.
+
+This is why automated test data is so awesome. It can stop you from making assumptions about the values of data. You can create data which is good, bad, simple, challenging, all in the interests of ensuring you can present your app with meaningful data, and ensure your app is thoroughly tested.
+
+
 ## Further Information
 
 ### Test Respositories
-Repositories describe the data that they wish to be populated with. Refer below to find two example repositories:
+We call the definition of a data model a repsository. Sorry, that's not a smart name when you have to pull this project for a Github repo! We may change that in future once we think of a better name. 
+
+A repository describes the data model that you require. Refer below to find two example repositories:
 
 Folder: `repo`
 
@@ -92,7 +117,7 @@ Folder: `repo`
   
 # Get the code
 
-Clone this repo from: `https://github.com/Qiksar/crudio`
+Clone this project from: `https://github.com/Qiksar/crudio`
 
 
 ## NPM scripts
@@ -116,6 +141,7 @@ You can see how simple it is to use, by looking at the unit tests in `test/unit/
 Here is what the key unit tests do:
 
 - Test flatted - This test proves that we can save JSON data which may contain circular references. JSON.stringify doesn't work for this purpose, but flatted is perfect!
+- Ensure that Crudio has the ability to create unique values for fields. This is important if you want everyone to have a unique email address that you might use to login later.
 - Load the repository - This loads the repo/repo.json file which describes a demo data model, and it uses it to create a large in-memory JSON object, and then it tests the object contains the right data.
 - Save and load - This ensures that we can save and load the JSON data. We might want to do this in order to work with a snapshot of data, whereby our data looks the same every time we load it. If we just run Crudio everytime we get new random data.
 - Populate database - This is the super power. Crudio creates a database schema in Postgres called `crudio`, creates all the tables, loads the test data in to the database, then adds all of the foreign keys that connect the data together.
@@ -147,13 +173,15 @@ Here is the basic outline
 ```
 
 
-Let's tell Crudio that we want to include a file that we might use quite often, like a standard set of random data generators...
+Let's tell Crudio that we want to include two files, like a standard set of random data generators, and our list of application specific data entities...
 ```
 {
-   include:["repo/standard_generators.json"]
+  "include": ["repo/standard_generators.json", "repo/repo_entities.json"],
+  "generators": {
+    ...removed for brevity...
+  }
 }
 ```
-
 
 Let's peek at the `standard_generators.json` file:
 
@@ -182,7 +210,7 @@ Let's peek at the `standard_generators.json` file:
 
 It's pretty easy to understand that in order to generate a person we need multiple data fields for their name. Then to generate an address for the person, we need a way to generate places.
 
-Returning to `repo.json` we can now see thanks to the earlier include that we can create our `Organisation` entity using generators from `standard_generators.json`, which were included.
+Meanwhile in `repo_entities.json` we see entities that are used in our data model, like `Organisation` using generators from `standard_generators.json`, which were included.
 
 ```
   "entities": {
@@ -225,9 +253,17 @@ Returning to `repo.json` we can now see thanks to the earlier include that we ca
 
 In the above example we also say that an `Organisation` inherits some fields from `Entity`. This means we can have all of our database objects setup with a common set of fields, like an ID and date created or deleted.
 
+Do take time to read the example JSON files in the `repo` folder. These files are intended to help us automatically test Crudio, thoroughly, but are also intended to be a resource from which you can learn.
+
 # Wrapping up
 
-Take some time to examine the full `repo.json` and `standard_generators.json` files. You will quickly understand how you can break large repos into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
+Take some time to examine the full `repo.json`, `repo_entities.json` and `standard_generators.json` files. You will quickly understand how you can break large repos into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
+
+# Join Us - Crudio: Free Forever
+
+Please do join the effort to make Crudio even more awesome. Our mission is to expand Crudio to generate data for almost every scenario. We need your help, ideas, feedback and encouragement to achieve that.
+
+And by the way...Crudio is free forever. We don't intend to start launching "Enterprise Versions" and subscriptions etc. Crudio belongs to all of us, is free to use for all of us, forever. 
 
 # Credits
 
