@@ -48,8 +48,8 @@
     },
 
     "CompanyGenerators": {
-      "department": "hr;finance;it;exec",
-      "organisation_name": "Mega Corp;Uber;WestBank;Facebook;Instagram;Woodside;Tesla;Ford;Toyota;Hyundai;Subaru;Jeep;BP;Caltex;UNSW;UWA;Curtin University;ECU;Murdoch;Baskin Robbins;Coles;Woolworths;BigW;Target;Red Dot;IBM;Google;Microsoft;Amazon;eBay;Celestron;Binaree;Geeks Rool;Horizon Power;Westpac;AMP;Colonial;"
+      "department": "hr;finance;it;exec;sales;purchasing",
+      "organisation_name": "Mega Corp;Global Acme Industries;BettaWorld;UbaCabz;WestBank;Spacebook;Pictagram;Woodlane;Treslah;Zoox;Toyo;Playtoon;Yoogothere;Bleepstah;Gastex;Peoplville;Staylocalz;Getitnow;Shopez;Help4free;AssistMe;HelpYou;Communitexpro;GroupsMeetNow;AllForFree;Upcyclaz;Recyclaz;JunkToCashNow;WorkFromYahHome;MediGeniuz;DoctahSmart;QikHelpOnlik;QikShopFromHome;Autohomeztek;SensazEverywhere;SmartSenz247;"
     },
 
     "MetricGenerators": {
