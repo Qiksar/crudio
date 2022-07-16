@@ -1,6 +1,7 @@
 # Crudio
 
 Github: `https://github.com/Qiksar/crudio`
+NPM:    `https://www.npmjs.com/package/@qiksar/crudio`
 
 Crudio creates test data in memory and the automatically saves it to a postgres database, via Hasura GraphQL. 
 
