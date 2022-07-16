@@ -17,11 +17,5 @@
     "article_line5": "Until next time, adios;See you next time;We will be back with more news soon;",
     "article": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]",
     "user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
-  },
-
-  "record_counts": {
-    "Organisations": 4,
-    "Users": 20000,
-    "Tags": 7
   }
 }

@@ -14,7 +14,8 @@ export default class CrudioRepository {
 	//#region Properties
 
 	// This entity properties are ignored when looking for fields to populate with random data
-	private ignoreFields = ["inherits", "abstract", "relationships", "seed_by"];
+	private ignoreFields = ["inherits", "abstract", "relationships", "count", "seed_by"];
+	public defaultRowCount = 50;
 
 	public generators: Record<string, unknown> = {};
 	public tables: CrudioTable[] = [];
@@ -35,11 +36,6 @@ export default class CrudioRepository {
 
 		this.LoadEntityDefinitions(repo);
 		this.CreateDataTables(this.entities);
-
-		Object.keys(repo.record_counts).map(k => {
-			this.SetTableRecordCount(k, repo.record_counts[k]);
-		});
-
 		this.FillDataTables();
 	}
 
@@ -89,8 +85,6 @@ export default class CrudioRepository {
 
 		if (input.entities) repo.entities = { ...repo.entities, ...input.entities };
 
-		if (input.record_counts) repo.record_counts = { ...repo.record_counts, ...input.record_counts };
-
 		if (input.relationships) repo.relationships = { ...repo.relationships, ...input.relationships };
 	}
 
@@ -102,13 +96,14 @@ export default class CrudioRepository {
 		// create the basic entity structures
 		for (var index: number = 0; index < eKeys.length; index++) {
 			var entityname: string = eKeys[index];
-			var schema: any = repo.entities[entityname];
-			this.CreateEntity(schema, entityname);
+			var entitySchema: any = repo.entities[entityname];
+			this.CreateEntity(entitySchema, entityname);
 		}
 	}
 
 	private CreateEntity(entityDefinition: any, entityname: string) {
 		var entity: CrudioEntityType = this.CreateEntityType(entityname);
+		entity.max_row_count = entityDefinition.count ?? this.defaultRowCount;
 
 		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
 
@@ -205,7 +200,6 @@ export default class CrudioRepository {
 				var t: CrudioTable = new CrudioTable();
 				t.name = this.GetClassName(e.tableName);
 				t.entity = this.GetClassName(e.name);
-				t.count = 50;
 
 				this.tables.push(t);
 			}
@@ -336,15 +330,6 @@ export default class CrudioRepository {
 
 	//#region Fill data tables
 
-	private SetTableRecordCount(name: string, count: number) {
-		const tables = this.tables.filter(t => t.name === name);
-
-		if (tables.length > 0) {
-			const table = tables[0];
-			table.count = count;
-		}
-	}
-
 	private FillDataTables(): void {
 		this.DropData();
 
@@ -361,22 +346,10 @@ export default class CrudioRepository {
 	}
 
 	FillTable(table: CrudioTable): void {
-		var count: number = table.count;
-
-		if (count === undefined || count < 1) {
-			console.log(`Table ${table.name} - no count specified, default to 10`);
-			count = 10;
-		}
-
-		var entity: CrudioEntityType | null = this.GetEntityDefinition(table.entity, false);
-
-		if (entity === null) {
-			throw new Error(`Invalid entity name '${table.entity}' for table '${table.name}'`);
-		}
-
+		var entity: CrudioEntityType | null = this.GetEntityDefinition(table.entity, true);
 		var records: CrudioEntityInstance[] = [];
 
-		for (var c: number = 0; c < count; c++) {
+		for (var c: number = 0; c < entity.max_row_count; c++) {
 			records.push(this.CreateEntityInstance(entity));
 		}
 
@@ -427,18 +400,29 @@ export default class CrudioRepository {
 
 	//#region Populate entity data fields
 
+	private CreateUniqueKeyCache(entityTypeName: string): any {
+		const unique_keys = {};
+
+		const entityType = this.GetEntityDefinition(entityTypeName);
+		entityType.fields.map(f => {
+			if (f.fieldOptions.isUnique) {
+				unique_keys[f.fieldName] = [];
+			}
+		});
+
+		return unique_keys;
+	}
+
 	private ProcessTokensInAllTables(): void {
 		this.tables.map(table => {
-			const unique_keys: string[] = [];
-
+			const unique_keys = this.CreateUniqueKeyCache(table.entity);
 			table.rows.map(entityInstance => {
 				var ok = false;
 				var maxtries = 1000;
 
-				while (!ok && maxtries-- > 1) {
-					if (maxtries < 2) {
-						maxtries--;
-						//throw new Error(`Error: Failed to create unique value for ${table.name}`);
+				while (!ok && maxtries-- > 0) {
+					if (maxtries == 0) {
+						throw new Error(`Error: Failed to create unique value for ${table.name}`);
 					}
 
 					ok = this.ProcessTokensInEntity(entityInstance, unique_keys);
@@ -447,14 +431,13 @@ export default class CrudioRepository {
 		});
 	}
 
-	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance, unique_keys: string[]): boolean {
-		
-    // as we generate the entity a field may require unique values, like a unique database constrain on a field
-    // field values can be based on the values of other fields in the entity, like email:first.last@email.com
-    // if the email value created is not unique, the entire entity is rejected so a new first and last name can be created, to form a new unique email
-    // so, for that reason we have to create a duplicate entity, and only overwrite the input entity on complete successful generation of the correct field values
-    
-    const new_instance = new CrudioEntityInstance(entityInstance.entityType);
+	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance, unique_keys: {}): boolean {
+		// as we generate the entity a field may require unique values, like a unique database constrain on a field
+		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
+		// if the email value created is not unique, the entire entity is rejected so a new first and last name can be created, to form a new unique email
+		// so, for that reason we have to create a duplicate entity, and only overwrite the input entity on complete successful generation of the correct field values
+
+		const new_instance = new CrudioEntityInstance(entityInstance.entityType);
 		new_instance.values = { ...entityInstance.values };
 
 		const keys = Object.keys(new_instance.values);
@@ -473,15 +456,16 @@ export default class CrudioRepository {
 				}
 				const entity_field = new_instance.entityType.GetField(field_name);
 
+				// keep track of unique field values
 				if (entity_field && entity_field.fieldOptions.isUnique) {
-					if (unique_keys.indexOf(detokenised_value.toLowerCase().trim()) >= 0) {
+					if (unique_keys[field_name].indexOf(detokenised_value.toLowerCase().trim()) >= 0) {
 						return false;
 					}
 
-					unique_keys.push(detokenised_value.toLowerCase().trim());
+					unique_keys[field_name].push(detokenised_value.toLowerCase().trim());
 				}
 			} else {
-				// the field is defined but there is no default value or generated value
+				// it's ok that the field is defined but there is no default value or generated value specified
 			}
 		}
 

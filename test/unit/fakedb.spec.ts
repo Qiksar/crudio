@@ -30,20 +30,18 @@ describe("Create fake data", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
 		var uniqueKeys: string[] = [];
-		
-    users.map(u => {
+
+		users.map(u => {
 			uniqueKeys.push(u.values.email);
 		});
 
 		// Run through all lists of unique values
 		Object.keys(uniqueKeys).map(k => {
-
 			// Slice the first item off the list, and then ensure a duplicate values has not remained in the list
 			while (uniqueKeys.length > 1) {
 				const removed = uniqueKeys.splice(0, 1);
-        const dupe_index = uniqueKeys.indexOf(removed[0]);
-        if(dupe_index >=0)
-        throw "whoops";
+				const dupe_index = uniqueKeys.indexOf(removed[0]);
+				if (dupe_index >= 0) throw "Test failed: Found a duplicate value";
 				expect(dupe_index).toBeLessThan(0);
 				expect((removed[0] as string).indexOf("[")).toBeLessThan(0);
 			}

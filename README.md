@@ -143,8 +143,6 @@ Here is the basic outline
    include:[]
    generators: {}
    entities:{}
-   record_counts:{}
-   relationships: {}
 }
 ```
 

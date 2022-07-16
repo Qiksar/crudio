@@ -28,7 +28,6 @@ export interface ICrudioSchemaDefinition {
   include: string[];
   entities: CrudioEntityType[];
   generators: Record<string,unknown>;
-  record_counts?: {};
   relationships: ISchemaRelationship[];
 }
 

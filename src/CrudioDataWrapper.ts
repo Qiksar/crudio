@@ -155,7 +155,7 @@ export default class CrudioDataWrapper {
 				insert_rows += `(${values}),`;
 
 				if (values.indexOf("[") >= 0) {
-					throw "whoops";
+					throw new Error(`Error: Found an unprocessed token in ${values}`);
 				}
 			}
 			insert_rows = insert_rows.substring(0, insert_rows.length - 1);

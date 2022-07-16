@@ -15,6 +15,7 @@ export default class CrudioEntityType {
   public editor: string = "none";
   public icon: string = "none";
   public caption: string = "none";
+  public max_row_count: number = 50;
 
   constructor(name: string, table: string | null = null) {
     if (!table) table = CrudioUtils.Plural(name);
