@@ -23,7 +23,10 @@ export default class CrudioDataWrapper {
 	repo: CrudioRepository;
 
 	constructor(config: ICrudioConfig, repo: CrudioRepository) {
-		this.config = config;
+		this.config = { ...config };
+		if (repo.schema)
+			this.config.schema = repo.schema;
+
 		this.gql = new CrudioGQL(this.config);
 		this.repo = repo;
 	}

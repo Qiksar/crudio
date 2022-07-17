@@ -21,6 +21,7 @@ export default class CrudioRepository {
 	public tables: CrudioTable[] = [];
 	public entities: CrudioEntityType[] = [];
 	public relationships: CrudioEntityRelationship[] = [];
+	public schema: string = null;
 
 	private entityId: number = 1;
 	public getEntityId(): number {
