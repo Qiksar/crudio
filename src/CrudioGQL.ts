@@ -29,18 +29,17 @@ export default class CrudioGQL {
 			var result: any = await axios.post(this.config.hasuraEndpoint, request, requestConfig);
 			return result.data;
 		} catch (e: any) {
-			console.log("");
-			console.log("");
-			console.log("** ERROR");
-			console.log("GQL Error :");
-			console.log(e.response.data);
+			console.error("GQL Error :");
+			console.error(e.response.data ?? e.response);
 
 			throw e;
 		}
 	}
 
-	async ExecuteSQL(sql_statement: string): Promise<any> {
+	async ExecuteSQL(sql_statement: string, failIfEmptyStatement = true): Promise<any> {
 		if (!sql_statement) {
+			if (!failIfEmptyStatement) return;
+
 			throw new Error("sql_statement is required");
 		}
 
@@ -71,10 +70,10 @@ export default class CrudioGQL {
 			return results.data.result;
 		} catch (e: any) {
 			if (e.code === "ECONNREFUSED") {
-				console.log("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
+				console.error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 			} else {
-				console.log("Error: Failed to execute SQL statement.");
-				console.log(e.response.data ?? e.response);
+				console.error("Error: Failed to execute SQL statement.");
+				console.error(e.response.data ?? e.response);
 			}
 
 			throw e;

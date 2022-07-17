@@ -9,7 +9,7 @@
   "author": "Chris Nurse",
   "license": "GPL-3.0-only",
   "scripts": {
-    "test": "jest --env=node --colors --coverage test",
+    "test": "jest --env=node --colors --coverage test --silent=false",
     "build": "tsc -p tsconfig.json",
     "start_cli": "node lib/crudio.js repo/repo.json",
     "up": "docker-compose up -d",

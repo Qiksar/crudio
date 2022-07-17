@@ -16,6 +16,15 @@ export default class CrudioEntityType {
   public icon: string = "none";
   public caption: string = "none";
   public max_row_count: number = 50;
+	
+  public get OneToManyRelationships():CrudioEntityRelationship[]{
+    return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "one");
+  }
+
+  public get ManyToManyRelationships():CrudioEntityRelationship[]{
+    return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
+  }
+
 
   constructor(name: string, table: string | null = null) {
     if (!table) table = CrudioUtils.Plural(name);
@@ -25,10 +34,7 @@ export default class CrudioEntityType {
   }
 
   SetAlias(alias: string): CrudioEntityType {
-    //console.log(`SetAlias ${this.entityTypeName} -> ${alias}`);
-    // hak ignore aliasing or now
-    this.tableAlias = this.name;
-
+    this.tableAlias = alias ?? this.name;
     return this;
   }
 

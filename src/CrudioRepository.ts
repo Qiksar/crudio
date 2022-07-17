@@ -174,6 +174,10 @@ export default class CrudioRepository {
 		return matches[0];
 	}
 
+	public GetTableForEntityName(name: string): CrudioTable {
+		return this.tables.filter(t => t.entity === name)[0];
+	}
+
 	// Create an entity type based on its definition in the repo
 	private CreateEntityType(name: string): CrudioEntityType {
 		var exists: CrudioEntityType | null = this.GetEntityDefinition(name, false);
