@@ -6,13 +6,15 @@ import { ICrudioConfig } from "./CrudioTypes";
 import CrudioEntityType from "./CrudioEntityType";
 
 class SqlInstructionList {
+	table_field_list = [];
+	table_column_definitions = "";
+	table_column_names = "";
+
+	create_foreign_key_tables = "";
 	create_foreign_keys = "";
-	field_definitions = "";
-	column_names = "";
-	create_fk_tables = "";
-	create_many_to_many_rows = "";
-	field_list = [];
-	insert_rows = "";
+
+	insert_table_rows = "";
+	insert_many_to_many_rows = "";
 }
 
 export default class CrudioDataWrapper {
@@ -48,7 +50,7 @@ export default class CrudioDataWrapper {
 			// -------------- Build insert rows
 
 			this.BuildInsertData(table, instructions);
-			await this.gql.ExecuteSQL(instructions.insert_rows);
+			await this.gql.ExecuteSQL(instructions.insert_table_rows);
 		}
 
 		await this.ProcessForeignKeys(instructions);
@@ -57,54 +59,54 @@ export default class CrudioDataWrapper {
 	private async ProcessForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Create many to many join tables
 
-		await this.gql.ExecuteSQL(instructions.create_fk_tables, false);
+		await this.gql.ExecuteSQL(instructions.create_foreign_key_tables, false);
 
 		// -------------- Add foreign keys to tables
 
 		await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);
 
 		this.BuildInsertManyToManyData(instructions);
-		await this.gql.ExecuteSQL(instructions.create_many_to_many_rows, false);
+		await this.gql.ExecuteSQL(instructions.insert_many_to_many_rows, false);
 	}
 
 	private BuildSqlColumnsForTable(entity: CrudioEntityType, instructions: SqlInstructionList) {
-		instructions.column_names = "";
-		instructions.field_definitions = "";
-		instructions.field_list = [];
+		instructions.table_column_names = "";
+		instructions.table_column_definitions = "";
+		instructions.table_field_list = [];
 
 		// Add the primary key
-		instructions.field_list.push(entity.GetKey().fieldName);
+		instructions.table_field_list.push(entity.KeyField.fieldName);
 
 		// Create a list of SQL columns from the basic entity fields
 		// The list of columns goes into the INSERT statement
 		entity.fields.map((f: CrudioField) => {
-			if (f.fieldName != entity.GetKey().fieldName) {
-				instructions.field_definitions += `"${f.fieldName}" ${f.GetDatabaseFieldType},
+			if (f.fieldName != entity.KeyField.fieldName) {
+				instructions.table_column_definitions += `"${f.fieldName}" ${f.GetDatabaseFieldType},
 				`;
 
 				if (f.defaultValue) {
-					instructions.field_definitions += `DEFAULT "${f.defaultValue} "`;
+					instructions.table_column_definitions += `DEFAULT "${f.defaultValue} "`;
 				}
 
-				instructions.field_list.push(f.fieldName);
+				instructions.table_field_list.push(f.fieldName);
 			}
 		});
 
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
-			instructions.field_definitions += `"${r.FromColumn}" uuid,`;
-			instructions.field_list.push(r.FromColumn);
+			instructions.table_column_definitions += `"${r.FromColumn}" uuid,`;
+			instructions.table_field_list.push(r.FromColumn);
 		});
 
-		instructions.field_list.map(f => {
-			instructions.column_names += `"${f}",`;
+		instructions.table_field_list.map(f => {
+			instructions.table_column_names += `"${f}",`;
 		});
 
-		instructions.column_names = instructions.column_names.trim();
-		instructions.column_names = instructions.column_names.slice(0, instructions.column_names.length - 1);
+		instructions.table_column_names = instructions.table_column_names.trim();
+		instructions.table_column_names = instructions.table_column_names.slice(0, instructions.table_column_names.length - 1);
 
-		instructions.field_definitions = instructions.field_definitions.trim();
-		instructions.field_definitions = instructions.field_definitions.slice(0, instructions.field_definitions.length - 1);
+		instructions.table_column_definitions = instructions.table_column_definitions.trim();
+		instructions.table_column_definitions = instructions.table_column_definitions.slice(0, instructions.table_column_definitions.length - 1);
 	}
 
 	private AppendOneToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
@@ -141,7 +143,7 @@ export default class CrudioDataWrapper {
 
 			const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.name}_${to_table.name}`;
 
-			instructions.create_fk_tables += `
+			instructions.create_foreign_key_tables += `
 				CREATE TABLE "${this.config.schema}"."${fk_table_name}" 
 				(
 				"id" uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -167,9 +169,9 @@ export default class CrudioDataWrapper {
 	}
 
 	private BuildInsertData(table: CrudioTable, instructions: SqlInstructionList): void {
-		instructions.insert_rows = "";
+		instructions.insert_table_rows = "";
 
-		var insert_rows = `INSERT INTO "${this.config.schema}"."${table.name}" (${instructions.column_names}) VALUES`;
+		var insert_rows = `INSERT INTO "${this.config.schema}"."${table.name}" (${instructions.table_column_names}) VALUES`;
 		const rows = table.rows;
 
 		for (var r = 0; r < rows.length; r++) {
@@ -178,7 +180,7 @@ export default class CrudioDataWrapper {
 
 			var values = "";
 
-			instructions.field_list.map(i => {
+			instructions.table_field_list.map(i => {
 				var v = entity.values[i];
 
 				// Save foreign key values
@@ -206,11 +208,11 @@ export default class CrudioDataWrapper {
 			}
 		}
 
-		instructions.insert_rows = insert_rows.substring(0, insert_rows.length - 1);
+		instructions.insert_table_rows = insert_rows.substring(0, insert_rows.length - 1);
 	}
 
 	private BuildInsertManyToManyData(instructions: SqlInstructionList): void {
-		instructions.create_many_to_many_rows = "";
+		instructions.insert_many_to_many_rows = "";
 		for (var index = 0; index < this.repo.tables.length; index++) {
 			const table: CrudioTable = this.repo.tables[index];
 			const entity = this.repo.GetEntityDefinition(table.entity);
@@ -249,10 +251,10 @@ export default class CrudioDataWrapper {
 	}
 
 	private BuildCreateTableStatement(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): string {
-		const addKeySQL = `"${entity.GetKey().fieldName}" uuid DEFAULT gen_random_uuid() PRIMARY KEY,`;
+		const addKeySQL = `"${entity.KeyField.fieldName}" uuid DEFAULT gen_random_uuid() PRIMARY KEY,`;
 		const sql = `
 		CREATE TABLE "${this.config.schema}"."${table.name}" 
-		(${addKeySQL} ${instructions.field_definitions});
+		(${addKeySQL} ${instructions.table_column_definitions});
 		`;
 
 		return sql;

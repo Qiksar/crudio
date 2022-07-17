@@ -408,10 +408,8 @@ export default class CrudioRepository {
 		const unique_keys = {};
 
 		const entityType = this.GetEntityDefinition(entityTypeName);
-		entityType.fields.map(f => {
-			if (f.fieldOptions.isUnique) {
-				unique_keys[f.fieldName] = [];
-			}
+		entityType.UniqueFields.map(f => {
+			unique_keys[f.fieldName] = [];
 		});
 
 		return unique_keys;
