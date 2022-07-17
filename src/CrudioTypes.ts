@@ -24,13 +24,6 @@ export enum CrudioWhere {
   NotIn = "_nin",
 }
 
-export interface ICrudioSchemaDefinition {
-  include: string[];
-  entities: CrudioEntityType[];
-  generators: Record<string,unknown>;
-  relationships: ISchemaRelationship[];
-}
-
 export interface ICrudioConfig {
   hasuraAdminSecret: string;
   hasuraEndpoint: string;
@@ -41,8 +34,15 @@ export interface ICrudioConfig {
   schema: string;
 }
 
+export interface ICrudioSchemaDefinition {
+  include?: string[];
+  entities?: CrudioEntityType[];
+  generators?: Record<string, unknown>;
+  snippets?: Record<string, unknown>;
+}
+
 export interface ICrudioFieldOptions {
-  isKey:boolean,
+  isKey: boolean,
 
   readonly?: boolean;
   defaultValue?: any;
@@ -80,129 +80,20 @@ export interface ICrudioField {
   GetCaption(): string;
 }
 
-export interface ICrudioEntityRelationship {
-  from: ICrudioEntityType;
-  from_column: string;
-  target: ICrudioEntityType;
-  target_column: string;
-  relationship_type: string;
-  relationship_name: string;
-}
-
-export interface ICrudioEntityType {
+export interface ICrudioEntityDefinition {
   name: string;
   tableAlias: string;
   tableName: string;
   fields: ICrudioField[];
-  relationships: ICrudioEntityRelationship[];
+  relationships: ISchemaRelationship[];
   source: string;
   editor: string;
   icon: string;
   caption: string;
-
-  GetFieldNames(): string[];
-  GetKey(): ICrudioField | null;
-  GetField(fieldname: string): ICrudioField;
-
-  SetAlias(alias: string): ICrudioEntityType;
-  AddField(
-    fieldName: string,
-    fieldType: string,
-    caption?: string,
-    options?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  AddGraphField(
-    entityName: string,
-    fieldList: string,
-    fieldOptions?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  // Add a relationship between the current entity.sourceColumn and the target.id
-  AddRelation(
-    sourceColumn: string,
-    target: CrudioEntityType,
-    targetColumn: string,
-    name: string
-    ): ICrudioEntityType;
-
-  AddKey(fieldName: string, fieldType?: string): ICrudioEntityType;
-
-  AddString(
-    fieldName: string,
-    caption?: string,
-    options?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  AddNumber(
-    fieldName: string,
-    caption?: string,
-    options?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  AddBoolean(
-    fieldName: string,
-    caption?: string,
-    options?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  AddDate(
-    fieldName: string,
-    caption?: string,
-    options?: ICrudioFieldOptions
-  ): ICrudioEntityType;
-
-  CreateInstance(values: {}, strict?: boolean): ICrudioEntityInstance;
-}
-
-export interface ICrudioEntityInstance {
-  entityType: ICrudioEntityType;
-  values: any;
-
-  CheckId(entity: ICrudioEntityInstance): boolean;
-}
-
-export interface ICrudioFilter {
-  fieldName: string;
-  filterType: string;
-  filterValue: string;
-}
-
-export interface ICrudioInclude {
-  entity: ICrudioEntityType;
-  entityName: string;
-  fields: ICrudioField[];
-}
-
-export interface ICrudioQuery {
-  name: string;
-  entity: ICrudioEntityType;
-
-  include: ICrudioInclude[];
-  append: ICrudioQuery[];
-
-  filters: ICrudioFilter[];
-  sortField: ICrudioField | null;
-  graphSortField: string;
-  sortDirection: string;
-
-  itemsPerPage?: number;
-  currentPage?: number;
-  limit?: number;
-  offset?: number;
-
-  Where(
-    fieldName: string,
-    filterType: CrudioWhere,
-    filterValue: string
-  ): ICrudioQuery;
-  OrderBy(fieldName: string, sortDirection?: CrudioSort): ICrudioQuery;
-}
-
-export interface ICrudioReadResult {
-  totalItems: number;
-  graphData: CrudioEntityInstance[];
-  query: string;
+  count: number;
+  inherits: string;
+  abstract: boolean;
+  snippets: string[];
 }
 
 export interface ISchemaTable {
@@ -214,10 +105,10 @@ export interface ISchemaRelationship {
   from_column: string;
   to: string;
   to_column: string;
-  
+
   name: string;
   type: string;
-  
+
   count: number;
 }
 

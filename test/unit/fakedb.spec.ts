@@ -25,6 +25,23 @@ describe("Create fake data", () => {
 		const joe: any = parse(text);
 		expect(joe.firstName).not.toBeNull;
 	});
+	
+
+	test("Load repository definition from JSON file", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json");
+
+		expect(() => repo.GetTable("Entitys")).toThrow();
+
+		const cactii: CrudioTable = repo.GetTable("Cactii");
+		expect(cactii).not.toBeNull();
+		expect(cactii.rows.length).toBeGreaterThan(0);
+
+		const user = repo.GetEntityDefinition("User");
+		expect(user).not.toBeNull;
+
+		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
+		expect(users.length).toBeGreaterThan(0);
+	});
 
 	test("Check for unique email addresses", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
@@ -68,22 +85,6 @@ describe("Create fake data", () => {
 				expect((removed[0] as string).indexOf("[")).toBeLessThan(0);
 			}
 		});
-	});
-
-	test("Load repository definition from JSON file", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
-
-		expect(() => repo.GetTable("Entitys")).toThrow();
-
-		const cactii: CrudioTable = repo.GetTable("Cactii");
-		expect(cactii).not.toBeNull();
-		expect(cactii.rows.length).toBeGreaterThan(0);
-
-		const user = repo.GetEntityDefinition("User");
-		expect(user).not.toBeNull;
-
-		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
-		expect(users.length).toBeGreaterThan(0);
 	});
 
 	test("Save and load database using flatted form", () => {

@@ -1,4 +1,26 @@
 {
+  "snippets": {
+    "firstname": {
+      "type": "string",
+      "name": "firstname",
+      "generator": "[firstname]"
+    },
+    "lastname": {
+      "type": "string",
+      "name": "lastname",
+      "generator": "[lastname]"
+    },
+    "address": {
+      "type": "string",
+      "name": "address",
+      "generator": "[address]"
+    },
+    "email": {
+      "type": "string",
+      "name": "email",
+      "generator": "[!firstname].[!lastname]@[server].[tld]"
+    }
+  },
   "generators": {
     "PersonGenerator": {
       "title": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady;Prof;",
@@ -6,7 +28,6 @@
       "lastname": "Smith;Brown;Jones;Robertson;Mctavish;Smithson;Ames;Wilson;Holmes;Watson;MacDonald;Owen;East;North;South;West;Williams;Tyler;Benson;Dobson;",
       "fullname": "[title] [firstname] [firstname] [lastname]"
     },
-
     "PlaceGenerator": {
       "address": "[house], [street] [streettype], [place], [state] [postcode]",
       "state": "WA;SA;NSW;VIC;NT;TAS;ACT;QLD;",
@@ -16,7 +37,6 @@
       "streettype": "Road;Street;Way;Close;Pass;Highway;Parade;Loop;Avenue;Boulevard;Crescent;",
       "house": "1;2;3;4;5;6;7;8;9;10;101;305;32a;32b;32c;"
     },
-
     "DateTimeGenerator": {
       "day": "1>28",
       "month": "1>12",
@@ -32,11 +52,14 @@
       "now": "[time]",
       "today": "[date]"
     },
-
     "InternetGenerators": {
       "uuid": "uuid",
-      "positive_byte": ["1>255"],
-      "byte": ["0>255"],
+      "positive_byte": [
+        "1>255"
+      ],
+      "byte": [
+        "0>255"
+      ],
       "hex_digit": "0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F;",
       "hex": "[hex_digit][hex_digit]",
       "mac_address": "[hex]:[hex]:[hex]:[hex]:[hex]:[hex]",
@@ -45,12 +68,10 @@
       "server": "gmail;outlook;yahoo;microsoft;",
       "tld": "net;com;gov;org;co.uk;com.au;net.au;wa.gov.au;nsw.gov.au;"
     },
-
     "CompanyGenerators": {
       "department": "hr;finance;it;exec;sales;purchasing",
       "organisation_name": "Mega Corp;Global Acme Industries;BettaWorld;UbaCabz;WestBank;Spacebook;Pictagram;Woodlane;Treslah;Zoox;Toyo;Playtoon;Yoogothere;Bleepstah;Gastex;Peoplville;Staylocalz;Getitnow;Shopez;Help4free;AssistMe;HelpYou;Communitexpro;GroupsMeetNow;AllForFree;Upcyclaz;Recyclaz;JunkToCashNow;WorkFromYahHome;MediGeniuz;DoctahSmart;QikHelpOnlik;QikShopFromHome;Autohomeztek;SensazEverywhere;SmartSenz247;"
     },
-
     "MetricGenerators": {
       "length": "10>100",
       "height": "100>250",

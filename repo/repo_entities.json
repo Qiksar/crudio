@@ -13,9 +13,11 @@
 				"name": "created",
 				"generator": "[timestamp]"
 			},
-			"deleted": { "type": "timestamp", "name": "deleted" }
+			"deleted": {
+				"type": "timestamp",
+				"name": "deleted"
+			}
 		},
-
 		"Organisation": {
 			"inherits": "Entity",
 			"count": 4,
@@ -35,30 +37,10 @@
 				"generator": "contact@[!name].org.au"
 			}
 		},
-
 		"Person": {
 			"abstract": true,
 			"inherits": "Entity",
-			"firstname": {
-				"type": "string",
-				"name": "firstname",
-				"generator": "[firstname]"
-			},
-			"lastname": {
-				"type": "string",
-				"name": "lastname",
-				"generator": "[lastname]"
-			},
-			"address": {
-				"type": "string",
-				"name": "address",
-				"generator": "[address]"
-			},
-			"email": {
-				"type": "string",
-				"name": "email",
-				"generator": "[!firstname].[!lastname]@[server].[tld]"
-			},
+			"snippets":["firstname","lastname","address","email"],
 			"dob": {
 				"type": "date",
 				"name": "dob",
@@ -69,9 +51,12 @@
 				"name": "height",
 				"generator": "[height]"
 			},
-			"weight": { "type": "integer", "name": "weight", "generator": "[weight]" }
+			"weight": {
+				"type": "integer",
+				"name": "weight",
+				"generator": "[weight]"
+			}
 		},
-
 		"User": {
 			"count": 200,
 			"inherits": "Person",
@@ -86,7 +71,6 @@
 				}
 			]
 		},
-
 		"Program": {
 			"inherits": "Entity",
 			"name": {
@@ -106,7 +90,6 @@
 				}
 			]
 		},
-
 		"Cactus": {
 			"inherits": "Entity",
 			"height": {
@@ -115,7 +98,6 @@
 				"generator": "[length]"
 			}
 		},
-
 		"Cohort": {
 			"inherits": "Entity",
 			"name": {
@@ -130,7 +112,6 @@
 				}
 			]
 		},
-
 		"Survey": {
 			"inherits": "Entity",
 			"name": {
@@ -145,7 +126,6 @@
 				}
 			]
 		},
-
 		"Client": {
 			"inherits": "Person",
 			"relationships": [
@@ -155,7 +135,6 @@
 				}
 			]
 		},
-
 		"Tag": {
 			"inherits": "Entity",
 			"count": 25,
@@ -166,7 +145,6 @@
 				"generator": "[tag]"
 			}
 		},
-
 		"Blog": {
 			"inherits": "Entity",
 			"article_text": {
@@ -174,13 +152,11 @@
 				"name": "article",
 				"generator": "[article]"
 			},
-
 			"published_date": {
 				"type": "timestamp",
 				"name": "published_date",
 				"generator": "[timestamp]"
 			},
-
 			"relationships": [
 				{
 					"type": "many",

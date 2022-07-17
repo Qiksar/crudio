@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioFieldOptions, ICrudioSchemaDefinition, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioSchemaDefinition, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityType from "./CrudioEntityType";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -18,6 +18,7 @@ export default class CrudioRepository {
 	public defaultRowCount = 50;
 
 	public generators: Record<string, unknown> = {};
+	public snippets = {};
 	public tables: CrudioTable[] = [];
 	public entities: CrudioEntityType[] = [];
 	public relationships: CrudioEntityRelationship[] = [];
@@ -31,9 +32,18 @@ export default class CrudioRepository {
 	//#endregion
 
 	constructor(repo: ICrudioSchemaDefinition) {
+		if (!repo.generators) {
+			repo.generators = {};
+		}
+
+		if (!repo.snippets) {
+			repo.snippets = {};
+		}
+
 		this.ProcessIncludes(repo);
 
 		this.generators = { ...repo.generators };
+		this.snippets = { ...repo.snippets };
 
 		this.LoadEntityDefinitions(repo);
 		this.CreateDataTables(this.entities);
@@ -84,29 +94,31 @@ export default class CrudioRepository {
 			});
 		}
 
-		if (input.entities) repo.entities = { ...repo.entities, ...input.entities };
+		if (input.snippets) {
+			repo.snippets = { ...repo.snippets, ...input.snippets };
+		}
 
-		if (input.relationships) repo.relationships = { ...repo.relationships, ...input.relationships };
+		if (input.entities) {
+			repo.entities = { ...repo.entities, ...input.entities }
+		};
 	}
 
 	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
 		this.entities = [];
 
-		var eKeys: string[] = Object.keys(repo.entities);
+		var entity_names: string[] = Object.keys(repo.entities);
 
 		// create the basic entity structures
-		for (var index: number = 0; index < eKeys.length; index++) {
-			var entityname: string = eKeys[index];
+		for (var index: number = 0; index < entity_names.length; index++) {
+			var entityname: string = entity_names[index];
 			var entitySchema: any = repo.entities[entityname];
 			this.CreateEntity(entitySchema, entityname);
 		}
 	}
 
-	private CreateEntity(entityDefinition: any, entityname: string) {
+	private CreateEntity(entityDefinition: ICrudioEntityDefinition, entityname: string) {
 		var entity: CrudioEntityType = this.CreateEntityType(entityname);
 		entity.max_row_count = entityDefinition.count ?? this.defaultRowCount;
-
-		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
 
 		if (entityDefinition.abstract) entity.abstract = true;
 
@@ -114,6 +126,17 @@ export default class CrudioRepository {
 		if (entityDefinition.inherits) {
 			this.InheritBaseFields(entityDefinition.inherits, entity);
 		}
+
+		if (entityDefinition.snippets) {
+			entityDefinition.snippets.map(s => {
+				entityDefinition[s] = { ...this.snippets[s] };
+			});
+
+			// snippets can be deleted from the definition once they have been expanded
+			delete entityDefinition["snippets"];
+		}
+
+		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
 
 		for (var findex: number = 0; findex < fKeys.length; findex++) {
 			var fieldname: string = fKeys[findex];
