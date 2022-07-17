@@ -246,6 +246,7 @@ export default class CrudioDataWrapper {
 				});
 
 				create_many_to_many_rows = create_many_to_many_rows.slice(0, create_many_to_many_rows.length - 1) + ";";
+				instructions.insert_many_to_many_rows += create_many_to_many_rows;
 			});
 		}
 	}
