@@ -26,13 +26,35 @@ describe("Create fake data", () => {
 		expect(joe.firstName).not.toBeNull;
 	});
 
-	test("Check for unique values, such as email addresses", () => {
+	test("Check for unique email addresses", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
 		var uniqueKeys: string[] = [];
 
 		users.map(u => {
 			uniqueKeys.push(u.values.email);
+		});
+
+		// Run through all lists of unique values
+		Object.keys(uniqueKeys).map(k => {
+			// Slice the first item off the list, and then ensure a duplicate values has not remained in the list
+			while (uniqueKeys.length > 1) {
+				const removed = uniqueKeys.splice(0, 1);
+				const dupe_index = uniqueKeys.indexOf(removed[0]);
+				if (dupe_index >= 0) throw "Test failed: Found a duplicate value";
+				expect(dupe_index).toBeLessThan(0);
+				expect((removed[0] as string).indexOf("[")).toBeLessThan(0);
+			}
+		});
+	});
+	
+	test("Check for unique tag names", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").rows;
+		var uniqueKeys: string[] = [];
+
+		tags.map(u => {
+			uniqueKeys.push(u.values.name);
 		});
 
 		// Run through all lists of unique values

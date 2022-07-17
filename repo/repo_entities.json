@@ -167,7 +167,7 @@
 
 		"Tag": {
 			"inherits": "Entity",
-			"count": 20,
+			"count": 25,
 			"name": {
 				"unique": "true",
 				"type": "string",
