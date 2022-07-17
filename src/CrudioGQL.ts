@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { ICrudioConfig  } from './CrudioTypes';
+import { ICrudioConfig } from "./CrudioTypes";
 
 export default class CrudioGQL {
 	config: ICrudioConfig;
@@ -11,7 +11,7 @@ export default class CrudioGQL {
 
 	async Execute(request: {}): Promise<{}> {
 		if (!request) {
-			throw 'request is required';
+			throw "request is required";
 		}
 
 		let requestConfig: {} = {};
@@ -20,19 +20,19 @@ export default class CrudioGQL {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					'X-Hasura-Admin-Secret': this.config.hasuraAdminSecret
-				}
+					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
+				},
 			};
 		}
 
 		try {
 			var result: any = await axios.post(this.config.hasuraEndpoint, request, requestConfig);
 			return result.data;
-		} catch (e:any) {
-			console.log('');
-			console.log('');
-			console.log('** ERROR');
-			console.log('GQL Error :');
+		} catch (e: any) {
+			console.log("");
+			console.log("");
+			console.log("** ERROR");
+			console.log("GQL Error :");
 			console.log(e.response.data);
 
 			throw e;
@@ -41,14 +41,14 @@ export default class CrudioGQL {
 
 	async ExecuteSQL(sql_statement: string): Promise<any> {
 		if (!sql_statement) {
-			throw new Error('sql_statement is required');
+			throw new Error("sql_statement is required");
 		}
 
 		var sqlQuery: {} = {
-			type: 'run_sql',
+			type: "run_sql",
 			args: {
-				sql: sql_statement
-			}
+				sql: sql_statement,
+			},
 		};
 
 		let requestConfig: {} = {};
@@ -57,33 +57,31 @@ export default class CrudioGQL {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					'X-Hasura-Admin-Secret': this.config.hasuraAdminSecret
-				}
+					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
+				},
 			};
 		}
 
 		try {
 			var results: any = await axios.post(this.config.hasuraQueryEndpoint, sqlQuery, requestConfig);
-			if(results.data.errors && results.data.errors.length > 0){
-				throw new Error(results.data.errors)
+			if (results.data.errors && results.data.errors.length > 0) {
+				throw new Error(results.data.errors);
 			}
 
 			return results.data.result;
-		} catch (e:any) {
-			console.log('** ERROR');
-			console.log('SQL Error :');
-			console.log(e.response.data);
+		} catch (e: any) {
+			if (e.code === "ECONNREFUSED") {
+				console.log("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
+			} else {
+				console.log("Error: Failed to execute SQL statement.");
+				console.log(e.response.data ?? e.response);
+			}
 
 			throw e;
 		}
 	}
 
-	async TranslateJsonToTable(
-		sql: string,
-		parseJson: boolean = true,
-		jsonIndex: number = 0,
-		sql_columns: {}[] = []
-	): Promise<{}> {
+	async TranslateJsonToTable(sql: string, parseJson: boolean = true, jsonIndex: number = 0, sql_columns: {}[] = []): Promise<{}> {
 		var input_rows: any = await this.ExecuteSQL(sql);
 
 		// return empty array if no data rows exist
@@ -113,7 +111,7 @@ export default class CrudioGQL {
 			var currentJson: any = parseJson ? JSON.parse(current_row[jsonIndex]) : current_row[jsonIndex];
 
 			// add JSON values to output record
-			Object.keys(currentJson).map((key) => {
+			Object.keys(currentJson).map(key => {
 				var value: any = currentJson[key];
 				output[key] = value;
 
@@ -128,7 +126,7 @@ export default class CrudioGQL {
 
 		return {
 			column_headers: columnKeys,
-			data_rows: output_rows
+			data_rows: output_rows,
 		};
 	}
 
