@@ -81,7 +81,7 @@ export default class CrudioDataWrapper {
 		// The list of columns goes into the INSERT statement
 		entity.fields.map((f: CrudioField) => {
 			if (f.fieldName != entity.KeyField.fieldName) {
-				instructions.table_column_definitions += `"${f.fieldName}" ${f.GetDatabaseFieldType},
+				instructions.table_column_definitions += `"${f.fieldName}" ${f.GetDatabaseFieldType} ${f.fieldOptions.isUnique ? "UNIQUE" : ""},
 				`;
 
 				if (f.defaultValue) {
