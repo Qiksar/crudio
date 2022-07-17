@@ -37,26 +37,17 @@
 		},
 
 		"Person": {
+			"abstract": true,
 			"inherits": "Entity",
 			"firstname": {
 				"type": "string",
 				"name": "firstname",
 				"generator": "[firstname]"
 			},
-			"middlename": {
-				"type": "string",
-				"name": "middlename",
-				"generator": "[middlename]"
-			},
 			"lastname": {
 				"type": "string",
 				"name": "lastname",
 				"generator": "[lastname]"
-			},
-			"fullname": {
-				"type": "string",
-				"name": "fullname",
-				"generator": "[!firstname] [!middlename] [!lastname]"
 			},
 			"address": {
 				"type": "string",
@@ -82,8 +73,8 @@
 		},
 
 		"User": {
-			"inherits": "Person",
 			"count": 20000,
+			"inherits": "Person",
 			"email": {
 				"unique": true,
 				"generator": "[user_email]"

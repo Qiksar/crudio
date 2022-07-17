@@ -197,9 +197,8 @@ Let's peek at the `standard_generators.json` file:
     "PersonGenerator": {
       "title": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady",
       "firstname": "Bob;Robert;Rob;Jane;",
-      "middlename": "Bob;Robert;Rob;Jane;Fred;",
       "lastname": "Smith;Brown;Jones;Robertson;",
-      "fullname": "[title] [firstname] [middlename] [lastname]"
+      "fullname": "[title] [firstname] [lastname]"
     },
 
     "PlaceGenerator": {
