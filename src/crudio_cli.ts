@@ -12,6 +12,7 @@ setTimeout(async () => {
     idFieldName: "id",
     readonlyFields: [],
     schema: "crudio",
+    only_generate_data: false
   };
 
   const definition = process.argv[2];

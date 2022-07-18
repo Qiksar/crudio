@@ -16,6 +16,7 @@ export default class CrudioEntityType {
 	public icon: string = "none";
 	public caption: string = "none";
 	public max_row_count: number = 50;
+	public snippets?: string[] = [];
 
 	private unique_keys_values = {};
 
@@ -45,7 +46,7 @@ export default class CrudioEntityType {
 
 		return fields;
 	}
-	
+
 	InitialiseUniqueKeyValues() {
 		this.UniqueFields.map(f => {
 			this.unique_keys_values[f.fieldName] = [];
@@ -171,5 +172,4 @@ export default class CrudioEntityType {
 	CreateInstance(values: {}): CrudioEntityInstance {
 		return new CrudioEntityInstance(this, values);
 	}
-
 }

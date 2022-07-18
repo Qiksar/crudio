@@ -291,6 +291,20 @@ URL: `http://localhost:6789/console/`
 }
 ```
 
+## Get a list of users with their organisations and prove their email address matches the orgniation they work for
+```
+{
+  crudio_Users{
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+  }
+}
+```
+
 # Credits
 
 Thank you to the key repository owners below:

@@ -38,7 +38,7 @@ export interface ICrudioSchemaDefinition {
   include?: string[];
   entities?: CrudioEntityType[];
   generators?: Record<string, unknown>;
-  snippets?: Record<string, unknown>;
+  snippets?: {};
 }
 
 export interface ICrudioFieldOptions {

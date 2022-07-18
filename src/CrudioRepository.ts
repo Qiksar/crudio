@@ -13,38 +13,21 @@ import CrudioTable from "./CrudioTable";
 export default class CrudioRepository {
 	//#region Properties
 
-	// This entity properties are ignored when looking for fields to populate with random data
+	// These entity properties are ignored when looking for fields to populate with random data
 	private ignoreFields = ["inherits", "abstract", "relationships", "count", "seed_by"];
 	public defaultRowCount = 50;
 
 	public generators: Record<string, unknown> = {};
-	public snippets = {};
 	public tables: CrudioTable[] = [];
 	public entities: CrudioEntityType[] = [];
 	public relationships: CrudioEntityRelationship[] = [];
 	public schema: string = null;
 
-	private entityId: number = 1;
-	public getEntityId(): number {
-		return this.entityId++;
-	}
-
 	//#endregion
 
 	constructor(repo: ICrudioSchemaDefinition) {
-		if (!repo.generators) {
-			repo.generators = {};
-		}
-
-		if (!repo.snippets) {
-			repo.snippets = {};
-		}
-
-		this.ProcessIncludes(repo);
-
-		this.generators = { ...repo.generators };
-		this.snippets = { ...repo.snippets };
-
+		this.PreProcessRepositoryDefinition(repo);
+		this.ExpandAllSnippets(repo);
 		this.LoadEntityDefinitions(repo);
 		this.CreateDataTables(this.entities);
 		this.FillDataTables();
@@ -73,12 +56,22 @@ export default class CrudioRepository {
 		});
 	}
 
-	private ProcessIncludes(repo: ICrudioSchemaDefinition): void {
+	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition): void {
+		if (!repo.generators) {
+			repo.generators = {};
+		}
+
+		if (!repo.snippets) {
+			repo.snippets = {};
+		}
+		
 		if (repo.include) {
 			repo.include.map((filename: any) => {
 				this.Merge(filename, repo);
 			});
 		}
+
+		this.generators = { ...repo.generators };
 	}
 
 	// Merge an external repository into the current one
@@ -86,7 +79,7 @@ export default class CrudioRepository {
 	private Merge(filename: string, repo: ICrudioSchemaDefinition) {
 		const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename);
 
-		if (input.include) this.ProcessIncludes(input);
+		if (input.include) this.PreProcessRepositoryDefinition(input);
 
 		if (input.generators) {
 			Object.values(input.generators).map((group: any) => {
@@ -103,20 +96,35 @@ export default class CrudioRepository {
 		}
 	}
 
+	// create the basic entity structures
 	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
 		this.entities = [];
-
 		var entity_names: string[] = Object.keys(repo.entities);
 
-		// create the basic entity structures
 		for (var index: number = 0; index < entity_names.length; index++) {
 			var entityname: string = entity_names[index];
 			var entitySchema: any = repo.entities[entityname];
-			this.CreateEntity(entitySchema, entityname);
+			this.CreateEntityDefinition(entitySchema, entityname);
 		}
 	}
 
-	private CreateEntity(entityDefinition: ICrudioEntityDefinition, entityname: string) {
+	private ExpandAllSnippets(repo: ICrudioSchemaDefinition) {
+		Object.keys(repo.entities).map(e => {
+			const entity = repo.entities[e];
+			const entity_snippets = entity.snippets as string[];
+
+			if (entity_snippets) {
+				entity_snippets.map(s => {
+					entity[s] = { ...repo.snippets[s] };
+				});
+
+				// snippets can be deleted from the definition once they have been expanded
+				delete entity["snippets"];
+			}
+		});
+	}
+
+	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string) {
 		var entityType: CrudioEntityType = this.CreateEntityType(entityname);
 		entityType.max_row_count = entityDefinition.count ?? this.defaultRowCount;
 
@@ -125,15 +133,6 @@ export default class CrudioRepository {
 		// copy inherited fields from the base entity
 		if (entityDefinition.inherits) {
 			this.InheritBaseFields(entityDefinition.inherits, entityType);
-		}
-
-		if (entityDefinition.snippets) {
-			entityDefinition.snippets.map(s => {
-				entityDefinition[s] = { ...this.snippets[s] };
-			});
-
-			// snippets can be deleted from the definition once they have been expanded
-			delete entityDefinition["snippets"];
 		}
 
 		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
