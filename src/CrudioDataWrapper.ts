@@ -24,18 +24,17 @@ export default class CrudioDataWrapper {
 
 	constructor(config: ICrudioConfig, repo: CrudioRepository) {
 		this.config = { ...config };
-		if (repo.schema)
-			this.config.schema = repo.schema;
+		if (repo.schema) this.config.schema = repo.schema;
 
 		this.gql = new CrudioGQL(this.config);
 		this.repo = repo;
 	}
 
-	public async CreateEmptySchema() {
+	public async CreateDatabaseSchema() {
 		await this.gql.ExecuteSQL(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
 	}
 
-	public async CreateTables() {
+	public async PopulateDatabaseTables() {
 		var instructions = new SqlInstructionList();
 
 		for (var index = 0; index < this.repo.tables.length; index++) {
@@ -43,17 +42,22 @@ export default class CrudioDataWrapper {
 			const entity = this.repo.GetEntityDefinition(table.entity);
 
 			this.BuildSqlColumnsForTable(entity, instructions);
-			this.AppendOneToManyKeys(entity, table, instructions);
-			this.AppendManyToManyKeys(entity, table, instructions);
+			this.BuildSqlForOneToManyKeys(entity, table, instructions);
+			this.BuildSqlForManyToManyKeys(entity, table, instructions);
 
 			// -------------- Create the data table
 
-			await this.gql.ExecuteSQL(this.BuildCreateTableStatement(entity, table, instructions));
+			const sql_create_tables = this.BuildCreateTableStatement(entity, table, instructions);
+			if (!this.config.only_generate_data) {
+				await this.gql.ExecuteSQL(sql_create_tables);
+			}
 
-			// -------------- Build insert rows
+			// -------------- Build and insert rows
 
 			this.BuildInsertData(table, instructions);
-			await this.gql.ExecuteSQL(instructions.insert_table_rows);
+			if (!this.config.only_generate_data) {
+				await this.gql.ExecuteSQL(instructions.insert_table_rows);
+			}
 		}
 
 		await this.ProcessForeignKeys(instructions);
@@ -62,11 +66,14 @@ export default class CrudioDataWrapper {
 	private async ProcessForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Create many to many join tables
 
-		await this.gql.ExecuteSQL(instructions.create_foreign_key_tables, false);
+		if (!this.config.only_generate_data) {
+			await this.gql.ExecuteSQL(instructions.create_foreign_key_tables, false);
+		}
 
 		// -------------- Add foreign keys to tables
-
-		await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);
+		if (!this.config.only_generate_data) {
+			await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);
+		}
 
 		this.BuildInsertManyToManyData(instructions);
 		await this.gql.ExecuteSQL(instructions.insert_many_to_many_rows, false);
@@ -112,7 +119,7 @@ export default class CrudioDataWrapper {
 		instructions.table_column_definitions = instructions.table_column_definitions.slice(0, instructions.table_column_definitions.length - 1);
 	}
 
-	private AppendOneToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
+	private BuildSqlForOneToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
 		entity.OneToManyRelationships.map(r => {
 			const target = this.repo.tables.filter(t => t.entity === r.ToEntity)[0];
 
@@ -129,7 +136,7 @@ export default class CrudioDataWrapper {
 		});
 	}
 
-	private AppendManyToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
+	private BuildSqlForManyToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
 		var create_foreign_keys = "";
 
 		entity.ManyToManyRelationships.map(relationship_definition => {

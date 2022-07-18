@@ -17,6 +17,8 @@ export default class CrudioEntityType {
 	public caption: string = "none";
 	public max_row_count: number = 50;
 
+	private unique_keys_values = {};
+
 	public get OneToManyRelationships(): CrudioEntityRelationship[] {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "one");
 	}
@@ -31,7 +33,7 @@ export default class CrudioEntityType {
 		this.name = name;
 		this.tableName = table;
 	}
-  
+
 	public get UniqueFields(): CrudioField[] {
 		const fields: CrudioField[] = [];
 
@@ -42,6 +44,20 @@ export default class CrudioEntityType {
 		});
 
 		return fields;
+	}
+	
+	InitialiseUniqueKeyValues() {
+		this.UniqueFields.map(f => {
+			this.unique_keys_values[f.fieldName] = [];
+		});
+	}
+
+	HasUniqueValue(field_name: string, value: string): boolean {
+		return this.unique_keys_values[field_name].indexOf(value) >= 0;
+	}
+
+	AddUniqueValue(field_name: string, value: string) {
+		this.unique_keys_values[field_name].push(value);
 	}
 
 	public get KeyField(): CrudioField | null {
@@ -155,4 +171,5 @@ export default class CrudioEntityType {
 	CreateInstance(values: {}): CrudioEntityInstance {
 		return new CrudioEntityInstance(this, values);
 	}
+
 }

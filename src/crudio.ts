@@ -42,9 +42,9 @@ setTimeout(async () => {
   console.log("Data repository populated");
 
   console.log(`Creating empty database schema ${config.schema}...`);
-  await db.CreateEmptySchema();
+  await db.CreateDatabaseSchema();
 
-  await db.CreateTables();
+  await db.PopulateDatabaseTables();
   console.log("Populating tables with data...");
   console.log();
   console.log("Database has been loaded.");

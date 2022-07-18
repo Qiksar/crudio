@@ -3,12 +3,21 @@
 
 import { stringify, parse } from "flatted";
 
+import { ICrudioConfig } from "../../src/CrudioTypes";
 import CrudioRepository from "../../src/CrudioRepository";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
-import { ICrudioConfig } from "../../src/CrudioTypes";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
-import CrudioField from "../../src/CrudioField";
+
+const config: ICrudioConfig = {
+	hasuraEndpoint: "http://localhost:6789",
+	hasuraQueryEndpoint: "http://localhost:6789/v2/query",
+	hasuraAdminSecret: "crudio",
+	idFieldName: "id",
+	readonlyFields: [],
+	schema: "crudio_test",
+	only_generate_data: false
+};
 
 describe("Create fake data", () => {
 	jest.setTimeout(120000);
@@ -134,21 +143,12 @@ describe("Create fake data", () => {
 	});
 
 	test("Populate database", async () => {
-		const config: ICrudioConfig = {
-			hasuraEndpoint: "http://localhost:6789",
-			hasuraQueryEndpoint: "http://localhost:6789/v2/query",
-			hasuraAdminSecret: "crudio",
-			idFieldName: "id",
-			readonlyFields: [],
-			schema: "crudio",
-		};
-
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 		const db = new CrudioDataWrapper(config, repo);
 		expect(db).not.toBeNull;
 		expect(db.gql).not.toBeNull;
 
-		await db.CreateEmptySchema();
-		await db.CreateTables();
+		await db.CreateDatabaseSchema();
+		await db.PopulateDatabaseTables();
 	});
 });

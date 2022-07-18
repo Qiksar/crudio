@@ -58,7 +58,7 @@
 			}
 		},
 		"User": {
-			"count": 200,
+			"count": 20000,
 			"inherits": "Person",
 			"email": {
 				"unique": true,

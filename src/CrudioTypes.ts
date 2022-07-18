@@ -1,4 +1,3 @@
-import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioEntityType from "./CrudioEntityType";
 
 export enum CrudioSort {
@@ -32,6 +31,7 @@ export interface ICrudioConfig {
   idFieldName: string;
   readonlyFields: string[];
   schema: string;
+  only_generate_data: boolean;
 }
 
 export interface ICrudioSchemaDefinition {

@@ -99,8 +99,8 @@ export default class CrudioRepository {
 		}
 
 		if (input.entities) {
-			repo.entities = { ...repo.entities, ...input.entities }
-		};
+			repo.entities = { ...repo.entities, ...input.entities };
+		}
 	}
 
 	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
@@ -117,14 +117,14 @@ export default class CrudioRepository {
 	}
 
 	private CreateEntity(entityDefinition: ICrudioEntityDefinition, entityname: string) {
-		var entity: CrudioEntityType = this.CreateEntityType(entityname);
-		entity.max_row_count = entityDefinition.count ?? this.defaultRowCount;
+		var entityType: CrudioEntityType = this.CreateEntityType(entityname);
+		entityType.max_row_count = entityDefinition.count ?? this.defaultRowCount;
 
-		if (entityDefinition.abstract) entity.abstract = true;
+		if (entityDefinition.abstract) entityType.abstract = true;
 
 		// copy inherited fields from the base entity
 		if (entityDefinition.inherits) {
-			this.InheritBaseFields(entityDefinition.inherits, entity);
+			this.InheritBaseFields(entityDefinition.inherits, entityType);
 		}
 
 		if (entityDefinition.snippets) {
@@ -150,22 +150,24 @@ export default class CrudioRepository {
 				defaultValue: fieldSchema.default === undefined ? null : fieldSchema.default,
 			};
 
-			entity.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
+			entityType.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
 		}
 
 		if (entityDefinition.relationships) {
 			entityDefinition.relationships.map((r: ISchemaRelationship) => {
 				const new_rel = new CrudioEntityRelationship({
-					from: entity.name,
+					from: entityType.name,
 					...r,
 				});
 
-				entity.relationships.push(new_rel);
+				entityType.relationships.push(new_rel);
 
 				// cache relationships globally
 				this.relationships.push(new_rel);
 			});
 		}
+
+		entityType.InitialiseUniqueKeyValues();
 	}
 
 	private InheritBaseFields(baseEntityName: string, targetEntity: CrudioEntityType): void {
@@ -359,7 +361,7 @@ export default class CrudioRepository {
 	//#region Fill data tables
 
 	private FillDataTables(): void {
-		this.DropData();
+		this.ClearAllInMemoryTables();
 
 		// create data for each table
 		const tables = this.tables.filter((t: any) => !t.abstract);
@@ -384,18 +386,7 @@ export default class CrudioRepository {
 		table.rows = records;
 	}
 
-	private CreateEntityInstance(entityType: CrudioEntityType): CrudioEntityInstance {
-		var entity: CrudioEntityInstance = entityType.CreateInstance({});
-
-		entityType.fields.map(field => {
-			var generator: string | undefined = field.fieldOptions.generator;
-			entity.values[field.fieldName] = generator;
-		});
-
-		return entity;
-	}
-
-	private DropData(): void {
+	private ClearAllInMemoryTables(): void {
 		this.tables.map((t: CrudioTable) => {
 			delete t.rows;
 		});
@@ -426,38 +417,27 @@ export default class CrudioRepository {
 
 	//#endregion
 
-	//#region Populate entity data fields
+	//#region create entities and connect to generators
 
-	private CreateUniqueKeyCache(entityTypeName: string): any {
-		const unique_keys = {};
+	private CreateEntityInstance(entityType: CrudioEntityType): CrudioEntityInstance {
+		var entity: CrudioEntityInstance = entityType.CreateInstance({});
+		this.SetupEntityGenerators(entity);
 
-		const entityType = this.GetEntityDefinition(entityTypeName);
-		entityType.UniqueFields.map(f => {
-			unique_keys[f.fieldName] = [];
-		});
-
-		return unique_keys;
+		return entity;
 	}
 
-	private ProcessTokensInAllTables(): void {
-		this.tables.map(table => {
-			const unique_keys = this.CreateUniqueKeyCache(table.entity);
-			table.rows.map(entityInstance => {
-				var ok = false;
-				var maxtries = 1000;
-
-				while (!ok && maxtries-- > 0) {
-					if (maxtries == 0) {
-						throw new Error(`Error: Failed to create unique value for ${table.name}`);
-					}
-
-					ok = this.ProcessTokensInEntity(entityInstance, unique_keys);
-				}
-			});
+	private SetupEntityGenerators(entity: CrudioEntityInstance) {
+		entity.entityType.fields.map(field => {
+			var generator: string | undefined = field.fieldOptions.generator;
+			entity.values[field.fieldName] = generator;
 		});
 	}
 
-	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance, unique_keys: {}): boolean {
+	//#endregion
+
+	//#region create and populate entities
+
+	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): boolean {
 		// as we generate the entity a field may require unique values, like a unique database constrain on a field
 		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
 		// if the email value created is not unique, the entire entity is rejected so a new first and last name can be created, to form a new unique email
@@ -471,9 +451,8 @@ export default class CrudioRepository {
 		for (var i = 0; i < keys.length; i++) {
 			const field_name = keys[i];
 			const field_value: string = new_instance.values[field_name];
-			var value_type = typeof field_value;
 
-			if (value_type === "string" && field_value.indexOf("[") >= 0) {
+			if (typeof field_value === "string" && field_value.indexOf("[") >= 0) {
 				const detokenised_value = this.ReplaceTokens(field_value, new_instance);
 				new_instance.values[field_name] = detokenised_value;
 
@@ -484,11 +463,11 @@ export default class CrudioRepository {
 
 				// keep track of unique field values
 				if (entity_field && entity_field.fieldOptions.isUnique) {
-					if (unique_keys[field_name].indexOf(detokenised_value.toLowerCase().trim()) >= 0) {
+					if (entityInstance.entityType.HasUniqueValue(field_name, detokenised_value.toLowerCase().trim())) {
 						return false;
 					}
 
-					unique_keys[field_name].push(detokenised_value.toLowerCase().trim());
+					entityInstance.entityType.AddUniqueValue(field_name, detokenised_value.toLowerCase().trim());
 				}
 			} else {
 				// it's ok that the field is defined but there is no default value or generated value specified
@@ -497,6 +476,22 @@ export default class CrudioRepository {
 
 		entityInstance.values = { ...new_instance.values };
 		return true;
+	}
+	private ProcessTokensInAllTables(): void {
+		this.tables.map(table => {
+			table.rows.map(entityInstance => {
+				var ok = false;
+				var maxtries = 1000;
+
+				while (!ok && maxtries-- > 0) {
+					if (maxtries == 0) {
+						throw new Error(`Error: Failed to create unique value for ${table.name}`);
+					}
+
+					ok = this.ProcessTokensInEntity(entityInstance);
+				}
+			});
+		});
 	}
 
 	private ProcessTokensInField(entity: CrudioEntityInstance, fieldName: string, clean: boolean): string {
