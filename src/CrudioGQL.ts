@@ -2,13 +2,42 @@ import axios from "axios";
 
 import { ICrudioConfig } from "./CrudioTypes";
 
+/**
+ * GraphQL wrapper
+ * @date 7/18/2022 - 3:37:33 PM
+ *
+ * @export
+ * @class CrudioGQL
+ * @typedef {CrudioGQL}
+ */
 export default class CrudioGQL {
+	/**
+	 * System configuration
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @type {ICrudioConfig}
+	 */
 	config: ICrudioConfig;
 
+	/**
+	 * Creates an instance of CrudioGQL.
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @constructor
+	 * @param {ICrudioConfig} config
+	 */
 	constructor(config: ICrudioConfig) {
 		this.config = config;
 	}
 
+	/**
+	 * Execute GraphQL command
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @async
+	 * @param {{}} request
+	 * @returns {Promise<{}>}
+	 */
 	async Execute(request: {}): Promise<{}> {
 		if (!request) {
 			throw "request is required";
@@ -36,6 +65,15 @@ export default class CrudioGQL {
 		}
 	}
 
+	/**
+	 * Execute an SQL command
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @async
+	 * @param {string} sql_statement
+	 * @param {boolean} [failIfEmptyStatement=true]
+	 * @returns {Promise<any>}
+	 */
 	async ExecuteSQL(sql_statement: string, failIfEmptyStatement = true): Promise<any> {
 		if (!sql_statement) {
 			if (!failIfEmptyStatement) return;
@@ -80,6 +118,17 @@ export default class CrudioGQL {
 		}
 	}
 
+	/**
+	 * Translate a JSON object graph to column and row format
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @async
+	 * @param {string} sql
+	 * @param {boolean} [parseJson=true]
+	 * @param {number} [jsonIndex=0]
+	 * @param {{}[]} [sql_columns=[]]
+	 * @returns {Promise<{}>}
+	 */
 	async TranslateJsonToTable(sql: string, parseJson: boolean = true, jsonIndex: number = 0, sql_columns: {}[] = []): Promise<{}> {
 		var input_rows: any = await this.ExecuteSQL(sql);
 
@@ -129,6 +178,15 @@ export default class CrudioGQL {
 		};
 	}
 
+	/**
+	 * Extract values for a specified column name
+	 * @date 7/18/2022 - 3:37:33 PM
+	 *
+	 * @async
+	 * @param {string} sql
+	 * @param {number} [columnIndex=0]
+	 * @returns {Promise<any[]>}
+	 */
 	async GetColumnValues(sql: string, columnIndex: number = 0): Promise<any[]> {
 		// get rows of data
 		var data: [][] = ((await this.ExecuteSQL(sql)) as [][]).splice(1);

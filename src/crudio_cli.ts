@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+// Crudio CLI
+//
+//  Usage: crudio repo_path.json [target_schema]
+//
+//        repo_path.json : the path to the repository definition, which is a JSON file.
+//        target_schema  : Optional schema name - default value is 'crudio'
+//
+
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioRepository from "./CrudioRepository";
 import { ICrudioConfig } from "./CrudioTypes";

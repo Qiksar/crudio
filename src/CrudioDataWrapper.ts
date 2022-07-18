@@ -5,36 +5,135 @@ import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
 import CrudioEntityType from "./CrudioEntityType";
 
+/**
+ * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
+ * @date 7/18/2022 - 1:46:23 PM
+ *
+ * @class SqlInstructionList
+ * @typedef {SqlInstructionList}
+ */
 class SqlInstructionList {
-	table_field_list = [];
-	table_column_definitions = "";
-	table_column_names = "";
+	/**
+	 * List of fields on the current table
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {{}}
+	 */
+	public table_field_list: string[] = [];
+	/**
+	 * SQL definitions for the columns on the current table
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	public table_column_definitions: string = "";
+	/**
+	 * Concatenated version of field names
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	 public table_column_names: string = "";
 
-	create_foreign_key_tables = "";
-	create_foreign_keys = "";
+	/**
+	 * SQL to create foreign key tables for many to many joins
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	 public create_foreign_key_tables: string = "";
+	/**
+	 * SQL to create foreign key relationships for all tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	 public create_foreign_keys: string = "";
 
-	insert_table_rows = "";
-	insert_many_to_many_rows = "";
+	/**
+	 * SQL to insert data table values
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	 public insert_table_rows: string = "";
+	/**
+	 * SQL to insert values for many to many join tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {string}
+	 */
+	 public insert_many_to_many_rows: string = "";
 }
 
+/**
+ * Data management wrapper which interfaces with the database through the Hasura Grapql interface
+ * @date 7/18/2022 - 1:46:23 PM
+ *
+ * @export
+ * @class CrudioDataWrapper
+ * @typedef {CrudioDataWrapper}
+ */
 export default class CrudioDataWrapper {
+	/**
+	 * GraphQL interface
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {CrudioGQL}
+	 */
 	gql: CrudioGQL;
+	/**
+	 * System configuration
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {ICrudioConfig}
+	 */
 	config: ICrudioConfig;
+	/**
+	 * Schema definition
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @type {CrudioRepository}
+	 */
 	repo: CrudioRepository;
 
+	/**
+	 * Creates an instance of CrudioDataWrapper.
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @constructor
+	 * @param {ICrudioConfig} config
+	 * @param {CrudioRepository} repo
+	 */
 	constructor(config: ICrudioConfig, repo: CrudioRepository) {
 		this.config = { ...config };
-		if (repo.schema) this.config.schema = repo.schema;
+		if (repo.target_db_schema) this.config.schema = repo.target_db_schema;
 
 		this.gql = new CrudioGQL(this.config);
 		this.repo = repo;
 	}
 
-	public async CreateDatabaseSchema() {
+	/**
+	 * Drop schema and recreate with no tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @public
+	 * @async
+	 * @returns {*}
+	 */
+	public async CreateDatabaseSchema(): Promise<void> {
 		await this.gql.ExecuteSQL(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
 	}
 
-	public async PopulateDatabaseTables() {
+	/**
+	 * Populate the database tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @public
+	 * @async
+	 * @returns {*}
+	 */
+	public async PopulateDatabaseTables(): Promise<void> {
 		var instructions = new SqlInstructionList();
 
 		for (var index = 0; index < this.repo.tables.length; index++) {
@@ -63,6 +162,15 @@ export default class CrudioDataWrapper {
 		await this.ProcessForeignKeys(instructions);
 	}
 
+	/**
+	 * Process foreign key relationships between entities and implement them in the database
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @async
+	 * @param {SqlInstructionList} instructions
+	 * @returns {Promise<void>}
+	 */
 	private async ProcessForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Create many to many join tables
 
@@ -79,6 +187,14 @@ export default class CrudioDataWrapper {
 		await this.gql.ExecuteSQL(instructions.insert_many_to_many_rows, false);
 	}
 
+	/**
+	 * Acquire the SQL columns required to support the entity data fields
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType} entity
+	 * @param {SqlInstructionList} instructions
+	 */
 	private BuildSqlColumnsForTable(entity: CrudioEntityType, instructions: SqlInstructionList) {
 		instructions.table_column_names = "";
 		instructions.table_column_definitions = "";
@@ -119,6 +235,15 @@ export default class CrudioDataWrapper {
 		instructions.table_column_definitions = instructions.table_column_definitions.slice(0, instructions.table_column_definitions.length - 1);
 	}
 
+	/**
+	 * Buid the SQL to implement one to many relationships
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType} entity
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 */
 	private BuildSqlForOneToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
 		entity.OneToManyRelationships.map(r => {
 			const target = this.repo.tables.filter(t => t.entity === r.ToEntity)[0];
@@ -136,6 +261,15 @@ export default class CrudioDataWrapper {
 		});
 	}
 
+	/**
+	 * Build the SQL to implement many to many relationships using join tables and foreign keys
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType} entity
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 */
 	private BuildSqlForManyToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
 		var create_foreign_keys = "";
 
@@ -178,6 +312,14 @@ export default class CrudioDataWrapper {
 		});
 	}
 
+	/**
+	 * Build the SQL to insert values into data tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 */
 	private BuildInsertData(table: CrudioTable, instructions: SqlInstructionList): void {
 		instructions.insert_table_rows = "";
 
@@ -221,6 +363,13 @@ export default class CrudioDataWrapper {
 		instructions.insert_table_rows = insert_rows.substring(0, insert_rows.length - 1);
 	}
 
+	/**
+	 * Build SQL to insert values into many to many join tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {SqlInstructionList} instructions
+	 */
 	private BuildInsertManyToManyData(instructions: SqlInstructionList): void {
 		instructions.insert_many_to_many_rows = "";
 		for (var index = 0; index < this.repo.tables.length; index++) {
@@ -261,6 +410,16 @@ export default class CrudioDataWrapper {
 		}
 	}
 
+	/**
+	 * Build SQL to create data tables
+	 * @date 7/18/2022 - 1:46:23 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType} entity
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 * @returns {string}
+	 */
 	private BuildCreateTableStatement(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): string {
 		const addKeySQL = `"${entity.KeyField.fieldName}" uuid DEFAULT gen_random_uuid() PRIMARY KEY,`;
 		const sql = `

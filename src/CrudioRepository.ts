@@ -9,22 +9,87 @@ import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
 import CrudioEntityRelationship from "./CrudioEntityRelationship";
 import CrudioTable from "./CrudioTable";
+import CrudioUtils from "./CrudioUtils";
 
+/**
+ * Concrete implementation of the data model description and state
+ * @date 7/18/2022 - 3:39:38 PM
+ *
+ * @export
+ * @class CrudioRepository
+ * @typedef {CrudioRepository}
+ */
 export default class CrudioRepository {
 	//#region Properties
 
 	// These entity properties are ignored when looking for fields to populate with random data
+	/**
+	 * JSON keys which should be ignored as they are not entity fields
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @type {{}}
+	 */
 	private ignoreFields = ["inherits", "abstract", "relationships", "count", "seed_by"];
-	public defaultRowCount = 50;
+	/**
+	 * Default number of rows to create in datatables
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {number}
+	 */
+	public static DefaultNumberOfRowsToGenerate = 50;
 
+	/**
+	 * Grouped data generator definitions, e.g. people: {firstname:"Bob;Jen", lastname:"Smith;jones"}...
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {Record<string, unknown>}
+	 */
 	public generators: Record<string, unknown> = {};
+	/**
+	 * List of in memory datatables which hold the entity instances
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {CrudioTable[]}
+	 */
 	public tables: CrudioTable[] = [];
+	/**
+	 * List of entity type definitions (entity schema)
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {CrudioEntityType[]}
+	 */
 	public entities: CrudioEntityType[] = [];
+	/**
+	 * List of relationships
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {CrudioEntityRelationship[]}
+	 */
 	public relationships: CrudioEntityRelationship[] = [];
-	public schema: string = null;
+	/**
+	 * Database schema in which tables are created
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {string}
+	 */
+	public target_db_schema: string = null;
 
 	//#endregion
 
+	/**
+	 * Creates an instance of CrudioRepository.
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @constructor
+	 * @param {ICrudioSchemaDefinition} repo
+	 */
 	constructor(repo: ICrudioSchemaDefinition) {
 		this.PreProcessRepositoryDefinition(repo);
 		this.ExpandAllSnippets(repo);
@@ -35,6 +100,14 @@ export default class CrudioRepository {
 
 	//#region Initialise repository, entities and relationships
 
+	/**
+	 * When deserialising, ensure the correct prototypes are applied and initialise other default data values
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @static
+	 * @param {CrudioRepository} schema
+	 */
 	private static SetPrototypes(schema: CrudioRepository) {
 		if (!schema.entities) schema.entities = [];
 		if (!schema.generators) schema.generators = {};
@@ -56,6 +129,13 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Process includes and ensure default values are in place before connecting the concrete data model to aspects of the schema definition
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {ICrudioSchemaDefinition} repo
+	 */
 	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition): void {
 		if (!repo.generators) {
 			repo.generators = {};
@@ -76,6 +156,14 @@ export default class CrudioRepository {
 
 	// Merge an external repository into the current one
 	// This works recursively so the repository being merged can also include (merge) other repositories
+	/**
+	 * Merge a specified JSON file into the nomintated schema definition
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} filename
+	 * @param {ICrudioSchemaDefinition} repo
+	 */
 	private Merge(filename: string, repo: ICrudioSchemaDefinition) {
 		const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename);
 
@@ -97,6 +185,13 @@ export default class CrudioRepository {
 	}
 
 	// create the basic entity structures
+	/**
+	 * Load entity definitions from the schema
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {ICrudioSchemaDefinition} repo
+	 */
 	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
 		this.entities = [];
 		var entity_names: string[] = Object.keys(repo.entities);
@@ -108,6 +203,13 @@ export default class CrudioRepository {
 		}
 	}
 
+	/**
+	 * Expand snippets in the schema, to ensure inheritence works between generic and concrete entity types, e.g. person and user
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {ICrudioSchemaDefinition} repo
+	 */
 	private ExpandAllSnippets(repo: ICrudioSchemaDefinition) {
 		Object.keys(repo.entities).map(e => {
 			const entity = repo.entities[e];
@@ -124,9 +226,17 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Create a concrete entity definition based on the schema
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {ICrudioEntityDefinition} entityDefinition
+	 * @param {string} entityname
+	 */
 	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string) {
 		var entityType: CrudioEntityType = this.CreateEntityType(entityname);
-		entityType.max_row_count = entityDefinition.count ?? this.defaultRowCount;
+		entityType.max_row_count = entityDefinition.count ?? CrudioRepository.DefaultNumberOfRowsToGenerate;
 
 		if (entityDefinition.abstract) entityType.abstract = true;
 
@@ -169,6 +279,14 @@ export default class CrudioRepository {
 		entityType.InitialiseUniqueKeyValues();
 	}
 
+	/**
+	 * Copy fields from a base entity to a target entity
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} baseEntityName
+	 * @param {CrudioEntityType} targetEntity
+	 */
 	private InheritBaseFields(baseEntityName: string, targetEntity: CrudioEntityType): void {
 		var baseEntity: CrudioEntityType = this.GetEntityDefinition(baseEntityName)!;
 
@@ -184,7 +302,15 @@ export default class CrudioRepository {
 		});
 	}
 
-	// Find an entity type which has already been defined in the repo
+	/**
+	 * Get the definition of an entity by name
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} entityName
+	 * @param {boolean} [failIfNotFound=true]
+	 * @returns {(CrudioEntityType | null)}
+	 */
 	public GetEntityDefinition(entityName: string, failIfNotFound: boolean = true): CrudioEntityType | null {
 		var matches: CrudioEntityType[] = this.entities.filter((e: CrudioEntityType) => e.name === entityName);
 
@@ -199,11 +325,26 @@ export default class CrudioRepository {
 		return matches[0];
 	}
 
+	/**
+	 * Get a datatable using the name of its related entity
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} name
+	 * @returns {CrudioTable}
+	 */
 	public GetTableForEntityName(name: string): CrudioTable {
 		return this.tables.filter(t => t.entity === name)[0];
 	}
 
-	// Create an entity type based on its definition in the repo
+	/**
+	 * Create an entity type based on its definition in the repo
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} name
+	 * @returns {CrudioEntityType}
+	 */
 	private CreateEntityType(name: string): CrudioEntityType {
 		var exists: CrudioEntityType | null = this.GetEntityDefinition(name, false);
 
@@ -223,30 +364,32 @@ export default class CrudioRepository {
 		throw new Error(`Entity '${name} already exists'`);
 	}
 
+	/**
+	 * Create datatables for a list of entity types
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType[]} entities
+	 */
 	private CreateDataTables(entities: CrudioEntityType[]) {
 		entities.map((e: CrudioEntityType) => {
 			if (!e.abstract) {
 				var t: CrudioTable = new CrudioTable();
-				t.name = this.GetClassName(e.tableName);
-				t.entity = this.GetClassName(e.name);
+				t.name = CrudioUtils.TitleCase(e.tableName);
+				t.entity = CrudioUtils.TitleCase(e.name);
 
 				this.tables.push(t);
 			}
 		});
 	}
 
-	GetClassName(input: string): string {
-		var converter: any = function (matches: string[]) {
-			return matches[1].toUpperCase();
-		};
-
-		var result: any = input.replace(/(\-\w)/g, converter);
-		result = result.charAt(0).toUpperCase() + result.slice(1);
-
-		return result;
-	}
-
-	private ConnectRelationships(): void {
+	/**
+	 * Connect entities through their relationships
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	private ConnectOneToManyRelationships(): void {
 		this.entities.map(e => {
 			e.relationships.map(r => {
 				if (r.RelationshipType === "one") {
@@ -256,6 +399,13 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Process all data rows and connect entities to referenced enties, e.g. user -> organisations
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityRelationship} r
+	 */
 	private JoinOneToMany(r: CrudioEntityRelationship): void {
 		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
 		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
@@ -293,6 +443,14 @@ export default class CrudioRepository {
 	}
 
 	// Get the datatable of values for an entity type
+	/**
+	 * Get an in-memory datatable by name
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} name
+	 * @returns {CrudioTable}
+	 */
 	public GetTable(name: string): CrudioTable {
 		var matches: CrudioTable[] = this.tables.filter((t: CrudioTable) => t.name === name);
 
@@ -304,6 +462,14 @@ export default class CrudioRepository {
 	}
 
 	// Get the datatable of values for an entity type
+	/**
+	 * Get the in-memory datatable for the named entity type
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} name
+	 * @returns {CrudioTable}
+	 */
 	public GetTableForEntity(name: string): CrudioTable {
 		var matches: CrudioTable[] = this.tables.filter((t: CrudioTable) => t.entity === name);
 
@@ -317,11 +483,29 @@ export default class CrudioRepository {
 
 	//#region Serialisation
 
+	/**
+	 * Load a schema definition from a JSON file 
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @static
+	 * @param {string} filename
+	 * @returns {CrudioRepository}
+	 */
 	public static FromJson(filename: string): CrudioRepository {
 		const json_object = this.LoadJson(filename);
 		return new CrudioRepository(json_object);
 	}
 
+	/**
+	 * Load a JSON object from a file
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @static
+	 * @param {string} filename
+	 * @returns {*}
+	 */
 	public static LoadJson(filename: string): any {
 		var input = fs.readFileSync(filename, "utf8");
 		const json_object = JSON.parse(input);
@@ -329,6 +513,15 @@ export default class CrudioRepository {
 		return json_object;
 	}
 
+	/**
+	 * Deserialise a schema definition from a text string
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @static
+	 * @param {string} input
+	 * @returns {CrudioRepository}
+	 */
 	public static FromString(input: string): CrudioRepository {
 		input = input.trim();
 
@@ -341,6 +534,13 @@ export default class CrudioRepository {
 		return repo;
 	}
 
+	/**
+	 * Convert a schema definition to a text string
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @returns {string}
+	 */
 	public ToString(): string {
 		var serialised: string = stringify(this);
 
@@ -351,14 +551,27 @@ export default class CrudioRepository {
 		return serialised;
 	}
 
+	/**
+	 * Save the schema definition to a target file
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} filename
+	 */
 	public Save(filename: string): void {
 		fs.writeFileSync(filename, this.ToString());
 	}
 
 	//#endregion
 
-	//#region Fill data tables
+	//#region Fill datatables
 
+	/**
+	 * Fill in-memory datatables with entity instances whose fields are populated with generated data
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
 	private FillDataTables(): void {
 		this.ClearAllInMemoryTables();
 
@@ -370,10 +583,16 @@ export default class CrudioRepository {
 		});
 
 		// process relationships and connect entities
-		this.ConnectRelationships();
+		this.ConnectOneToManyRelationships();
 		this.ProcessTokensInAllTables();
 	}
 
+	/**
+	 * Fill an in-memory datatable with entity instances whose fields are populated with generated data
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @param {CrudioTable} table
+	 */
 	FillTable(table: CrudioTable): void {
 		var entity: CrudioEntityType | null = this.GetEntityDefinition(table.entity, true);
 		var records: CrudioEntityInstance[] = [];
@@ -385,6 +604,12 @@ export default class CrudioRepository {
 		table.rows = records;
 	}
 
+	/**
+	 * Clear all data from in-memory datatables
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
 	private ClearAllInMemoryTables(): void {
 		this.tables.map((t: CrudioTable) => {
 			delete t.rows;
@@ -395,6 +620,13 @@ export default class CrudioRepository {
 
 	//#region Get data from tables
 
+	/**
+	 * Get all rows from an in-memory datatable
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @param {string} tableName
+	 * @returns {CrudioEntityInstance[]}
+	 */
 	GetAllRows(tableName: string): CrudioEntityInstance[] {
 		var t: CrudioTable | null = this.GetTable(tableName);
 		if (t !== null) {
@@ -404,20 +636,18 @@ export default class CrudioRepository {
 		}
 	}
 
-	GetRowByID(rows: CrudioEntityInstance[], id: number): CrudioEntityInstance | null {
-		for (var index: number = 0; index < rows.length; index++) {
-			if (rows[index].values._id === id) {
-				return rows[index];
-			}
-		}
-
-		return null;
-	}
-
 	//#endregion
 
 	//#region create entities and connect to generators
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityType} entityType
+	 * @returns {CrudioEntityInstance}
+	 */
 	private CreateEntityInstance(entityType: CrudioEntityType): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance({});
 		this.SetupEntityGenerators(entity);
@@ -425,6 +655,13 @@ export default class CrudioRepository {
 		return entity;
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} entity
+	 */
 	private SetupEntityGenerators(entity: CrudioEntityInstance) {
 		entity.entityType.fields.map(field => {
 			var generator: string | undefined = field.fieldOptions.generator;
@@ -436,6 +673,14 @@ export default class CrudioRepository {
 
 	//#region create and populate entities
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} entityInstance
+	 * @returns {boolean}
+	 */
 	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): boolean {
 		// as we generate the entity a field may require unique values, like a unique database constrain on a field
 		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
@@ -476,6 +721,12 @@ export default class CrudioRepository {
 		entityInstance.values = { ...new_instance.values };
 		return true;
 	}
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
 	private ProcessTokensInAllTables(): void {
 		this.tables.map(table => {
 			table.rows.map(entityInstance => {
@@ -493,6 +744,16 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} entity
+	 * @param {string} fieldName
+	 * @param {boolean} clean
+	 * @returns {string}
+	 */
 	private ProcessTokensInField(entity: CrudioEntityInstance, fieldName: string, clean: boolean): string {
 		var value = entity.values[fieldName];
 
@@ -515,6 +776,15 @@ export default class CrudioRepository {
 		return value;
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} fieldValue
+	 * @param {CrudioEntityInstance} entity
+	 * @returns {string}
+	 */
 	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance): string {
 		var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
 		var value: any;
@@ -562,6 +832,14 @@ export default class CrudioRepository {
 		return fieldValue;
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} generatorName
+	 * @returns {*}
+	 */
 	private GetGeneratedValue(generatorName: string): any {
 		if (!generatorName) throw new Error("generatorName must specify a standard or customer generator");
 
@@ -604,6 +882,16 @@ export default class CrudioRepository {
 		return value;
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @static
+	 * @param {number} min
+	 * @param {number} max
+	 * @returns {number}
+	 */
 	public static GetRandomNumber(min: number, max: number): number {
 		var rndValue: number = Math.random();
 		return Math.floor((max - min) * rndValue) + min;
