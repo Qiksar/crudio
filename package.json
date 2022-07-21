@@ -11,7 +11,7 @@
   "scripts": {
     "test": "jest --env=node --colors --coverage test --silent=false",
     "build": "tsc -p tsconfig.json",
-    "start_cli": "node lib/crudio_cli.js repo/repo.json",
+    "start_cli": "node lib/crudio_cli.js -w -r repo/repo.json",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
     "remove": "docker-compose down --rmi all"
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "axios": "^0.21.3",
+    "commander-ts": "^0.2.0",
     "flatted": "^3.2.6",
     "global": "^4.4.0",
     "jquery-csv": "^1.0.5",

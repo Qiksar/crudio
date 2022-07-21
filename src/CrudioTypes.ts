@@ -16,7 +16,7 @@ export interface ICrudioConfig {
    *
    * @type {string}
    */
-  hasuraAdminSecret: string;
+   hasuraAdminSecret: string;
   /**
    * URL of Hasura
    * @date 7/18/2022 - 1:47:30 PM
@@ -25,26 +25,19 @@ export interface ICrudioConfig {
    */
   hasuraEndpoint: string;
   /**
-   * URL for Hasura query interface
-   * @date 7/18/2022 - 1:47:30 PM
-   *
-   * @type {string}
-   */
-  hasuraQueryEndpoint: string;
-  /**
    * Default database schema to connect with Hasura 
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {?string}
    */
-  targetSchema?: string;
+  schema?: string;
   /**
    * Default name to use for ID fields
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {string}
    */
-  idFieldName: string;
+  idField: string;
   /**
    * List of read-only fields
    * @date 7/18/2022 - 1:47:30 PM
@@ -53,19 +46,27 @@ export interface ICrudioConfig {
    */
   readonlyFields: string[];
   /**
-   * Name of schema to place created tables in
-   * @date 7/18/2022 - 1:47:30 PM
-   *
-   * @type {string}
-   */
-  schema: string;
-  /**
-   * Don't delete any current data, just generate and insert more data to existing tables
+   * Delete all tables in the schema and prepare for completely new data
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {boolean}
    */
-  only_generate_data: boolean;
+  wipe: boolean;
+  
+  /**
+   * Name of JSON file describing the data model
+   * @date 7/21/2022 - 1:47:19 PM
+   *
+   * @type {string}
+   */
+  repo:string;
+  /**
+   * Name of a further JSON file to include with the main data model
+   * @date 7/21/2022 - 1:47:19 PM
+   *
+   * @type {string}
+   */
+  include:string;
 }
 
 /**
@@ -350,6 +351,12 @@ export interface ICrudioEntityDefinition {
    */
   relationships: ISchemaRelationship[];
   
+  /**
+   * Description placeholder
+   * @date 7/21/2022 - 1:47:19 PM
+   *
+   * @type {number}
+   */
   count: number;
   /**
    * Base entity to inherit fields from

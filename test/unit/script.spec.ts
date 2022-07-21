@@ -1,7 +1,7 @@
 const global_variable = 999;
 
 describe("Test dynamic code", () => {
-    test("Test Function", () => {
+    test("Executes dynamic code with local scope, but no global access", () => {
 
         const x = 1, y = 2;
         const r: any = { name: "Bob" }

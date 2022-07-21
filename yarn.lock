@@ -994,6 +994,18 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
+commander-ts@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/commander-ts/-/commander-ts-0.2.0.tgz#14391337c1c725399cdfca5717da8e4fd0688eda"
+  integrity sha512-9XaUF3/3nmVtkDmAkijjhgEcwrMwKewaAJtN+GyTJBG3CJ5DfGB/JsXCVZcBW6SZB+QqiJxbK3e2/62tweMO8g==
+  dependencies:
+    commander "^7.2.0"
+
+commander@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
+  integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"

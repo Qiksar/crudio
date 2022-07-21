@@ -90,11 +90,11 @@ export default class CrudioRepository {
 	 * @constructor
 	 * @param {ICrudioSchemaDefinition} repo
 	 */
-	constructor(repo: ICrudioSchemaDefinition) {
-		this.PreProcessRepositoryDefinition(repo);
+	constructor(repo: ICrudioSchemaDefinition, include: string = null) {
+		this.PreProcessRepositoryDefinition(repo, include);
 		this.ExpandAllSnippets(repo);
 		this.LoadEntityDefinitions(repo);
-		this.CreateDataTables(this.entities);
+		this.CreateInMemoryDataTables(this.entities);
 		this.FillDataTables();
 	}
 
@@ -136,7 +136,7 @@ export default class CrudioRepository {
 	 * @private
 	 * @param {ICrudioSchemaDefinition} repo
 	 */
-	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition): void {
+	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition, include: string = null): void {
 		if (!repo.generators) {
 			repo.generators = {};
 		}
@@ -144,12 +144,18 @@ export default class CrudioRepository {
 		if (!repo.snippets) {
 			repo.snippets = {};
 		}
-		
-		if (repo.include) {
-			repo.include.map((filename: any) => {
-				this.Merge(filename, repo);
-			});
+
+		if (!repo.include) {
+			repo.include = [];
 		}
+
+		if (include) {
+			repo.include = [include, ...repo.include];
+		}
+
+		repo.include.map((filename: any) => {
+			this.Merge(filename, repo);
+		});
 
 		this.generators = { ...repo.generators };
 	}
@@ -371,7 +377,7 @@ export default class CrudioRepository {
 	 * @private
 	 * @param {CrudioEntityType[]} entities
 	 */
-	private CreateDataTables(entities: CrudioEntityType[]) {
+	private CreateInMemoryDataTables(entities: CrudioEntityType[]) {
 		entities.map((e: CrudioEntityType) => {
 			if (!e.abstract) {
 				var t: CrudioTable = new CrudioTable();
@@ -484,7 +490,7 @@ export default class CrudioRepository {
 	//#region Serialisation
 
 	/**
-	 * Load a schema definition from a JSON file 
+	 * Load a schema definition from a JSON file
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @public
@@ -492,9 +498,9 @@ export default class CrudioRepository {
 	 * @param {string} filename
 	 * @returns {CrudioRepository}
 	 */
-	public static FromJson(filename: string): CrudioRepository {
+	public static FromJson(filename: string, include: string = null): CrudioRepository {
 		const json_object = this.LoadJson(filename);
-		return new CrudioRepository(json_object);
+		return new CrudioRepository(json_object, include);
 	}
 
 	/**

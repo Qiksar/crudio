@@ -11,12 +11,13 @@ import CrudioDataWrapper from "../../src/CrudioDataWrapper";
 
 const config: ICrudioConfig = {
 	hasuraEndpoint: "http://localhost:6789",
-	hasuraQueryEndpoint: "http://localhost:6789/v2/query",
 	hasuraAdminSecret: "crudio",
-	idFieldName: "id",
+	idField: "id",
 	readonlyFields: [],
 	schema: "crudio_test",
-	only_generate_data: false
+	wipe: true,
+	repo: "repo/repo.json",
+	include: "repo/include.json",
 };
 
 describe("Create fake data", () => {
@@ -34,7 +35,6 @@ describe("Create fake data", () => {
 		const joe: any = parse(text);
 		expect(joe.firstName).not.toBeNull;
 	});
-	
 
 	test("Load repository definition from JSON file", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
@@ -73,7 +73,7 @@ describe("Create fake data", () => {
 			}
 		});
 	});
-	
+
 	test("Check for unique tag names", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").rows;

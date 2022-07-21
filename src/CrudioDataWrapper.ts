@@ -33,7 +33,7 @@ class SqlInstructionList {
 	 *
 	 * @type {string}
 	 */
-	 public table_column_names: string = "";
+	public table_column_names: string = "";
 
 	/**
 	 * SQL to create foreign key tables for many to many joins
@@ -41,14 +41,14 @@ class SqlInstructionList {
 	 *
 	 * @type {string}
 	 */
-	 public create_foreign_key_tables: string = "";
+	public create_foreign_key_tables: string = "";
 	/**
 	 * SQL to create foreign key relationships for all tables
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @type {string}
 	 */
-	 public create_foreign_keys: string = "";
+	public create_foreign_keys: string = "";
 
 	/**
 	 * SQL to insert data table values
@@ -56,14 +56,14 @@ class SqlInstructionList {
 	 *
 	 * @type {string}
 	 */
-	 public insert_table_rows: string = "";
+	public insert_table_rows: string = "";
 	/**
 	 * SQL to insert values for many to many join tables
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @type {string}
 	 */
-	 public insert_many_to_many_rows: string = "";
+	public insert_many_to_many_rows: string = "";
 }
 
 /**
@@ -147,16 +147,14 @@ export default class CrudioDataWrapper {
 			// -------------- Create the data table
 
 			const sql_create_tables = this.BuildCreateTableStatement(entity, table, instructions);
-			if (!this.config.only_generate_data) {
+			if (this.config.wipe) {
 				await this.gql.ExecuteSQL(sql_create_tables);
 			}
 
 			// -------------- Build and insert rows
 
 			this.BuildInsertData(table, instructions);
-			if (!this.config.only_generate_data) {
-				await this.gql.ExecuteSQL(instructions.insert_table_rows);
-			}
+			await this.gql.ExecuteSQL(instructions.insert_table_rows);
 		}
 
 		await this.ProcessForeignKeys(instructions);
@@ -174,12 +172,12 @@ export default class CrudioDataWrapper {
 	private async ProcessForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Create many to many join tables
 
-		if (!this.config.only_generate_data) {
+		if (this.config.wipe) {
 			await this.gql.ExecuteSQL(instructions.create_foreign_key_tables, false);
 		}
 
 		// -------------- Add foreign keys to tables
-		if (!this.config.only_generate_data) {
+		if (this.config.wipe) {
 			await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);
 		}
 

@@ -45,11 +45,11 @@ export default class CrudioGQL {
 
 		let requestConfig: {} = {};
 
-		if (this.config.hasuraAdminSecret) {
+		if (this.config. hasuraAdminSecret) {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
+					"X-Hasura-Admin-Secret": this.config. hasuraAdminSecret,
 				},
 			};
 		}
@@ -90,17 +90,17 @@ export default class CrudioGQL {
 
 		let requestConfig: {} = {};
 
-		if (this.config.hasuraAdminSecret) {
+		if (this.config. hasuraAdminSecret) {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
+					"X-Hasura-Admin-Secret": this.config. hasuraAdminSecret,
 				},
 			};
 		}
 
 		try {
-			var results: any = await axios.post(this.config.hasuraQueryEndpoint, sqlQuery, requestConfig);
+			var results: any = await axios.post(this.config.hasuraEndpoint + "/v2/query", sqlQuery, requestConfig);
 			if (results.data.errors && results.data.errors.length > 0) {
 				throw new Error(results.data.errors);
 			}
