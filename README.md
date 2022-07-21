@@ -146,11 +146,18 @@ A repository describes the data model that you require. Refer below to find two 
 
 Folder: `repo`
 
-`repo.json` - Defines the demonstration respository, as a JSON object. In here, you will find descriptions of the data objects (organisation, client, etc.)
-`standard_generators.json` - This file is merged with the repo, through an `include` JSON node. It contains all the different generators which create the random data, such as people's names and ages.
-`fakedb.spec.ts` - Demonstrates how to trigger the data generation process and access the generated data.
+|File|Purpose|
+|-|-|
+|`repo.json`|Defines the demonstration respository, as a JSON object. In here, you will find descriptions of the data objects (organisation, client, etc.)
+|`base.json`|Includes all of the base repository components include the base entity, snippets and generators
+|`base_entity.json`|Contains the base entity from which all other entities should be based (use - `"inhert": "Entity"` on your entity definitions)
+|`base_generators.json`|Contains a basic set of generators for various data such as people's names, places, times and dates
+|`base_snippets.json`|Contains pre-defined fields which can be used to rapidly build entities
 
-  
+### Unit Test Folder
+
+Under the `~/test/unit` folder are a collection of Jest test specifications to test the command line interface, data creation, and the (coming soon...) script execution engine.
+
 # Get the code
 
 Clone this project from: `https://github.com/Qiksar/crudio`
