@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "lib/crudio_cli.js",
   "main": "lib/crudio_cli.js",
@@ -20,7 +20,6 @@
     "@types/jest": "^27.0.1",
     "@types/luxon": "^1.15.2",
     "@types/node": "^16.7.10",
-    "@types/yaml": "^1.0.2",
     "jest": "^27.1.0",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.8.2",

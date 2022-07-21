@@ -25,6 +25,36 @@ By setting up traacking in Hasura, you have instantly gained an API to help you 
 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
+## Command Line Arguments
+
+Example:
+
+`npx crudio -w -r repo/repo.json -i repo/include.json`
+
+Options:
+
+-e, --hasuraEndpoint <endpoint>   GraphQL endpoint
+  Default value: http://localhost:6789")
+
+-a, --hasuraAdminSecret <secret>  Secret to access administrative privileges
+  Default value: crudio
+
+-k, --idField <idfield>           Default name for primary key column
+  Default value: id
+
+-w, --wipe                        Drop all tables in the schema if they already exist
+  Default value: true
+
+-s, --schema <schema>             Place tables in the nominated schema
+  Default value: crudio
+
+-r, --repo <repo_file>            Repository definition file (JSON)
+  Note: Must be a JSON format file
+
+-i, --include <include_file>      Merge an additional repository definition (OPTIONAL)
+  Note: Must be a JSON format file
+
+
 ## Next Steps
 
 Read more detail about the value of creating test data, and how Crudio helps your prototyping and testing activities go faster.
