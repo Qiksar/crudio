@@ -1,0 +1,46 @@
+{
+	"include": ["repo/standard_generators.json"],
+	"generators": {
+		"temperature": "-10>44",
+		"humidity": "5>100",
+		"light": "0>100",
+		"windspeed": "5>110",
+		"body_temperature": "36>44",
+		"bp_dia": "75>110",
+		"bp_sys": "115>200",
+		"bpm": "50>150",
+		"glucose": "5>20",
+		"device_type": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature",
+		"device_site": "shed;north paddock;south paddock;stock yard;"
+	},
+	"entities": {
+		"DeviceType": {
+			"inherits": "Entity",
+			"count": 4,
+			"name": {
+				"generator": "[device_type]"
+			}
+		},
+		"DeviceSite": {
+			"inherits": "Entity",
+			"count": 8,
+			"name": {
+				"generator": "[device_site]"
+			}
+		},
+		"Device": {
+			"inherits": "Entity",
+			"count": 200,
+			"relationships": [
+				{
+					"type": "one",
+					"to": "DeviceType"
+				},
+				{
+					"type": "one",
+					"to": "DeviceSite"
+				}
+			]
+		}
+	}
+}

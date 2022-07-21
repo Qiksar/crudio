@@ -52,6 +52,19 @@ describe("Create fake data", () => {
 		expect(users.length).toBeGreaterThan(0);
 	});
 
+	test("Load repository with include file", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
+
+		expect(() => repo.GetTable("Entitys")).toThrow();
+
+		const devicetype: CrudioTable = repo.GetTable("DeviceTypes");
+		const device: CrudioTable = repo.GetTable("Devices");
+		const site: CrudioTable = repo.GetTable("DeviceSites");
+		expect(devicetype).not.toBeNull();
+		expect(device).not.toBeNull();
+		expect(site).not.toBeNull();
+	});
+
 	test("Check for unique email addresses", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;

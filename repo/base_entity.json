@@ -1,0 +1,23 @@
+{
+	"include": ["repo/base.json"],
+	"entities": {
+		"Entity": {
+			"abstract": true,
+			"id": {
+				"type": "uuid",
+				"name": "id",
+				"key": true,
+				"generator": "[uuid]"
+			},
+			"created": {
+				"type": "timestamp",
+				"name": "created",
+				"generator": "[timestamp]"
+			},
+			"deleted": {
+				"type": "timestamp",
+				"name": "deleted"
+			}
+		}
+	}
+}

@@ -157,7 +157,7 @@ export default class CrudioRepository {
 			this.Merge(filename, repo);
 		});
 
-		this.generators = { ...repo.generators };
+		this.generators = repo.generators;
 	}
 
 	// Merge an external repository into the current one
@@ -176,9 +176,7 @@ export default class CrudioRepository {
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
 		if (input.generators) {
-			Object.values(input.generators).map((group: any) => {
-				repo.generators = { ...repo.generators, ...group };
-			});
+			repo.generators = { ...repo.generators, ...input.generators };
 		}
 
 		if (input.snippets) {
@@ -186,7 +184,7 @@ export default class CrudioRepository {
 		}
 
 		if (input.entities) {
-			repo.entities = { ...repo.entities, ...input.entities };
+			repo.entities = { ...input.entities, ...repo.entities };
 		}
 	}
 
@@ -265,7 +263,7 @@ export default class CrudioRepository {
 				defaultValue: fieldSchema.default === undefined ? null : fieldSchema.default,
 			};
 
-			entityType.AddField(fieldname, fieldSchema.type, fieldname, fieldOptions);
+			entityType.AddField(fieldname, fieldSchema.type ?? "string", fieldname, fieldOptions);
 		}
 
 		if (entityDefinition.relationships) {

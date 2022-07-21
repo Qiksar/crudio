@@ -1,0 +1,3 @@
+{
+	"include": ["repo/base_entity.json", "repo/base_snippets.json", "repo/base_generators.json"]
+}
