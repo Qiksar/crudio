@@ -394,11 +394,11 @@ export default class CrudioRepository {
 	 *
 	 * @private
 	 */
-	private ConnectOneToManyRelationships(): void {
+	private ConnectOneToManyRelationships(postfix = false): void {
 		this.entities.map(e => {
 			e.relationships.map(r => {
 				if (r.RelationshipType === "one") {
-					this.JoinOneToMany(r);
+					this.JoinOneToMany(r, postfix);
 				}
 			});
 		});
@@ -411,7 +411,7 @@ export default class CrudioRepository {
 	 * @private
 	 * @param {CrudioEntityRelationship} r
 	 */
-	private JoinOneToMany(r: CrudioEntityRelationship): void {
+	private JoinOneToMany(r: CrudioEntityRelationship, postfix: boolean): void {
 		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
 		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
 
@@ -425,29 +425,56 @@ export default class CrudioRepository {
 
 		// initialise all target entities with an empty array to receive referencing entities
 		targetTable.rows.map((row: CrudioEntityInstance) => {
-			if (row.values[r.FromEntity] === undefined) {
+			if (row.values[sourceTable.name] === undefined) {
 				row.values[sourceTable.name] = [];
 			}
 		});
 
 		var index: number = 0;
-		// randomly distribute the source records over the target table
+
 		sourceTable.rows.map((sourceRow: CrudioEntityInstance) => {
-			// every target must get at least one source record connected to it
-			// as this avoids having empty arrays
-			// use index to assign the first n relationships and after that use
-			// random values to distribute the records
-			var targetRow: CrudioEntityInstance = targetTable.rows[index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.rows.length - 1) : index++];
 
-			// the source points to a single target record
-			sourceRow.values[targetTable.entity] = targetRow;
+			if (r.DefaultTargetQuery) {
+				if (postfix) {
+					const parts = r.DefaultTargetQuery.split(":");``
+					const field = parts[0].trim();
+					const value = parts[1].trim();
+					const targetRow = targetTable.rows.filter(row => {
+						const f = row.values[field];
+						return f === value
+					})[0];
 
-			// the target has a list of records which it points back to
-			targetRow.values[sourceTable.name].push(sourceRow);
+					this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+				}
+			} else if (!postfix) {
+				// use index to assign the first n relationships and after that use
+				// random values to distribute the records
+				const row_num = index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.rows.length - 1) : index++;
+				const targetRow = targetTable.rows[row_num];
+				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+			}
 		});
 	}
 
-	// Get the datatable of values for an entity type
+	/**
+	 * connect a source row and target row together in a one to many relationship
+	   * @date 7/18/2022 - 3:39:38 PM
+	   *
+	   * @private
+	   * @param {CrudioEntityInstance} sourceRow
+	   * @param {CrudioTable} sourceTable
+	   * @param {CrudioEntityInstance} targetRow
+	   * @param {CrudioTable} targetTable
+	   */
+	private ConnectRows(sourceRow: CrudioEntityInstance, sourceTable: CrudioTable, targetRow: CrudioEntityInstance, targetTable: CrudioTable): void {
+
+		// the source points to a single target record... user 1 -> 1 organisation
+		sourceRow.values[targetTable.entity] = targetRow;
+
+		// the target has a list of records which it points back to... organisation 1 -> * user 
+		targetRow.values[sourceTable.name].push(sourceRow);
+	}
+
 	/**
 	 * Get an in-memory datatable by name
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -595,7 +622,14 @@ export default class CrudioRepository {
 
 		// process relationships and connect entities
 		this.ConnectOneToManyRelationships();
+
+		// we have to connect relationships first so that token processing can use generators that
+		// lookup values in related objects
 		this.ProcessTokensInAllTables();
+
+		// Run over all relationships again to handle relationships
+		// where all entities are assigned a default 
+		this.ConnectOneToManyRelationships(true);
 	}
 
 	/**

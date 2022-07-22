@@ -47,7 +47,7 @@
 		},
 		"DeviceReading": {
 			"inherits": "Entity",
-			"count": 2000,
+			"count": 240,
 			"value": {
 				"type": "jsonb",
 				"generator": "[?Device.DeviceType.name]"

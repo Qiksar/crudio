@@ -444,4 +444,12 @@ export interface ISchemaRelationship {
    * @type {number}
    */
   count: number;
+
+  /**
+   * query string which will yield a row to connect to e.g. "name: Bob Smith"
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {string}
+   */
+  default:string;
 }

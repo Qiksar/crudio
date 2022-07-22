@@ -105,4 +105,8 @@ export default class CrudioEntityRelationship {
 	get NumberOfSeededRelations():number {
 		return this.relationship.count;
 	}
+
+	get DefaultTargetQuery():string{
+		return this.relationship.default;
+	}
 }
