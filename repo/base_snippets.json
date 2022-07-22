@@ -1,5 +1,11 @@
 {
 	"snippets": {
+		"id": {
+			"type": "uuid",
+			"name": "id",
+			"key": true,
+			"generator": "[uuid]"
+		},
 		"firstname": {
 			"type": "string",
 			"name": "firstname",

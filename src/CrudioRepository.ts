@@ -22,7 +22,8 @@ import CrudioUtils from "./CrudioUtils";
 export default class CrudioRepository {
 	//#region Properties
 
-	// These entity properties are ignored when looking for fields to populate with random data
+	private filestack: string[] = [];
+
 	/**
 	 * JSON keys which should be ignored as they are not entity fields
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -171,7 +172,7 @@ export default class CrudioRepository {
 	 * @param {ICrudioSchemaDefinition} repo
 	 */
 	private Merge(filename: string, repo: ICrudioSchemaDefinition) {
-		const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename);
+		const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename, this.filestack);
 
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
@@ -510,7 +511,13 @@ export default class CrudioRepository {
 	 * @param {string} filename
 	 * @returns {*}
 	 */
-	public static LoadJson(filename: string): any {
+	public static LoadJson(filename: string, filestack: string[] = []): any {
+		if (filestack.indexOf(filename) >= 0) {
+			throw new Error(`Error: Circular inclusion of files, reading ${filename}. Existing files ${filestack} `);
+		}
+
+		filestack.push(filename);
+
 		var input = fs.readFileSync(filename, "utf8");
 		const json_object = JSON.parse(input);
 
@@ -763,20 +770,25 @@ export default class CrudioRepository {
 
 		if (!value) {
 			// we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
-			const path = fieldName.split(".");
-			var source = entity;
-
-			for (var i = 0; i < path.length - 1; i++) {
-				const child_entity_name = path[i];
-				source = source.values[child_entity_name];
-			}
-
-			const source_field_name = path[path.length - 1];
-			value = source.values[source_field_name];
+			value = CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity);
 		}
 
 		value = clean ? value.trim().replaceAll(" ", "").toLowerCase() : value;
 
+		return value;
+	}
+
+	public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance) {
+		const path = fieldName.split(".");
+		var source = entity;
+
+		for (var i = 0; i < path.length - 1; i++) {
+			const child_entity_name = path[i];
+			source = source.values[child_entity_name];
+		}
+
+		const source_field_name = path[path.length - 1];
+		const value = source.values[source_field_name];
 		return value;
 	}
 
@@ -800,37 +812,46 @@ export default class CrudioRepository {
 
 		tokens.map(t => {
 			var token: string = t.replace(/\[|\]/g, "");
-			var fieldName: string = token;
 
-			// find parameter characters:
-			// ! : get field from context
-			// ~ : remove all spaces and convert to lower case
-			var params: string[] = fieldName.match(/^\?|!|~|\*/g) || [];
-			fieldName = fieldName.slice(params.length);
+			do {
+				var fieldName: string = token;
+				var loop = false;
 
-			const lookup = params.indexOf("!") >= 0;
-			const clean = params.indexOf("~") >= 0;
+				// find parameter characters:
+				// ! : get field from context
+				// ~ : remove all spaces and convert to lower case
+				var params: string[] = fieldName.match(/^\?|!|~|\*/g) || [];
+				fieldName = fieldName.slice(params.length);
 
-			if (lookup) {
-				// get field value from current context
-				value = this.ProcessTokensInField(entity, fieldName, clean);
-			} else {
-				// use a generator
-				value = this.GetGeneratedValue(fieldName);
+				const lookup = params.indexOf("!") >= 0;
+				const clean = params.indexOf("~") >= 0;
+				var query = params.indexOf("?") >= 0;
 
-				// recurse if there are still more tokens in the string
-				if (typeof value === "string" && value.includes("[") && value.includes("]")) {
-					value = this.ReplaceTokens(value, entity);
+				if (lookup) {
+					// get field value from current context
+					value = this.ProcessTokensInField(entity, fieldName, clean);
+				} else if (query) {
+					value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					loop = true;
+				} else {
+					// use a generator
+					value = this.GetGeneratedValue(fieldName);
+
+					// recurse if there are still more tokens in the string
+					if (typeof value === "string" && value.includes("[") && value.includes("]")) {
+						value = this.ReplaceTokens(value, entity);
+					}
+
+					// ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
+					// We don't clean when deferred otherwise we will change the case of field names used in generators
+					if (value && clean) {
+						value = value.trim().replaceAll(" ", "").toLowerCase();
+					}
 				}
 
-				// ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
-				// We don't clean when deferred otherwise we will change the case of field names used in generators
-				if (value && clean) {
-					value = value.trim().replaceAll(" ", "").toLowerCase();
-				}
-			}
-
-			fieldValue = fieldValue.replace(`[${token}]`, value);
+				fieldValue = fieldValue.replace(`[${token}]`, value);
+				token = fieldValue.replace(/\[|\]/g, "");
+			} while (loop);
 		});
 
 		return fieldValue;

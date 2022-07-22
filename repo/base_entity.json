@@ -1,14 +1,8 @@
 {
-	"include": ["repo/base.json"],
 	"entities": {
 		"Entity": {
 			"abstract": true,
-			"id": {
-				"type": "uuid",
-				"name": "id",
-				"key": true,
-				"generator": "[uuid]"
-			},
+			"snippets": ["id"],
 			"created": {
 				"type": "timestamp",
 				"name": "created",

@@ -45,5 +45,4 @@ export default class CrudioUtils {
 
 		return result;
 	}
-
 }

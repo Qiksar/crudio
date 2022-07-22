@@ -1,5 +1,4 @@
 {
-	"include": ["repo/standard_generators.json"],
 	"generators": {
 		"temperature": "-10>44",
 		"humidity": "5>100",
@@ -8,6 +7,7 @@
 		"body_temperature": "36>44",
 		"bp_dia": "75>110",
 		"bp_sys": "115>200",
+		"bp":"[bp_sys]/[bp_dia]",
 		"bpm": "50>150",
 		"glucose": "5>20",
 		"device_type": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature",
@@ -16,16 +16,18 @@
 	"entities": {
 		"DeviceType": {
 			"inherits": "Entity",
-			"count": 4,
+			"count": 8,
 			"name": {
-				"generator": "[device_type]"
+				"generator": "[device_type]",
+				"unique": true
 			}
 		},
 		"DeviceSite": {
 			"inherits": "Entity",
-			"count": 8,
+			"count": 4,
 			"name": {
-				"generator": "[device_site]"
+				"generator": "[device_site]",
+				"unique": true
 			}
 		},
 		"Device": {
@@ -39,6 +41,19 @@
 				{
 					"type": "one",
 					"to": "DeviceSite"
+				}
+			]
+		},
+		"DeviceReading": {
+			"inherits": "Entity",
+			"count": 2000,
+			"value": {
+				"generator": "[?Device.DeviceType.name]"
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Device"
 				}
 			]
 		}

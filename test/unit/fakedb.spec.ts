@@ -156,7 +156,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Populate database", async () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
 		const db = new CrudioDataWrapper(config, repo);
 		expect(db).not.toBeNull;
 		expect(db.gql).not.toBeNull;
