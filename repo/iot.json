@@ -8,7 +8,7 @@
 		"bp_dia": "75>110",
 		"bp_sys": "115>200",
 		"bptext": "[bp_sys]/[bp_dia]",
-		"bp": "{\"diastolic\":\"[bp_sys]\",\"systolic\":\"/[bp_dia]\"}",
+		"bp": "{\"diastolic\":\"[bp_sys]\",\"systolic\":\"[bp_dia]\"}",
 		"bpm": "50>150",
 		"glucose": "5>20",
 		"device_type": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature",

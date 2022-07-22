@@ -342,6 +342,24 @@ URL: `http://localhost:6789/console/`
 }
 ```
 
+## Get values for IoT devices which measure blood pressure
+```
+{
+  crudio_test_DeviceReadings(
+    where: {
+    deviceByDevice: {
+      deviceTypeByDevicetype: {
+        name: {_eq: "bp"}
+       }
+      }
+    })
+  {
+   value
+  }
+}
+
+``` 
+
 # Credits
 
 Thank you to the key repository owners below:
