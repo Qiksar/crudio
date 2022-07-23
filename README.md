@@ -384,19 +384,13 @@ Do take time to read the example JSON files in the `repo` folder. These files ar
 
 # Wrapping up
 
-Take some time to examine the full `repo.json`, `repo_entities.json` and `standard_generators.json` files. You will quickly understand how you can break large repos into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
+Take some time to examine the full contents of the `repo` folder. You will quickly understand how you can break large data models into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
 
 # Join Us - Crudio: Free Forever
 
 Please do join the effort to make Crudio even more awesome. Our mission is to expand Crudio to generate data for almost every scenario. We need your help, ideas, feedback and encouragement to achieve that.
 
 And by the way...Crudio is free forever. We don't intend to start launching "Enterprise Versions" and subscriptions etc. Crudio belongs to all of us, is free to use for all of us, forever. 
-
-# Example Queries
-
-Simply copy, paste and execute the queries below, using the Hasura Console 
-
-URL: `http://localhost:6789/console/`
 
 # Roadmap
 
@@ -417,6 +411,20 @@ This is about being able to output a graphical version of the data model so you 
 ## User interface
 
 Primarily, Crudio was envisioned essentially as a command line, and unit test tool. But as it progress, it seems to call for a web-app which would enable us to create our models in a more friendly, less code-like way.
+
+## Integrate QikTrak
+
+We will bring QikTrak under the Qiksar umbrella as it is the perfect compliment to Crudio.
+
+It is always annoying when you have to open a web front end and click the same things all of the time, before you get going. Once Crudio has created the database, we have to go into the Hasura console, and click buttons to track the tables and relationships.
+
+If we convert QikTrak so it can be executed with npx, then we can create the database, fill it with data, and track all the tables in Hasura, without even touching the keyboard!
+
+QikTrak is super useful for setting up Hasura with more intuitive GraphQL names, e.g. rather than `deviceTypeByDeviceType` we could have a simpler relationship name like `DeviceType`
+
+Read more about [QikTrak](https://github.com/chrisnurse/qik-trak).
+
+When comes to workig with Hasura, QikTrak gives you super powers!
 
 # Credits
 
