@@ -6,6 +6,7 @@
 				"id"
 			],
 			"created": {
+				"required": true,
 				"type": "timestamp",
 				"name": "created",
 				"generator": "[timestamp]"
@@ -19,6 +20,7 @@
 			"abstract": true,
 			"inherits": "Entity",
 			"name": {
+				"required": true,
 				"type": "string",
 				"unique": "true"
 			},
