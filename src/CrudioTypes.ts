@@ -183,7 +183,7 @@ export interface ICrudioFieldOptions {
    *
    * @type {?boolean}
    */
-  required?: boolean; // TODO add NOT NULL to field definition
+  isRequired?: boolean; // TODO add NOT NULL to field definition
   /**
    * Validation requirements
    * @date 7/18/2022 - 1:47:30 PM

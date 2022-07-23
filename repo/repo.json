@@ -1,7 +1,5 @@
 {
-	"include": [
-		"repo/base.json"
-	],
+	"include": ["repo/base.json"],
 	"entities": {
 		"Organisation": {
 			"inherits": "Entity",
@@ -9,6 +7,7 @@
 			"name": {
 				"type": "string",
 				"name": "name",
+				"required": true,
 				"generator": "[organisation_name]"
 			},
 			"address": {
@@ -26,19 +25,15 @@
 			"inherits": "Entity",
 			"count": 7,
 			"name": {
-				"unique": "true",
+				"required": true,
+				"unique": true,
 				"generator": "[organisation_role]"
 			}
 		},
 		"Person": {
 			"abstract": true,
 			"inherits": "Entity",
-			"snippets": [
-				"firstname",
-				"lastname",
-				"address",
-				"email"
-			],
+			"snippets": ["firstname", "lastname", "address", "email"],
 			"dob": {
 				"type": "date",
 				"name": "dob",
@@ -83,6 +78,7 @@
 		"Program": {
 			"inherits": "Entity",
 			"name": {
+				"required": true,
 				"type": "string",
 				"name": "name",
 				"generator": "[program_name]"
@@ -110,6 +106,7 @@
 		"Cohort": {
 			"inherits": "Entity",
 			"name": {
+				"required": true,
 				"type": "string",
 				"name": "name",
 				"generator": "[cohort_name]"
@@ -124,6 +121,7 @@
 		"Survey": {
 			"inherits": "Entity",
 			"name": {
+				"required": true,
 				"type": "string",
 				"name": "name",
 				"generator": "[survey_name]"
@@ -148,7 +146,8 @@
 			"inherits": "Entity",
 			"count": 25,
 			"name": {
-				"unique": "true",
+				"required": true,
+				"unique": true,
 				"type": "string",
 				"name": "name",
 				"generator": "[tag]"
