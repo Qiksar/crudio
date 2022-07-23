@@ -37,6 +37,8 @@
   "keywords": [
     "hasura",
     "postgres",
+    "testing",
+    "lowcode",
     "test_data_generation",
     "rapid_prototyping"
   ]

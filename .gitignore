@@ -1,3 +1,5 @@
+yarn.lock
+
 # Output files
 test/unit/output/*
 lib/
