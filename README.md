@@ -127,8 +127,8 @@ This is what the data model might look like:
 
 ```mermaid
 classDiagram
-user "0..*"-->"0..*" organisation
 user  "0..*"-->"0..*" role
+user "0..*"-->"0..*" organisation
 program "0..*"-->"0..*" organisation
 program "0..*" --> "0..*" cohort
 client "0..*" --> "0..*" cohort
