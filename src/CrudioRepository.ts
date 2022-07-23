@@ -396,11 +396,31 @@ export default class CrudioRepository {
 	 */
 	private ConnectOneToManyRelationships(postfix = false): void {
 		this.entities.map(e => {
-			e.relationships.map(r => {
-				if (r.RelationshipType === "one") {
-					this.JoinOneToMany(r, postfix);
-				}
-			});
+			e.relationships
+				.filter(r => !r.DefaultTargetQuery)
+				.map(r => {
+					if (r.RelationshipType === "one") {
+						this.JoinOneToMany(r);
+					}
+				});
+		});
+	}
+
+	/**
+	 * Connect entities through their relationships
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	private ConnectNamedRelationships(postfix = false): void {
+		this.entities.map(e => {
+			e.relationships
+				.filter(r => r.DefaultTargetQuery)
+				.map(r => {
+					if (r.RelationshipType === "one") {
+						this.JoinNamedRelationships(r);
+					}
+				});
 		});
 	}
 
@@ -411,7 +431,7 @@ export default class CrudioRepository {
 	 * @private
 	 * @param {CrudioEntityRelationship} r
 	 */
-	private JoinOneToMany(r: CrudioEntityRelationship, postfix: boolean): void {
+	private JoinOneToMany(r: CrudioEntityRelationship): void {
 		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
 		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
 
@@ -423,37 +443,87 @@ export default class CrudioRepository {
 			throw new Error(`Can not find target '${r.ToEntity}'`);
 		}
 
-		// initialise all target entities with an empty array to receive referencing entities
-		targetTable.rows.map((row: CrudioEntityInstance) => {
-			if (row.values[sourceTable.name] === undefined) {
-				row.values[sourceTable.name] = [];
-			}
-		});
-
 		var index: number = 0;
 
 		sourceTable.rows.map((sourceRow: CrudioEntityInstance) => {
 
-			if (r.DefaultTargetQuery) {
-				if (postfix) {
-					const parts = r.DefaultTargetQuery.split(":");``
-					const field = parts[0].trim();
-					const value = parts[1].trim();
-					const targetRow = targetTable.rows.filter(row => {
-						const f = row.values[field];
-						return f === value
-					})[0];
-
-					this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
-				}
-			} else if (!postfix) {
-				// use index to assign the first n relationships and after that use
-				// random values to distribute the records
-				const row_num = index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.rows.length - 1) : index++;
-				const targetRow = targetTable.rows[row_num];
-				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
-			}
+			// row_num is intended to ensure every entity on the "many" side gets at least one
+			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
+			const row_num = index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(1, targetTable.rows.length + 1) - 1 : index++;
+			const targetRow = targetTable.rows[row_num];
+			this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
 		});
+	}
+
+	/**
+	 * Connect specific entities in a relationship
+	 * For example an organisation has one CEO, so assign only one user to this role in an organisation 
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityRelationship} r
+	 */
+	private JoinNamedRelationships(r: CrudioEntityRelationship): void {
+		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
+		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
+
+		if (sourceTable === null)
+			throw new Error(`Can not find source '${r.FromEntity}'`);
+
+		if (targetTable === null)
+			throw new Error(`Can not find target '${r.ToEntity}'`);
+
+		const enumerated_table = this.GetTableForEntity(r.EnumeratedTable);
+
+		// process relationships where there is only one instance allowed, e.g. one user as CEO of an organisation
+
+		// for each organisation...
+		enumerated_table.rows.map(parent => {
+
+			var source_index: number = 0;
+			const sourceRows = parent.values[sourceTable.name]
+
+			if (r.SingularRelationshipValues.length > sourceRows.length)
+				throw new Error(`Error: Singular relationship involving Enumerated:${enumerated_table.name} Source:${sourceTable.name} Target:${targetTable.name} - the number of singular values exceeds the number of rows in ${sourceTable.name} `);
+
+
+			// for each instance of the singular relationship
+			r.SingularRelationshipValues.map(sing_name => {
+
+				// find the role to assign
+				const targetRow = targetTable.rows.filter(row => {
+					const f = row.values[r.SingularRelationshipField];
+					return f === sing_name
+				})[0];
+
+				// find the user to assign to the role, where the user is fetched from the related organisations
+				const sourceRow = sourceRows[source_index++];
+
+
+				// connect the user from the organisation with the role
+				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+
+				// HAK - set a flag so we don't process the same row twice
+				sourceRow.skip = true;
+			});
+		});
+
+		// assign the remaining rows with the default named relationship, e.g. assign Staff to all other users
+		sourceTable
+			.rows
+			.filter((fr: any) => fr.skip === undefined || !fr.skip)
+			.map((sourceRow: CrudioEntityInstance) => {
+				const parts = r.DefaultTargetQuery.split(":");
+				const field = parts[0].trim();
+				const value = parts[1].trim();
+
+				const targetRow = targetTable.rows.filter(row => {
+					const f = row.values[field];
+					return f === value
+				})[0];
+
+				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+			});
 	}
 
 	/**
@@ -468,8 +538,26 @@ export default class CrudioRepository {
 	   */
 	private ConnectRows(sourceRow: CrudioEntityInstance, sourceTable: CrudioTable, targetRow: CrudioEntityInstance, targetTable: CrudioTable): void {
 
+		if (!sourceRow)
+			throw "Error: sourceRow must be specified";
+
+		if (!targetRow)
+			throw "Error: targetRow must be specified";
+
+		if (!sourceTable)
+			throw "Error: sourceTable must be specified";
+
+		if (!targetTable)
+			throw "Error: targetTable must be specified";
+
+
 		// the source points to a single target record... user 1 -> 1 organisation
 		sourceRow.values[targetTable.entity] = targetRow;
+
+		// initialise all target entities with an empty array to receive referencing entities
+		if (!targetRow.values[sourceTable.name] || targetRow.values[sourceTable.name] === undefined) {
+			targetRow.values[sourceTable.name] = [];
+		}
 
 		// the target has a list of records which it points back to... organisation 1 -> * user 
 		targetRow.values[sourceTable.name].push(sourceRow);
@@ -620,16 +708,18 @@ export default class CrudioRepository {
 			this.FillTable(t);
 		});
 
-		// process relationships and connect entities
+		// connect entities with basic one to many relationships
 		this.ConnectOneToManyRelationships();
 
 		// we have to connect relationships first so that token processing can use generators that
 		// lookup values in related objects
 		this.ProcessTokensInAllTables();
 
-		// Run over all relationships again to handle relationships
-		// where all entities are assigned a default 
-		this.ConnectOneToManyRelationships(true);
+		// Run over all relationships again to handle cases
+		// where a relationship has a constraint, such as one user in the role of CEO in an organisation
+		// This must be done after token processing, because that is the step in the process where all
+		// value generators have executed, which enables the lookups to complete 
+		this.ConnectNamedRelationships();
 	}
 
 	/**

@@ -56,7 +56,7 @@
 			}
 		},
 		"User": {
-			"count": 200,
+			"count": 2000,
 			"inherits": "Person",
 			"email": {
 				"unique": true,
@@ -71,9 +71,11 @@
 					"type": "one",
 					"to": "OrganisationRole",
 					"default": "name: Staff",
-					"singular": [
-						"Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
-					]
+					"singular": {
+						"enumerate": "Organisation",
+						"field": "name",
+						"values": "Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;"
+					}
 				}
 			]
 		},

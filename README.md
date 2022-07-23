@@ -360,6 +360,35 @@ URL: `http://localhost:6789/console/`
 
 ``` 
 
+## List organisation users assigned to the CEO and CFO role
+```
+{
+  CEO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+    organisationRoleByOrganisationrole{
+      name
+    }
+  }
+  
+  CFO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CFO"}}}) {
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+    organisationRoleByOrganisationrole{
+      name
+    }
+  }
+}
+```
+
 # Credits
 
 Thank you to the key repository owners below:

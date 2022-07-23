@@ -102,11 +102,47 @@ export default class CrudioEntityRelationship {
 	 * @readonly
 	 * @type {number}
 	 */
-	get NumberOfSeededRelations():number {
+	get NumberOfSeededRelations(): number {
 		return this.relationship.count;
 	}
 
-	get DefaultTargetQuery():string{
+	get DefaultTargetQuery(): string {
 		return this.relationship.default;
+	}
+
+	get Description(): string {
+		return `RELATIONSHIP:${this.FromEntity}.${this.FromColumn} -> ${this.ToEntity}.${this.ToColumn} `
+	}
+
+	get EnumeratedTable(): string {
+		if (!this.relationship.singular.enumerate) {
+			throw new Error(`Error: ${this.Description} is a singular relationship and does not specify a value for 'enumerate' which is required to reference a related table`);
+		}
+
+		return this.relationship.singular.enumerate;
+	}
+
+	get SingularRelationshipField(): string {
+		if (!this.relationship.singular.field) {
+			throw new Error(`Error: ${this.Description} is a singular relationship and does not specify a value for 'field' which is required for the lookup`);
+		}
+
+		return this.relationship.singular.field;
+	}
+
+	get SingularRelationshipValues(): string[] {
+		if (!this.relationship.singular) {
+			return [];
+		}
+
+		if (!this.relationship.singular.field) {
+			throw new Error(`Error: ${this.Description} is a singular relationship and does not specify a value for 'field' which is required for the lookup`);
+		}
+
+		if (!this.relationship.singular.values) {
+			throw new Error(`Error: ${this.Description} is a singular relationship and 'values' has not been specified which provides lookup keys`);
+		}
+
+		return this.relationship.singular.values.split(";").filter(v => v && v.length > 0);
 	}
 }

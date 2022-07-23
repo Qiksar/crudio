@@ -2,7 +2,9 @@
 	"entities": {
 		"Entity": {
 			"abstract": true,
-			"snippets": ["id"],
+			"snippets": [
+				"id"
+			],
 			"created": {
 				"type": "timestamp",
 				"name": "created",
@@ -11,6 +13,17 @@
 			"deleted": {
 				"type": "timestamp",
 				"name": "deleted"
+			}
+		},
+		"Lookup": {
+			"abstract": true,
+			"inherits": "Entity",
+			"name": {
+				"type": "string",
+				"unique": "true"
+			},
+			"value": {
+				"type": "string"
 			}
 		}
 	}

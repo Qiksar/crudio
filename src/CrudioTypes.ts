@@ -16,7 +16,7 @@ export interface ICrudioConfig {
    *
    * @type {string}
    */
-   hasuraAdminSecret: string;
+  hasuraAdminSecret: string;
   /**
    * URL of Hasura
    * @date 7/18/2022 - 1:47:30 PM
@@ -52,21 +52,21 @@ export interface ICrudioConfig {
    * @type {boolean}
    */
   wipe: boolean;
-  
+
   /**
    * Name of JSON file describing the data model
    * @date 7/21/2022 - 1:47:19 PM
    *
    * @type {string}
    */
-  repo:string;
+  repo: string;
   /**
    * Name of a further JSON file to include with the main data model
    * @date 7/21/2022 - 1:47:19 PM
    *
    * @type {string}
    */
-  include:string;
+  include: string;
 }
 
 /**
@@ -350,7 +350,7 @@ export interface ICrudioEntityDefinition {
    * @type {ISchemaRelationship[]}
    */
   relationships: ISchemaRelationship[];
-  
+
   /**
    * Description placeholder
    * @date 7/21/2022 - 1:47:19 PM
@@ -446,10 +446,36 @@ export interface ISchemaRelationship {
   count: number;
 
   /**
-   * query string which will yield a row to connect to e.g. "name: Bob Smith"
+   * describe a default relationship formed between two objects, such as all users in an organisation
+   * being assigned a default role of Staff 
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {string}
    */
-  default:string;
+  default?: string;
+
+  /**
+   * describe a relationship to be formed between two objects where a specific entity instance is to be used
+   * for example, an organisation has one user in the role of CEO. An entity is selected from the organisation.users, 
+   * and then assigned the role, by looking up the role with name = CEO
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {ISingularNamedRelationship}
+   */
+  singular?: ISingularNamedRelationship;
+}
+
+/**
+ * System configuration
+ * @date 7/18/2022 - 1:47:30 PM
+ *
+ * @export
+ * @interface ICrudioConfig
+ * @typedef {ISingularNamedRelationship}
+ */
+
+interface ISingularNamedRelationship {
+  enumerate: string;
+  field: string;
+  values: string;
 }
