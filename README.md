@@ -27,6 +27,8 @@ You now have a prototype database to beging your next rapid prototyping project,
 
 ## Command Line Arguments
 
+You can run Crudio without having to install anything specfic. You will just need `docker` and `docker-compose` in order to create the database and Hasura containers.
+
 Example:
 
 `npx crudio -w -r repo/repo.json -i repo/include.json`
@@ -53,7 +55,6 @@ Options:
 
 -i, --include <include_file>      Merge an additional repository definition (OPTIONAL)
   Note: Must be a JSON format file
-
 
 ## Next Steps
 
@@ -85,28 +86,6 @@ The data will be created rapidly, saved into a Postgres database, and then Hasur
 
 Phew! That's what Crudio does. It can't save the world, but it can help you change a Horrible Boss into a Happy Boss!
 
-### Here's a simple view of what our fake data model might look like
-
-*Note*: If you're viewing this file from NPM you may not see the Mermaid diagram.
-
-`View this file on Github: https://github.com/Qiksar/crudio/blob/main/README.md`
-
-See how the model depicts not for profit organisations that have users (their staff). Each has many programs that provide services to the community. Different groups of clients are based in cohorts which are serviced through a program. The organisation publishes a blog, and articles have tags to group the blog posts together by special interest.
-
-This is what the data model might look like:
-
-```mermaid
-classDiagram
-organisation "0..*"-->"0..*" program
-organisation "0..*"-->"0..*" user
-program "0..*" --> "0..*" cohort
-cohort "0..*" --> "0..*" client
-blog "0..*" --> "0..*" tag
-client --|> Person
-```
-
-Crudio creates this example data model, then fills it with meaningful data. That way you can get to prototyping your app faster, without having to create large amounts of test data.
-
 ## Key Objectives
 These are the key objectives of automating the creation of test data:
 
@@ -136,10 +115,36 @@ Let's say you run Crudio right now, and search the users table and find "Joe Blo
 
 This is why automated test data is so awesome. It can stop you from making assumptions about the values of data. You can create data which is good, bad, simple, challenging, all in the interests of ensuring you can present your app with meaningful data, and ensure your app is thoroughly tested.
 
+### Here's a simple view of what our fake data model might look like
 
-## Further Information
+*Note*: If you're viewing this file from NPM you may not see the Mermaid diagram.
 
-### Test Respositories
+`View this file on Github: https://github.com/Qiksar/crudio/blob/main/README.md`
+
+See how the model depicts not for profit organisations that have users (their staff). Each has many programs that provide services to the community. Different groups of clients are based in cohorts which are serviced through a program. The organisation publishes a blog, and articles have tags to group the blog posts together by special interest.
+
+This is what the data model might look like:
+
+```mermaid
+classDiagram
+user "0..*"-->"0..*" organisation
+user  "0..*"-->"0..*" role
+program "0..*"-->"0..*" organisation
+program "0..*" --> "0..*" cohort
+client "0..*" --> "0..*" cohort
+blog "0..*" --> "0..*" tag
+client --|> Person
+device "0..*" --> "0..*" devicetype
+device "0..*" --> "0..*" devicesite
+devicereadings "0..*" --> "0..*" device
+```
+
+Crudio creates this example data model in-memory, then fills it with meaningful data. You could just access the data in-memory if that means you get to prototyping your app faster, or Crudio will create a database and save all the data into it, so your prototype starts to feel very real.
+
+
+# Further Information
+
+## Test Respositories
 We call the definition of a data model a repsository. Sorry, that's not a smart name when you have to pull this project for a Github repo! We may change that in future once we think of a better name. 
 
 A repository describes the data model that you require. Refer below to find two example repositories:
@@ -154,14 +159,13 @@ Folder: `repo`
 |`base_generators.json`|Contains a basic set of generators for various data such as people's names, places, times and dates
 |`base_snippets.json`|Contains pre-defined fields which can be used to rapidly build entities
 
-### Unit Test Folder
+## Unit Test Folder
 
 Under the `~/test/unit` folder are a collection of Jest test specifications to test the command line interface, data creation, and the (coming soon...) script execution engine.
 
 # Get the code
 
 Clone this project from: `https://github.com/Qiksar/crudio`
-
 
 ## NPM scripts
 
@@ -174,12 +178,13 @@ Clone this project from: `https://github.com/Qiksar/crudio`
 - `down` : Stop the docker containers
 - `remove` : Stop and remove the docker containers and related images
 
+## Review the Unit Tests
 
-## Get started
+It's really cool to be able to create complete test database systems from the command line. But the Crudio repository provides you with the full code.
 
-it's really cool to be able to create complete test database systems from the command line. But the Crudio repository provides you with the full code.
+Maybe you want to become a contributor? Jump right in and clone the repo and take a look at the unit tests.
 
-You can see how simple it is to use, by looking at the unit tests in `test/unit/fakedb.spec.ts`.
+You can see how simple Crudio is to use, by looking at the unit tests in `test/unit/fakedb.spec.ts`.
 
 Here is what the key unit tests do:
 
@@ -189,9 +194,89 @@ Here is what the key unit tests do:
 - Save and load - This ensures that we can save and load the JSON data. We might want to do this in order to work with a snapshot of data, whereby our data looks the same every time we load it. If we just run Crudio everytime we get new random data.
 - Populate database - This is the super power. Crudio creates a database schema in Postgres called `crudio`, creates all the tables, loads the test data in to the database, then adds all of the foreign keys that connect the data together.
 
-When the tests have run, go take a look in Hasura console, track the tables and relationships, and you're ready to go with GraphQL.
+When the tests have run, open the [Hasura Console](http://localhost:6789), go to the `DATA` tab, and track the tables and relationships, and you're ready to go with GraphQL.
 
-# The repo structure
+
+# Working in Hasura Console - Example GraphQL Queries 
+
+Once you have tracked the tables and relationships in [Hasura Console](http://localhost:6789), go to the `API` tab, and copy, paste and run the following GraphQL queries to get started:
+
+## Get a list of blog posts with their related tags
+```
+{
+  crudio_Blogs {
+    article_text
+    BlogTags {
+      tagByTag {
+        name
+      }
+    }
+  }
+}
+```
+
+## Get a list of users with their organisations and prove their email address matches the orgniation they work for
+```
+{
+  crudio_Users{
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+  }
+}
+```
+
+## Get values for IoT devices which measure blood pressure
+```
+{
+  crudio_test_DeviceReadings(
+    where: {
+    deviceByDevice: {
+      deviceTypeByDevicetype: {
+        name: {_eq: "bp"}
+       }
+      }
+    })
+  {
+   value
+  }
+}
+
+``` 
+
+## List organisation users assigned to the CEO and CFO role
+```
+{
+  CEO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+    organisationRoleByOrganisationrole{
+      name
+    }
+  }
+  
+  CFO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CFO"}}}) {
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+    organisationRoleByOrganisationrole{
+      name
+    }
+  }
+}
+```
+
+# The Crudio data repository structure
 
 The main purpose of a repository (*repo*) is to act as a container for test data.
 
@@ -313,81 +398,25 @@ Simply copy, paste and execute the queries below, using the Hasura Console
 
 URL: `http://localhost:6789/console/`
 
+# Roadmap
 
-## Get a list of blog posts with their related tags
-```
-{
-  crudio_Blogs {
-    article_text
-    BlogTags {
-      tagByTag {
-        name
-      }
-    }
-  }
-}
-```
+## More work on expressing relationships
+At the moment we are thinking about the different types of relationships between entities, such as users and which departments they work in.
 
-## Get a list of users with their organisations and prove their email address matches the orgniation they work for
-```
-{
-  crudio_Users{
-    firstname
-    lastname
-    email
-    organisationByOrganisation {
-      name
-    }
-  }
-}
-```
+## Scipting engine
+There is a unit test just to see if we can stimulate discussion about a scripting engine. We are looking at `eval` which everyone says is evil, but Crudio is not designed as a production tool, so you won't be letting third parties write scripts that execute on your platform.
 
-## Get values for IoT devices which measure blood pressure
-```
-{
-  crudio_test_DeviceReadings(
-    where: {
-    deviceByDevice: {
-      deviceTypeByDevicetype: {
-        name: {_eq: "bp"}
-       }
-      }
-    })
-  {
-   value
-  }
-}
+But why would you need scripting? We are trying to answer many common out of the box use cases, like creating organisations, with teams, roles, and clients. When we consider modelling the kind of data that IoT or Health devices create, you might not want the data to be so random. If you don't care, you're already good to go, as our current demonstration model shows.
 
-``` 
+We are envisioning a use case, like trying to make environmental monitoring data, where a timestamp appears to progress through a 24 hour period, and as it does, a daylight sensor increases in value, and as night approaches, the sensor value falls as it gets darker. This capability would create very convincing test data.
 
-## List organisation users assigned to the CEO and CFO role
-```
-{
-  CEO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
-    firstname
-    lastname
-    email
-    organisationByOrganisation {
-      name
-    }
-    organisationRoleByOrganisationrole{
-      name
-    }
-  }
-  
-  CFO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CFO"}}}) {
-    firstname
-    lastname
-    email
-    organisationByOrganisation {
-      name
-    }
-    organisationRoleByOrganisationrole{
-      name
-    }
-  }
-}
-```
+## Visualisation
+
+This is about being able to output a graphical version of the data model so you can quickly review and validate it, even work with others, non-technical people, to ask if the data model makes sense in real-life.
+
+## User interface
+
+Primarily, Crudio was envisioned essentially as a command line, and unit test tool. But as it progress, it seems to call for a web-app which would enable us to create our models in a more friendly, less code-like way.
 
 # Credits
 
