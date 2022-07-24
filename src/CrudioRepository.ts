@@ -257,9 +257,10 @@ export default class CrudioRepository {
 			var fieldSchema: any = entityDefinition[fieldname];
 
 			const fieldOptions: ICrudioFieldOptions = {
-				isUnique: fieldSchema.unique,
-				generator: fieldSchema.generator,
 				isKey: fieldSchema.key,
+				isUnique: fieldSchema.unique,
+				isRequired: fieldSchema.required ?? false,
+				generator: fieldSchema.generator,
 				sensitiveData: fieldSchema.sensitiveData === undefined ? false : fieldSchema.sensitiveData,
 				defaultValue: fieldSchema.default === undefined ? null : fieldSchema.default,
 			};

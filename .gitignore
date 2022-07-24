@@ -1,5 +1,7 @@
 # npm
 .npmrc
+yarn.lock
+package-lock.json
 
 # Output files
 test/unit/output/*
