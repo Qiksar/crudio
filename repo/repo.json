@@ -1,5 +1,7 @@
 {
-	"include": ["repo/base.json"],
+	"include": [
+		"repo/base.json"
+	],
 	"entities": {
 		"Organisation": {
 			"inherits": "Entity",
@@ -21,6 +23,15 @@
 				"generator": "contact@[!name].org.au"
 			}
 		},
+		"OrganisationDepartment": {
+			"inherits": "Entity",
+			"count": 6,
+			"name": {
+				"required": true,
+				"unique": true,
+				"generator": "[organisation_department]"
+			}
+		},
 		"OrganisationRole": {
 			"inherits": "Entity",
 			"count": 7,
@@ -33,7 +44,12 @@
 		"Person": {
 			"abstract": true,
 			"inherits": "Entity",
-			"snippets": ["firstname", "lastname", "address", "email"],
+			"snippets": [
+				"firstname",
+				"lastname",
+				"address",
+				"email"
+			],
 			"dob": {
 				"type": "date",
 				"name": "dob",
@@ -61,6 +77,10 @@
 				{
 					"type": "one",
 					"to": "Organisation"
+				},
+				{
+					"type": "one",
+					"to": "OrganisationDepartment"
 				},
 				{
 					"type": "one",
@@ -193,9 +213,10 @@
 		"article_line2": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;",
 		"article_person": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;",
 		"article_said": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;",
-		"article_line5": "Until next time, adios;See you next time;We will be back with more news soon;",
+		"article_line5": "Until next time, adios;See you next time;We will be back with more news soon",
 		"article": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]",
 		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
-		"organisation_role": "Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
+		"organisation_role": "Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff",
+		"organisation_department": "HR;Finance;Sales;Engineering;Marketing;Board"
 	}
 }
