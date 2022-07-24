@@ -25,7 +25,7 @@
 		},
 		"OrganisationDepartment": {
 			"inherits": "Entity",
-			"count": 6,
+			"count": 7,
 			"name": {
 				"required": true,
 				"unique": true,
@@ -34,7 +34,7 @@
 		},
 		"OrganisationRole": {
 			"inherits": "Entity",
-			"count": 7,
+			"count": 8,
 			"name": {
 				"required": true,
 				"unique": true,
@@ -67,7 +67,7 @@
 			}
 		},
 		"User": {
-			"count": 2000,
+			"count": 0,
 			"inherits": "Person",
 			"email": {
 				"unique": true,
@@ -85,13 +85,7 @@
 				{
 					"type": "one",
 					"to": "OrganisationRole",
-					"comment": "All users will be assigned a role of 'staff', except, where we request that one user be assigned to each of the roles mentioned in 'values'",
-					"default": "name: Staff",
-					"singular": {
-						"enumerate": "Organisation",
-						"field": "name",
-						"values": "Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;"
-					}
+					"comment": "All users will be assigned a role of 'staff', except, where we request that one user be assigned to each of the roles mentioned in 'values'"
 				}
 			]
 		},
@@ -216,7 +210,10 @@
 		"article_line5": "Until next time, adios;See you next time;We will be back with more news soon",
 		"article": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]",
 		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
-		"organisation_role": "Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff",
-		"organisation_department": "HR;Finance;Sales;Engineering;Marketing;Board"
-	}
+		"organisation_role": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff",
+		"organisation_department": "IT;HR;Finance;Sales;Engineering;Marketing;Board"
+	},
+	"scripts": [
+		"repo/org_users.json"
+	]
 }

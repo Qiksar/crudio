@@ -82,6 +82,14 @@ export default class CrudioRepository {
 	 */
 	public target_db_schema: string = null;
 
+	/**
+	 * Explicit data setup instructions
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @type {string[]}
+	 */
+	private scripts: string[];
 	//#endregion
 
 	/**
@@ -97,6 +105,7 @@ export default class CrudioRepository {
 		this.LoadEntityDefinitions(repo);
 		this.CreateInMemoryDataTables(this.entities);
 		this.FillDataTables();
+		this.RunScripts();
 	}
 
 	//#region Initialise repository, entities and relationships
@@ -159,6 +168,7 @@ export default class CrudioRepository {
 		});
 
 		this.generators = repo.generators;
+		this.scripts = repo.scripts ?? [];
 	}
 
 	// Merge an external repository into the current one
@@ -331,6 +341,21 @@ export default class CrudioRepository {
 		return matches[0];
 	}
 
+
+	/**
+	 * Get the entity definition associated with the table name
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @param {string} tableName
+	 * @param {boolean} [failIfNotFound=true]
+	 * @returns {(CrudioEntityType | null)}
+	 */
+	public GetEntityDefinitionFromTableName(tableName: string, failIfNotFound: boolean = true): CrudioEntityType | null {
+		const entityName = this.GetTable(tableName).entity;
+		return this.GetEntityDefinition(entityName);
+	}
+
 	/**
 	 * Get a datatable using the name of its related entity
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -451,8 +476,10 @@ export default class CrudioRepository {
 			// row_num is intended to ensure every entity on the "many" side gets at least one
 			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
 			const row_num = index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(1, targetTable.rows.length + 1) - 1 : index++;
-			const targetRow = targetTable.rows[row_num];
-			this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+			if (row_num < targetTable.rows.length) {
+				const targetRow = targetTable.rows[row_num];
+				this.ConnectRows(sourceRow, targetRow);
+			}
 		});
 	}
 
@@ -502,7 +529,7 @@ export default class CrudioRepository {
 
 
 				// connect the user from the organisation with the role
-				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+				this.ConnectRows(sourceRow, targetRow);
 
 				// HAK - set a flag so we don't process the same row twice
 				sourceRow.skip = true;
@@ -523,7 +550,7 @@ export default class CrudioRepository {
 					return f === value
 				})[0];
 
-				this.ConnectRows(sourceRow, sourceTable, targetRow, targetTable);
+				this.ConnectRows(sourceRow, targetRow);
 			});
 	}
 
@@ -537,7 +564,7 @@ export default class CrudioRepository {
 	   * @param {CrudioEntityInstance} targetRow
 	   * @param {CrudioTable} targetTable
 	   */
-	private ConnectRows(sourceRow: CrudioEntityInstance, sourceTable: CrudioTable, targetRow: CrudioEntityInstance, targetTable: CrudioTable): void {
+	private ConnectRows(sourceRow: CrudioEntityInstance, targetRow: CrudioEntityInstance): void {
 
 		if (!sourceRow)
 			throw "Error: sourceRow must be specified";
@@ -545,12 +572,8 @@ export default class CrudioRepository {
 		if (!targetRow)
 			throw "Error: targetRow must be specified";
 
-		if (!sourceTable)
-			throw "Error: sourceTable must be specified";
-
-		if (!targetTable)
-			throw "Error: targetTable must be specified";
-
+		const sourceTable = this.GetTableForEntity(sourceRow.entityType.name);
+		const targetTable = this.GetTableForEntity(targetRow.entityType.name);
 
 		// the source points to a single target record... user 1 -> 1 organisation
 		sourceRow.values[targetTable.entity] = targetRow;
@@ -818,7 +841,9 @@ export default class CrudioRepository {
 	 * @returns {boolean}
 	 */
 	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): boolean {
-		// as we generate the entity a field may require unique values, like a unique database constrain on a field
+		// as we generate the entity a field may require unique values, like a 
+		// unique database constraint on a field.
+		//
 		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
 		// if the email value created is not unique, the entire entity is rejected so a new first and last name can be created, to form a new unique email
 		// so, for that reason we have to create a duplicate entity, and only overwrite the input entity on complete successful generation of the correct field values
@@ -837,7 +862,7 @@ export default class CrudioRepository {
 				new_instance.values[field_name] = detokenised_value;
 
 				if (detokenised_value.indexOf("[") >= 0) {
-					throw new Error(`Error: Detokenisation failed in ${new_instance.entityType.name}- ${field_name}`);
+					throw new Error(`Error: Detokenisation failed in Entity:${new_instance.entityType.name} - ${field_name}`);
 				}
 				const entity_field = new_instance.entityType.GetField(field_name);
 
@@ -903,7 +928,16 @@ export default class CrudioRepository {
 		return value;
 	}
 
-	public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance) {
+	/**
+	   * Extract a value from a JSON like path
+	   * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} fieldName
+	 * @param {CrudioEntityInstance} entity
+	 * @returns {string}
+	 */
+	public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance): string {
 		const path = fieldName.split(".");
 		var source = entity;
 
@@ -911,6 +945,9 @@ export default class CrudioRepository {
 			const child_entity_name = path[i];
 			source = source.values[child_entity_name];
 		}
+
+		if (!source)
+			throw "whoops";
 
 		const source_field_name = path[path.length - 1];
 		const value = source.values[source_field_name];
@@ -1047,5 +1084,130 @@ export default class CrudioRepository {
 		return Math.floor((max - min) * rndValue) + min;
 	}
 
+	//#endregion
+
+	//#region scripts
+
+	private RunScripts(): void {
+		this.scripts.map(filename => {
+			const json: any = CrudioRepository.LoadJson(filename);
+			this.ProcessScript(json);
+		});
+	}
+
+	private ProcessScript(json: any): void {
+		Object.keys(json).map((tableName: any) => {
+			const table = this.GetTable(tableName);
+			const table_node = json[tableName];
+
+			const parent_entity = this.CreateEntityInstance(this.GetEntityDefinition(table.entity));
+			this.ProcessTokensInEntity(parent_entity);
+			table.rows.push(parent_entity);
+
+			var count = table_node.count ?? 1;
+
+			// For each new entity, run the script
+			while (count-- > 0) {
+				table_node.scripts.map((s: any) => {
+					this.ExecuteScript(parent_entity, s);
+				});
+			}
+		});
+	}
+
+	private ExecuteScript(parent_entity: CrudioEntityInstance, script: string): void {
+		const parts = script.split(".");
+		var field_name = parts[0];
+		var row_index = -1;
+
+		const bracket = field_name.indexOf("[");
+		if (bracket > -1) {
+			if (field_name.indexOf("]") < 0) {
+				throw new Error(`Error: Syntax error - missing ']' in ${script}`);
+			}
+
+			const index_text = field_name.slice(bracket + 1, field_name.indexOf("]", bracket + 1));
+			const row_parts = index_text.split("-");
+			var row_start = Number(row_parts[0]);
+			var row_end;
+
+			if (row_parts.length == 2)
+				row_end = Number(row_parts[1]);
+			else
+				row_end = row_start;
+
+			if (row_start === NaN || row_end === NaN)
+				throw new Error(`Error: Syntax error - invalid row index in ${script}`);
+
+			row_index = row_start;
+
+			field_name = field_name
+				.slice(0, bracket)
+				.replaceAll("]", "");
+		}
+
+		// When we get the entity by index below, it will be connected to this target entity
+		var target_connection = this.GetEntityFromQuery(parts[1], parts[2]);
+
+		for (var ri = row_start; ri <= row_end; ri++) {
+			const child = this.GetEntityAtIndex(parent_entity, field_name, row_index, target_connection);
+		}
+	}
+
+	private GetEntityFromQuery(entityType: string, query: string): CrudioEntityInstance {
+		if (!query)
+			throw new Error("Error: query parameter must be specified");
+
+		const parts = query.split("=");
+		const field = parts[0];
+		const value = parts[1];
+
+		const table = this.GetTableForEntityName(entityType);
+		const match = table.rows.filter(r => r.values[field] === value)[0];
+
+		if (!match)
+			throw new Error(`Error: Failed to find math for Entity:${entityType} using query: ${query}`);
+
+		return match;
+	}
+
+	private GetEntityAtIndex(parent_entity: CrudioEntityInstance, table_name: string, row_index: number, target_connection: CrudioEntityInstance): CrudioEntityInstance {
+		// The organisation may not yet have a field for Users
+		if (!parent_entity.values[table_name])
+			parent_entity.values[table_name] = [];
+
+		// get the Users list from the organisation
+		const parent_array = parent_entity.values[table_name] as [];
+		const entity_definition = this.GetEntityDefinitionFromTableName(table_name);
+
+		// if we are, for example, requesting User[3] then we need to ensure the Users array for the Organisation has 
+		// at least 3 entities. If not we just create enough entities to fill the array up to the required index value  
+		if (parent_array.length < row_index + 1) {
+			var r = row_index;
+			while (parent_array.length < row_index + 1) {
+				const new_entity = this.CreateEntityInstance(entity_definition);
+				const global_table = this.GetTableForEntityName(entity_definition.name);
+
+				// add the new entity to the global table
+				global_table.rows.push(new_entity);
+
+				this.ConnectRows(new_entity, parent_entity);
+				this.ConnectRows(new_entity, target_connection);
+
+				// process tokens in the new User entity, like expanding the email address which contains the organisation name
+				this.ProcessTokensInEntity(new_entity);
+
+				r--;
+			}
+		} else {
+			this.ConnectRows(parent_array[row_index], target_connection);
+		}
+
+		if (row_index > parent_array.length)
+			throw new Error(`Error: Failed to generate entity for index ${row_index} in ${parent_entity.entityType}`);
+
+		return parent_array[row_index];
+
+	}
 	//#endregion
 }

@@ -106,6 +106,13 @@ export interface ICrudioSchemaDefinition {
    * @type {?{}}
    */
   snippets?: {};
+  /**
+     * Explicit data setup instructions
+     * @date 7/18/2022 - 1:47:30 PM
+     *
+     * @type {string[]}
+     */
+  scripts?: string[];
 }
 
 /**
