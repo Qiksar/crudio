@@ -1,3 +1,6 @@
+# npm
+.npmrc
+
 # Output files
 test/unit/output/*
 lib/
