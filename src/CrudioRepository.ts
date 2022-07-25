@@ -890,7 +890,7 @@ export default class CrudioRepository {
 
 				while (!ok && maxtries-- > 0) {
 					if (maxtries == 0) {
-						throw new Error(`Error: Failed to create unique value for ${table.name}`);
+						throw new Error(`Error: Failed to create unique value for ${table.name}. Table contains ${table.rows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`);
 					}
 
 					ok = this.ProcessTokensInEntity(entityInstance);
@@ -948,7 +948,8 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Replace all tokens with their generated values. This works recursively where tokens substitute in additional tokens, e.g. [user_email] is replaced with [name]@[organisation].com
+	 * Replace all tokens with their generated values.
+	 * This works recursively where tokens substitute in additional tokens, e.g. [user_email] is replaced with [name]@[organisation].com
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -957,20 +958,20 @@ export default class CrudioRepository {
 	 * @returns {string}
 	 */
 	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance): string {
-		var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
-		var value: any;
+		do {
+			var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
+			var value: any;
 
-		if (tokens === null) {
-			// there are no tokens to process, just a hardcoded value in the entity definition, like, name: "Bob"
-			return fieldValue;
-		}
+			if (tokens === null) {
+				// there are no tokens to process, just a hardcoded value in the entity definition, like, name: "Bob"
+				return fieldValue;
+			}
 
-		tokens.map(t => {
-			var token: string = t.replace(/\[|\]/g, "");
+			var loop = false;
 
-			do {
+			tokens.map(t => {
+				var token: string = t.replace(/\[|\]/g, "");
 				var fieldName: string = token;
-				var loop = false;
 
 				// find parameter characters:
 				// ! : get field from context
@@ -987,15 +988,9 @@ export default class CrudioRepository {
 					value = this.ProcessTokensInField(entity, fieldName, clean);
 				} else if (query) {
 					value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
-					loop = true;
 				} else {
 					// use a generator
 					value = this.GetGeneratedValue(fieldName);
-
-					// recurse if there are still more tokens in the string
-					if (typeof value === "string" && value.includes("[") && value.includes("]")) {
-						value = this.ReplaceTokens(value, entity);
-					}
 
 					// ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
 					// We don't clean when deferred otherwise we will change the case of field names used in generators
@@ -1006,8 +1001,11 @@ export default class CrudioRepository {
 
 				fieldValue = fieldValue.replace(`[${token}]`, value);
 				token = fieldValue.replace(/\[|\]/g, "");
-			} while (loop);
-		});
+			});
+
+			// repeat the process if there are still more tokens in the string
+			loop = typeof value === "string" && value.includes("[") && value.includes("]");
+		} while (loop);
 
 		return fieldValue;
 	}
@@ -1096,12 +1094,12 @@ export default class CrudioRepository {
 
 	/**
 	 * Run a collection of scripts loaded from a JSON file
-	 * The format is 
-	 * 
+	 * The format is
+	 *
 	 * TableName : { count: x, scripts:[] }
 	 * where count is the numbe rof entities to create for the specified table
 	 * and scripts is a list of script commands which will create and connected further entities
-	 * 
+	 *
 	 * @date 7/25/2022 - 9:41:03 AM
 	 *
 	 * @private
@@ -1112,14 +1110,14 @@ export default class CrudioRepository {
 			const table = this.GetTable(tableName);
 			const table_node = json[tableName];
 
-			const parent_entity = this.CreateEntityInstance(this.GetEntityDefinition(table.entity));
-			this.ProcessTokensInEntity(parent_entity);
-			table.rows.push(parent_entity);
-
 			var count = table_node.count ?? 1;
 
 			// For each new entity, run the script
 			while (count-- > 0) {
+				const parent_entity = this.CreateEntityInstance(this.GetEntityDefinition(table.entity));
+				this.ProcessTokensInEntity(parent_entity);
+				table.rows.push(parent_entity);
+
 				table_node.scripts.map((s: any) => {
 					this.ExecuteScript(parent_entity, s);
 				});
