@@ -204,7 +204,7 @@ Once you have tracked the tables and relationships in [Hasura Console](http://lo
 ## Get a list of blog posts with their related tags
 ```
 {
-  crudio_Blogs {
+  crudio_test_Blogs {
     article_text
     BlogTags {
       tagByTag {
@@ -218,7 +218,7 @@ Once you have tracked the tables and relationships in [Hasura Console](http://lo
 ## Get a list of users with their organisations and prove their email address matches the orgniation they work for
 ```
 {
-  crudio_Users{
+  crudio_test_Users{
     firstname
     lastname
     email
@@ -244,8 +244,27 @@ Once you have tracked the tables and relationships in [Hasura Console](http://lo
    value
   }
 }
-
 ``` 
+
+## List all users with organisations, department and role
+```
+{
+  crudio_test_Users {
+    firstname
+    lastname
+    email
+    organisationByOrganisation {
+      name
+    }
+    organisationDepartmentByOrganisationdepartment {
+      name
+    }
+    organisationRoleByOrganisationrole {
+      name
+    }
+  }
+}
+```
 
 ## List organisation users assigned to the CEO and CFO role
 ```
