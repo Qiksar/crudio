@@ -106,14 +106,36 @@ export default class CrudioEntityRelationship {
 		return this.relationship.count;
 	}
 
+	/**
+	 * Query string of field:value
+	 * @date 7/25/2022 - 10:37:12 AM
+	 *
+	 * @readonly
+	 * @type {string}
+	 */
 	get DefaultTargetQuery(): string {
 		return this.relationship.default;
 	}
 
+	/**
+	 * Formulate a description of the relationship, used for logging and error reporting
+	 * @date 7/25/2022 - 10:37:12 AM
+	 *
+	 * @readonly
+	 * @type {string}
+	 */
 	get Description(): string {
 		return `RELATIONSHIP:${this.FromEntity}.${this.FromColumn} -> ${this.ToEntity}.${this.ToColumn} `
 	}
 
+	/**
+	 * An enumerated table is a parent, for which relationships are created between it's children and a second entity.
+	 * For example, an organisation, which needs to have users created, and the users have to be connected to a role and / or department 
+	 * @date 7/25/2022 - 10:37:12 AM
+	 *
+	 * @readonly
+	 * @type {string}
+	 */
 	get EnumeratedTable(): string {
 		if (!this.relationship.singular.enumerate) {
 			throw new Error(`Error: ${this.Description} is a singular relationship and does not specify a value for 'enumerate' which is required to reference a related table`);
@@ -122,6 +144,13 @@ export default class CrudioEntityRelationship {
 		return this.relationship.singular.enumerate;
 	}
 
+	/**
+	 * Specifies the field used to find search for the related entity
+	 * @date 7/25/2022 - 10:37:12 AM
+	 *
+	 * @readonly
+	 * @type {string}
+	 */
 	get SingularRelationshipField(): string {
 		if (!this.relationship.singular.field) {
 			throw new Error(`Error: ${this.Description} is a singular relationship and does not specify a value for 'field' which is required for the lookup`);
@@ -130,6 +159,14 @@ export default class CrudioEntityRelationship {
 		return this.relationship.singular.field;
 	}
 
+	/**
+	 * List of values which enable the target entity to be retrieved and connected to the child entities of the enumerated table
+	 * For example, if we have "HR","IT","SALES" then these are the departments to connect users to in an orgsanisation
+	 * @date 7/25/2022 - 10:37:12 AM
+	 *
+	 * @readonly
+	 * @type {string[]}
+	 */
 	get SingularRelationshipValues(): string[] {
 		if (!this.relationship.singular) {
 			return [];

@@ -22,6 +22,13 @@ import CrudioUtils from "./CrudioUtils";
 export default class CrudioRepository {
 	//#region Properties
 
+	/**
+	 * maintain an internal list of files loaded to prevent circular references
+	 * @date 7/25/2022 - 9:41:03 AM
+	 *
+	 * @private
+	 * @type {string[]}
+	 */
 	private filestack: string[] = [];
 
 	/**
@@ -199,7 +206,7 @@ export default class CrudioRepository {
 		}
 	}
 
-	// create the basic entity structures
+	// Create the basic entity structures
 	/**
 	 * Load entity definitions from the schema
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -341,7 +348,6 @@ export default class CrudioRepository {
 		return matches[0];
 	}
 
-
 	/**
 	 * Get the entity definition associated with the table name
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -472,7 +478,6 @@ export default class CrudioRepository {
 		var index: number = 0;
 
 		sourceTable.rows.map((sourceRow: CrudioEntityInstance) => {
-
 			// row_num is intended to ensure every entity on the "many" side gets at least one
 			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
 			const row_num = index > targetTable.rows.length - 1 ? CrudioRepository.GetRandomNumber(1, targetTable.rows.length + 1) - 1 : index++;
@@ -485,7 +490,7 @@ export default class CrudioRepository {
 
 	/**
 	 * Connect specific entities in a relationship
-	 * For example an organisation has one CEO, so assign only one user to this role in an organisation 
+	 * For example an organisation has one CEO, so assign only one user to this role in an organisation
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -495,11 +500,9 @@ export default class CrudioRepository {
 		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
 		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
 
-		if (sourceTable === null)
-			throw new Error(`Can not find source '${r.FromEntity}'`);
+		if (sourceTable === null) throw new Error(`Can not find source '${r.FromEntity}'`);
 
-		if (targetTable === null)
-			throw new Error(`Can not find target '${r.ToEntity}'`);
+		if (targetTable === null) throw new Error(`Can not find target '${r.ToEntity}'`);
 
 		const enumerated_table = this.GetTableForEntity(r.EnumeratedTable);
 
@@ -507,26 +510,22 @@ export default class CrudioRepository {
 
 		// for each organisation...
 		enumerated_table.rows.map(parent => {
-
 			var source_index: number = 0;
-			const sourceRows = parent.values[sourceTable.name]
+			const sourceRows = parent.values[sourceTable.name];
 
 			if (r.SingularRelationshipValues.length > sourceRows.length)
 				throw new Error(`Error: Singular relationship involving Enumerated:${enumerated_table.name} Source:${sourceTable.name} Target:${targetTable.name} - the number of singular values exceeds the number of rows in ${sourceTable.name} `);
 
-
 			// for each instance of the singular relationship
 			r.SingularRelationshipValues.map(sing_name => {
-
 				// find the role to assign
 				const targetRow = targetTable.rows.filter(row => {
 					const f = row.values[r.SingularRelationshipField];
-					return f === sing_name
+					return f === sing_name;
 				})[0];
 
 				// find the user to assign to the role, where the user is fetched from the related organisations
 				const sourceRow = sourceRows[source_index++];
-
 
 				// connect the user from the organisation with the role
 				this.ConnectRows(sourceRow, targetRow);
@@ -537,8 +536,7 @@ export default class CrudioRepository {
 		});
 
 		// assign the remaining rows with the default named relationship, e.g. assign Staff to all other users
-		sourceTable
-			.rows
+		sourceTable.rows
 			.filter((fr: any) => fr.skip === undefined || !fr.skip)
 			.map((sourceRow: CrudioEntityInstance) => {
 				const parts = r.DefaultTargetQuery.split(":");
@@ -547,7 +545,7 @@ export default class CrudioRepository {
 
 				const targetRow = targetTable.rows.filter(row => {
 					const f = row.values[field];
-					return f === value
+					return f === value;
 				})[0];
 
 				this.ConnectRows(sourceRow, targetRow);
@@ -556,21 +554,18 @@ export default class CrudioRepository {
 
 	/**
 	 * connect a source row and target row together in a one to many relationship
-	   * @date 7/18/2022 - 3:39:38 PM
-	   *
-	   * @private
-	   * @param {CrudioEntityInstance} sourceRow
-	   * @param {CrudioTable} sourceTable
-	   * @param {CrudioEntityInstance} targetRow
-	   * @param {CrudioTable} targetTable
-	   */
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} sourceRow
+	 * @param {CrudioTable} sourceTable
+	 * @param {CrudioEntityInstance} targetRow
+	 * @param {CrudioTable} targetTable
+	 */
 	private ConnectRows(sourceRow: CrudioEntityInstance, targetRow: CrudioEntityInstance): void {
+		if (!sourceRow) throw "Error: sourceRow must be specified";
 
-		if (!sourceRow)
-			throw "Error: sourceRow must be specified";
-
-		if (!targetRow)
-			throw "Error: targetRow must be specified";
+		if (!targetRow) throw "Error: targetRow must be specified";
 
 		const sourceTable = this.GetTableForEntity(sourceRow.entityType.name);
 		const targetTable = this.GetTableForEntity(targetRow.entityType.name);
@@ -583,7 +578,7 @@ export default class CrudioRepository {
 			targetRow.values[sourceTable.name] = [];
 		}
 
-		// the target has a list of records which it points back to... organisation 1 -> * user 
+		// the target has a list of records which it points back to... organisation 1 -> * user
 		targetRow.values[sourceTable.name].push(sourceRow);
 	}
 
@@ -605,7 +600,6 @@ export default class CrudioRepository {
 		return matches[0];
 	}
 
-	// Get the datatable of values for an entity type
 	/**
 	 * Get the in-memory datatable for the named entity type
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -742,7 +736,7 @@ export default class CrudioRepository {
 		// Run over all relationships again to handle cases
 		// where a relationship has a constraint, such as one user in the role of CEO in an organisation
 		// This must be done after token processing, because that is the step in the process where all
-		// value generators have executed, which enables the lookups to complete 
+		// value generators have executed, which enables the lookups to complete
 		this.ConnectNamedRelationships();
 	}
 
@@ -800,7 +794,7 @@ export default class CrudioRepository {
 	//#region create entities and connect to generators
 
 	/**
-	 * Description placeholder
+	 * Create a new entity instance and populate it with generator tags which can be substitude later when the object is fully connected into the data graph
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -815,7 +809,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Assign data generators to the entity instance
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -833,7 +827,7 @@ export default class CrudioRepository {
 	//#region create and populate entities
 
 	/**
-	 * Description placeholder
+	 * Process all tokens in an entity instance
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -841,7 +835,7 @@ export default class CrudioRepository {
 	 * @returns {boolean}
 	 */
 	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): boolean {
-		// as we generate the entity a field may require unique values, like a 
+		// as we generate the entity a field may require unique values, like a
 		// unique database constraint on a field.
 		//
 		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
@@ -883,7 +877,7 @@ export default class CrudioRepository {
 		return true;
 	}
 	/**
-	 * Description placeholder
+	 * Process all tokens in entities for all tables
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -906,7 +900,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Process all tokens in a specified field
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -929,8 +923,8 @@ export default class CrudioRepository {
 	}
 
 	/**
-	   * Extract a value from a JSON like path
-	   * @date 7/18/2022 - 3:39:38 PM
+	 * Extract a value from a JSON like path
+	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
 	 * @param {string} fieldName
@@ -946,8 +940,7 @@ export default class CrudioRepository {
 			source = source.values[child_entity_name];
 		}
 
-		if (!source)
-			throw "whoops";
+		if (!source) throw "whoops";
 
 		const source_field_name = path[path.length - 1];
 		const value = source.values[source_field_name];
@@ -955,7 +948,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Replace all tokens with their generated values. This works recursively where tokens substitute in additional tokens, e.g. [user_email] is replaced with [name]@[organisation].com
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -1020,7 +1013,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Get a value from a specified generator
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
@@ -1070,7 +1063,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Get a random number >= min and <= max
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @public
@@ -1088,6 +1081,12 @@ export default class CrudioRepository {
 
 	//#region scripts
 
+	/**
+	 * Run all scripts in the current repository
+	 * @date 7/25/2022 - 9:41:03 AM
+	 *
+	 * @private
+	 */
 	private RunScripts(): void {
 		this.scripts.map(filename => {
 			const json: any = CrudioRepository.LoadJson(filename);
@@ -1095,6 +1094,19 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Run a collection of scripts loaded from a JSON file
+	 * The format is 
+	 * 
+	 * TableName : { count: x, scripts:[] }
+	 * where count is the numbe rof entities to create for the specified table
+	 * and scripts is a list of script commands which will create and connected further entities
+	 * 
+	 * @date 7/25/2022 - 9:41:03 AM
+	 *
+	 * @private
+	 * @param {*} json
+	 */
 	private ProcessScript(json: any): void {
 		Object.keys(json).map((tableName: any) => {
 			const table = this.GetTable(tableName);
@@ -1115,9 +1127,21 @@ export default class CrudioRepository {
 		});
 	}
 
+	/**
+	 * Execute scripts for a newly create parent entity which has already been inserted into the related table
+	 * @date 7/25/2022 - 9:41:03 AM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} parent_entity
+	 * @param {string} script
+	 */
 	private ExecuteScript(parent_entity: CrudioEntityInstance, script: string): void {
-		const parts = script.split(".");
+		const query_index = script.indexOf("?");
+		const query = script.slice(query_index + 1);
+
+		const parts = script.slice(0, query_index).split(".");
 		var field_name = parts[0];
+		var entity_type = parts[1];
 		var row_index = -1;
 
 		const bracket = field_name.indexOf("[");
@@ -1131,57 +1155,71 @@ export default class CrudioRepository {
 			var row_start = Number(row_parts[0]);
 			var row_end;
 
-			if (row_parts.length == 2)
-				row_end = Number(row_parts[1]);
-			else
-				row_end = row_start;
+			if (row_parts.length == 2) row_end = Number(row_parts[1]);
+			else row_end = row_start;
 
-			if (row_start === NaN || row_end === NaN)
-				throw new Error(`Error: Syntax error - invalid row index in ${script}`);
+			if (row_start === NaN || row_end === NaN) throw new Error(`Error: Syntax error - invalid row index in ${script}`);
 
 			row_index = row_start;
 
-			field_name = field_name
-				.slice(0, bracket)
-				.replaceAll("]", "");
+			field_name = field_name.slice(0, bracket).replaceAll("]", "");
 		}
 
 		// When we get the entity by index below, it will be connected to this target entity
-		var target_connection = this.GetEntityFromQuery(parts[1], parts[2]);
+		var target_connection = this.GetEntityFromQuery(entity_type, query);
 
 		for (var ri = row_start; ri <= row_end; ri++) {
-			const child = this.GetEntityAtIndex(parent_entity, field_name, row_index, target_connection);
+			this.ConnectChildWithRelatedEntity(parent_entity, field_name, row_index, target_connection);
 		}
 	}
 
+	/**
+	 * Get an entity using the query notation ?fieldname=search_value
+	 * @date 7/25/2022 - 9:41:03 AM
+	 *
+	 * @private
+	 * @param {string} entityType
+	 * @param {string} query
+	 * @returns {CrudioEntityInstance}
+	 */
 	private GetEntityFromQuery(entityType: string, query: string): CrudioEntityInstance {
-		if (!query)
-			throw new Error("Error: query parameter must be specified");
+		if (!query) throw new Error("Error: query parameter must be specified");
 
 		const parts = query.split("=");
 		const field = parts[0];
 		const value = parts[1];
 
+		if (!parts || !field || !value) throw new Error(`Error: Querying entity type: ${entityType}. Syntax error in query: ${query}. Format is ?fieldname=value `);
+
 		const table = this.GetTableForEntityName(entityType);
 		const match = table.rows.filter(r => r.values[field] === value)[0];
 
-		if (!match)
-			throw new Error(`Error: Failed to find math for Entity:${entityType} using query: ${query}`);
+		if (!match) throw new Error(`Error: Failed to find math for Entity:${entityType} using query: ${query}`);
 
 		return match;
 	}
 
-	private GetEntityAtIndex(parent_entity: CrudioEntityInstance, table_name: string, row_index: number, target_connection: CrudioEntityInstance): CrudioEntityInstance {
+	/**
+	 * Connect a child entity with a related target
+	 * e.g. Having created an organisation, we need to get or create Users, then connect the users to their roles and departments
+	 * @date 7/25/2022 - 9:41:02 AM
+	 *
+	 * @private
+	 * @param {CrudioEntityInstance} parent_entity
+	 * @param {string} field_name
+	 * @param {number} row_index
+	 * @param {CrudioEntityInstance} target_connection
+	 */
+	private ConnectChildWithRelatedEntity(parent_entity: CrudioEntityInstance, field_name: string, row_index: number, target_connection: CrudioEntityInstance) {
 		// The organisation may not yet have a field for Users
-		if (!parent_entity.values[table_name])
-			parent_entity.values[table_name] = [];
+		if (!parent_entity.values[field_name]) parent_entity.values[field_name] = [];
 
 		// get the Users list from the organisation
-		const parent_array = parent_entity.values[table_name] as [];
-		const entity_definition = this.GetEntityDefinitionFromTableName(table_name);
+		const parent_array = parent_entity.values[field_name] as [];
+		const entity_definition = this.GetEntityDefinitionFromTableName(field_name);
 
-		// if we are, for example, requesting User[3] then we need to ensure the Users array for the Organisation has 
-		// at least 3 entities. If not we just create enough entities to fill the array up to the required index value  
+		// if we are, for example, requesting User[3] then we need to ensure the Users array for the Organisation has
+		// at least 3 entities. If not we just create enough entities to fill the array up to the required index value
 		if (parent_array.length < row_index + 1) {
 			var r = row_index;
 			while (parent_array.length < row_index + 1) {
@@ -1203,11 +1241,9 @@ export default class CrudioRepository {
 			this.ConnectRows(parent_array[row_index], target_connection);
 		}
 
-		if (row_index > parent_array.length)
+		if (row_index > parent_array.length) {
 			throw new Error(`Error: Failed to generate entity for index ${row_index} in ${parent_entity.entityType}`);
-
-		return parent_array[row_index];
-
+		}
 	}
 	//#endregion
 }

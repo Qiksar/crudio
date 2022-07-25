@@ -84,8 +84,7 @@
 				},
 				{
 					"type": "one",
-					"to": "OrganisationRole",
-					"comment": "All users will be assigned a role of 'staff', except, where we request that one user be assigned to each of the roles mentioned in 'values'"
+					"to": "OrganisationRole"
 				}
 			]
 		},
