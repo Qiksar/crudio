@@ -827,6 +827,29 @@ export default class CrudioRepository {
 	//#region create and populate entities
 
 	/**
+	 * Process all tokens in entities for all tables
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	 private ProcessTokensInAllTables(): void {
+		this.tables.map(table => {
+			table.rows.map(entityInstance => {
+				var ok = false;
+				var maxtries = 1000;
+
+				while (!ok && maxtries-- > 0) {
+					if (maxtries == 0) {
+						throw new Error(`Error: Failed to create unique value for ${table.name}. Table contains ${table.rows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`);
+					}
+
+					ok = this.ProcessTokensInEntity(entityInstance);
+				}
+			});
+		});
+	}
+
+	/**
 	 * Process all tokens in an entity instance
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
@@ -876,29 +899,7 @@ export default class CrudioRepository {
 		entityInstance.values = { ...new_instance.values };
 		return true;
 	}
-	/**
-	 * Process all tokens in entities for all tables
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @private
-	 */
-	private ProcessTokensInAllTables(): void {
-		this.tables.map(table => {
-			table.rows.map(entityInstance => {
-				var ok = false;
-				var maxtries = 1000;
-
-				while (!ok && maxtries-- > 0) {
-					if (maxtries == 0) {
-						throw new Error(`Error: Failed to create unique value for ${table.name}. Table contains ${table.rows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`);
-					}
-
-					ok = this.ProcessTokensInEntity(entityInstance);
-				}
-			});
-		});
-	}
-
+	
 	/**
 	 * Process all tokens in a specified field
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -919,31 +920,6 @@ export default class CrudioRepository {
 
 		value = clean ? value.trim().replaceAll(" ", "").toLowerCase() : value;
 
-		return value;
-	}
-
-	/**
-	 * Extract a value from a JSON like path
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @private
-	 * @param {string} fieldName
-	 * @param {CrudioEntityInstance} entity
-	 * @returns {string}
-	 */
-	public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance): string {
-		const path = fieldName.split(".");
-		var source = entity;
-
-		for (var i = 0; i < path.length - 1; i++) {
-			const child_entity_name = path[i];
-			source = source.values[child_entity_name];
-		}
-
-		if (!source) throw "whoops";
-
-		const source_field_name = path[path.length - 1];
-		const value = source.values[source_field_name];
 		return value;
 	}
 
@@ -1057,6 +1033,31 @@ export default class CrudioRepository {
 			value = content;
 		}
 
+		return value;
+	}
+
+	/**
+	 * Extract a value from a JSON like path
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {string} fieldName
+	 * @param {CrudioEntityInstance} entity
+	 * @returns {string}
+	 */
+	 public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance): string {
+		const path = fieldName.split(".");
+		var source = entity;
+
+		for (var i = 0; i < path.length - 1; i++) {
+			const child_entity_name = path[i];
+			source = source.values[child_entity_name];
+		}
+
+		if (!source) throw "whoops";
+
+		const source_field_name = path[path.length - 1];
+		const value = source.values[source_field_name];
 		return value;
 	}
 
