@@ -43,12 +43,12 @@ describe("Create fake data", () => {
 
 		const cactii: CrudioTable = repo.GetTable("Cactii");
 		expect(cactii).not.toBeNull();
-		expect(cactii.rows.length).toBeGreaterThan(0);
+		expect(cactii.DataRows.length).toBeGreaterThan(0);
 
 		const user = repo.GetEntityDefinition("User");
 		expect(user).not.toBeNull;
 
-		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
+		const users: CrudioEntityInstance[] = repo.GetTable("Users").DataRows;
 		expect(users.length).toBeGreaterThan(0);
 	});
 
@@ -67,11 +67,11 @@ describe("Create fake data", () => {
 
 	test("Check for unique email addresses", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
-		const users: CrudioEntityInstance[] = repo.GetTable("Users").rows;
+		const users: CrudioEntityInstance[] = repo.GetTable("Users").DataRows;
 		var uniqueKeys: string[] = [];
 
 		users.map(u => {
-			uniqueKeys.push(u.values.email);
+			uniqueKeys.push(u.DataValues.email);
 		});
 
 		// Run through all lists of unique values
@@ -89,11 +89,11 @@ describe("Create fake data", () => {
 
 	test("Check for unique tag names", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
-		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").rows;
+		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").DataRows;
 		var uniqueKeys: string[] = [];
 
 		tags.map(u => {
-			uniqueKeys.push(u.values.name);
+			uniqueKeys.push(u.DataValues.name);
 		});
 
 		// Run through all lists of unique values
@@ -116,12 +116,12 @@ describe("Create fake data", () => {
 		const db = CrudioRepository.FromString(repo.ToString());
 		expect(db).not.toBeNull();
 
-		const users: CrudioEntityInstance[] = db.GetTable("Users").rows;
-		const organizations: CrudioEntityInstance[] = db.GetTable("Organisations").rows;
-		const cohorts: CrudioEntityInstance[] = db.GetTable("Cohorts").rows;
-		const clients: CrudioEntityInstance[] = db.GetTable("Clients").rows;
-		const programs: CrudioEntityInstance[] = db.GetTable("Programs").rows;
-		const surveys: CrudioEntityInstance[] = db.GetTable("Surveys").rows;
+		const users: CrudioEntityInstance[] = db.GetTable("Users").DataRows;
+		const organizations: CrudioEntityInstance[] = db.GetTable("Organisations").DataRows;
+		const cohorts: CrudioEntityInstance[] = db.GetTable("Cohorts").DataRows;
+		const clients: CrudioEntityInstance[] = db.GetTable("Clients").DataRows;
+		const programs: CrudioEntityInstance[] = db.GetTable("Programs").DataRows;
+		const surveys: CrudioEntityInstance[] = db.GetTable("Surveys").DataRows;
 
 		expect(users).not.toBeNull();
 		expect(organizations).not.toBeNull();
@@ -137,29 +137,28 @@ describe("Create fake data", () => {
 		expect(programs.length).toBeGreaterThan(0);
 		expect(surveys.length).toBeGreaterThan(0);
 
-		const program: any = programs[0] as any;
-		expect(program.values.Cohorts.length).toBeGreaterThan(0);
+		const program: CrudioEntityInstance = programs[0] as any;
+		expect(program.DataValues.Cohorts.length).toBeGreaterThan(0);
 
-		const firstPerson: any = users[0];
+		const firstPerson: CrudioEntityInstance = users[0];
 		expect(firstPerson).not.toBeNull();
-		expect(firstPerson.fullname).not.toBeNull();
+		expect(firstPerson.DataValues.fullname).not.toBeNull();
 
 		const firstOrganisation: any = organizations[0];
 		expect(firstOrganisation).not.toBeNull();
 		expect(firstOrganisation.name).not.toBeNull();
 
-		expect(firstPerson.values.Organisation).not.toBeNull();
-		expect(firstOrganisation.values.Users).not.toBeNull();
+		expect(firstPerson.DataValues.Organisation).not.toBeNull();
+		expect(firstOrganisation.DataValues.Users).not.toBeNull();
 
 		const cohort: any = cohorts[0] as any;
-		expect(cohort.values.Clients.length).toBeGreaterThan(0);
+		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
 	});
 
 	test("Populate database", async () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
 		const db = new CrudioDataWrapper(config, repo);
 		expect(db).not.toBeNull;
-		expect(db.gql).not.toBeNull;
 
 		await db.CreateDatabaseSchema();
 		await db.PopulateDatabaseTables();

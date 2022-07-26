@@ -1,4 +1,4 @@
-import CrudioEntityType from "./CrudioEntityType";
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 
 
 /**
@@ -89,9 +89,9 @@ export interface ICrudioSchemaDefinition {
    * List of entities defined in the schema
    * @date 7/18/2022 - 1:47:30 PM
    *
-   * @type {?CrudioEntityType[]}
+   * @type {?CrudioEntityDefinition[]}
    */
-  entities?: CrudioEntityType[];
+  entities?: CrudioEntityDefinition[];
   /**
    * List of data generator groups, each group contains multiple generators
    * @date 7/18/2022 - 1:47:30 PM

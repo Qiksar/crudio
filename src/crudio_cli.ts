@@ -11,7 +11,6 @@
 import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioRepository from "./CrudioRepository";
-import { ICrudioConfig } from "./CrudioTypes";
 
 setTimeout(async () => {
   const cli = new CrudioCLI(process.argv);

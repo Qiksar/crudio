@@ -1,4 +1,4 @@
-import CrudioEntityType from './CrudioEntityType'
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 
 /**
  * A data object populated with generated field values, equivalent to a row in a database
@@ -8,71 +8,71 @@ import CrudioEntityType from './CrudioEntityType'
  * @class CrudioEntityInstance
  * @typedef {CrudioEntityInstance}
  */
-export default class CrudioEntityInstance  {
-  /**
-   * The entity type definition (schema)
-   * @date 7/18/2022 - 2:12:37 PM
-   *
-   * @public
-   * @type {CrudioEntityType}
-   */
-  public entityType: CrudioEntityType
-  /**
-   * Field values
-   * @date 7/18/2022 - 2:12:37 PM
-   *
-   * @public
-   * @type {*}
-   */
-  public values: any = {}
+export default class CrudioEntityInstance {
+	/**
+	 * The entity type definition (schema)
+	 * @date 7/18/2022 - 2:12:37 PM
+	 *
+	 * @public
+	 * @type {CrudioEntityDefinition}
+	 */
+	private entityType: CrudioEntityDefinition;
+	public get EntityType(): CrudioEntityDefinition {
+		return this.entityType;
+	}
 
-  /**
-   * Creates an instance of CrudioEntityInstance.
-   * @date 7/18/2022 - 2:12:37 PM
-   *
-   * @constructor
-   * @param {CrudioEntityType} entityType
-   * @param {{}} [source={}]
-   * @param {boolean} [strict=false]
-   */
-  constructor(
-    entityType: CrudioEntityType,
-    source: {} = {},
-    strict: boolean = false
-  ) {
-    this.entityType = entityType
-    this.values = source
+	/**
+	 * Field values
+	 * @date 7/18/2022 - 2:12:37 PM
+	 *
+	 * @public
+	 * @type {*}
+	 */
+	private dataValues: any = {};
+	public set DataValues(values: any) {
+		this.dataValues = values;
+	}
+	public get DataValues(): any {
+		return this.dataValues;
+	}
 
-    if (strict) {
-      Object.keys(this.values).map((k) => {
-        if (!entityType.GetField(k)) {
-          throw new Error(
-            "CrudioEntityInstance.constructor '" +
-              k +
-              "' is not a valid field on entity '" +
-              this.entityType.name +
-              "'"
-          )
-        }
-      })
-    }
-  }
+	/**
+	 * Creates an instance of CrudioEntityInstance.
+	 * @date 7/18/2022 - 2:12:37 PM
+	 *
+	 * @constructor
+	 * @param {CrudioEntityDefinition} entityType
+	 * @param {{}} [source={}]
+	 * @param {boolean} [strict=false]
+	 */
+	constructor(entityType: CrudioEntityDefinition, source: {} = {}, strict: boolean = false) {
+		this.entityType = entityType;
+		this.dataValues = source;
 
-  /**
-   * Ensure the entity has an ID assigned
-   * @date 7/18/2022 - 2:12:37 PM
-   *
-   * @param {CrudioEntityInstance} entity
-   * @returns {boolean}
-   */
-  CheckId(entity: CrudioEntityInstance): boolean {
-    if (!entity.values || !entity.values.Id) {
-      throw new Error(`
+		if (strict) {
+			Object.keys(this.DataValues).map(k => {
+				if (!entityType.GetField(k)) {
+					throw new Error("CrudioEntityInstance.constructor '" + k + "' is not a valid field on entity '" + this.EntityType.name + "'");
+				}
+			});
+		}
+	}
+
+	/**
+	 * Ensure the entity has an ID assigned
+	 * @date 7/18/2022 - 2:12:37 PM
+	 *
+	 * @param {CrudioEntityInstance} entity
+	 * @returns {boolean}
+	 */
+	CheckId(entity: CrudioEntityInstance): boolean {
+		if (!entity.DataValues || !entity.DataValues.Id) {
+			throw new Error(`
     CheckId: entity must have values and values.Id must be non-zero
-    Entity: ${JSON.stringify(entity.values)}
-    `)
-    }
+    Entity: ${JSON.stringify(entity.DataValues)}
+    `);
+		}
 
-    return true
-  }
+		return true;
+	}
 }

@@ -2,7 +2,7 @@ import { ICrudioFieldOptions } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
-import CrudioEntityRelationship from "./CrudioEntityRelationship";
+import CrudioRelationship from "./CrudioRelationship";
 import CrudioUtils from "./CrudioUtils";
 import CrudioRepository from "./CrudioRepository";
 
@@ -13,9 +13,9 @@ import CrudioRepository from "./CrudioRepository";
  *
  * @export
  * @class CrudioEntityType
- * @typedef {CrudioEntityType}
+ * @typedef {CrudioEntityDefinition}
  */
-export default class CrudioEntityType {
+export default class CrudioEntityDefinition {
 	/**
 	 * Name of the entity definition
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -61,9 +61,9 @@ export default class CrudioEntityType {
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
 	 * @public
-	 * @type {CrudioEntityRelationship[]}
+	 * @type {CrudioRelationship[]}
 	 */
-	public relationships: CrudioEntityRelationship[] = [];
+	public relationships: CrudioRelationship[] = [];
 	/**
 	 * Editor to use
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -120,9 +120,9 @@ export default class CrudioEntityType {
 	 *
 	 * @public
 	 * @readonly
-	 * @type {CrudioEntityRelationship[]}
+	 * @type {CrudioRelationship[]}
 	 */
-	public get OneToManyRelationships(): CrudioEntityRelationship[] {
+	public get OneToManyRelationships(): CrudioRelationship[] {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "one");
 	}
 
@@ -132,9 +132,9 @@ export default class CrudioEntityType {
 	 *
 	 * @public
 	 * @readonly
-	 * @type {CrudioEntityRelationship[]}
+	 * @type {CrudioRelationship[]}
 	 */
-	public get ManyToManyRelationships(): CrudioEntityRelationship[] {
+	public get ManyToManyRelationships(): CrudioRelationship[] {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
 	}
 
@@ -225,9 +225,9 @@ export default class CrudioEntityType {
 	 *
 	 * @public
 	 * @param {string} alias
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	public SetAlias(alias: string): CrudioEntityType {
+	public SetAlias(alias: string): CrudioEntityDefinition {
 		this.tableAlias = alias ?? this.name;
 		return this;
 	}
@@ -261,9 +261,9 @@ export default class CrudioEntityType {
 	 *
 	 * @param {string} fieldName
 	 * @param {?string} [fieldType]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddKey(fieldName: string, fieldType?: string): CrudioEntityType {
+	AddKey(fieldName: string, fieldType?: string): CrudioEntityDefinition {
 		if (this.KeyField !== null) {
 			throw new Error("a key field is already defined on entity '" + this.name + "'");
 		}
@@ -288,9 +288,9 @@ export default class CrudioEntityType {
 	 * @param {string} fieldName
 	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddString(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType {
+	AddString(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		this.AddField(fieldName, "string", caption, options);
 
 		return this;
@@ -303,9 +303,9 @@ export default class CrudioEntityType {
 	 * @param {string} fieldName
 	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddNumber(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType {
+	AddNumber(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		this.AddField(fieldName, "number", caption, options);
 
 		return this;
@@ -318,9 +318,9 @@ export default class CrudioEntityType {
 	 * @param {string} fieldName
 	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddBoolean(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType {
+	AddBoolean(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		this.AddField(fieldName, "boolean", caption, options);
 
 		return this;
@@ -333,9 +333,9 @@ export default class CrudioEntityType {
 	 * @param {string} fieldName
 	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddDate(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType {
+	AddDate(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		this.AddField(fieldName, "date", caption, options);
 
 		return this;
@@ -349,9 +349,9 @@ export default class CrudioEntityType {
 	 * @param {string} fieldType
 	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
-	 * @returns {CrudioEntityType}
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddField(fieldName: string, fieldType: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityType {
+	AddField(fieldName: string, fieldType: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		var field = this.GetField(fieldName);
 
 		if (!field) {
@@ -372,10 +372,10 @@ export default class CrudioEntityType {
 	 * Add a relationship
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
-	 * @param {CrudioEntityRelationship} rel
-	 * @returns {CrudioEntityType}
+	 * @param {CrudioRelationship} rel
+	 * @returns {CrudioEntityDefinition}
 	 */
-	AddRelation(rel: CrudioEntityRelationship): CrudioEntityType {
+	AddRelation(rel: CrudioRelationship): CrudioEntityDefinition {
 		this.relationships.push(rel);
 
 		return this;

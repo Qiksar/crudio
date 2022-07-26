@@ -6,9 +6,9 @@ import { ISchemaRelationship } from "./CrudioTypes";
  *
  * @export
  * @class CrudioEntityRelationship
- * @typedef {CrudioEntityRelationship}
+ * @typedef {CrudioRelationship}
  */
-export default class CrudioEntityRelationship {
+export default class CrudioRelationship {
 	/**
 	 * Creates an instance of CrudioEntityRelationship.
 	 * @date 7/18/2022 - 2:14:01 PM

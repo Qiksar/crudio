@@ -3,7 +3,7 @@ import CrudioField from "./CrudioField";
 import CrudioGQL from "./CrudioGQL";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
-import CrudioEntityType from "./CrudioEntityType";
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 
 /**
  * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
@@ -81,21 +81,21 @@ export default class CrudioDataWrapper {
 	 *
 	 * @type {CrudioGQL}
 	 */
-	gql: CrudioGQL;
+	private gql: CrudioGQL;
 	/**
 	 * System configuration
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @type {ICrudioConfig}
 	 */
-	config: ICrudioConfig;
+	private config: ICrudioConfig;
 	/**
 	 * Schema definition
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @type {CrudioRepository}
 	 */
-	repo: CrudioRepository;
+	private repo: CrudioRepository;
 
 	/**
 	 * Creates an instance of CrudioDataWrapper.
@@ -107,7 +107,7 @@ export default class CrudioDataWrapper {
 	 */
 	constructor(config: ICrudioConfig, repo: CrudioRepository) {
 		this.config = { ...config };
-		if (repo.target_db_schema) this.config.schema = repo.target_db_schema;
+		if (repo.TargetDbSchema) this.config.schema = repo.TargetDbSchema;
 
 		this.gql = new CrudioGQL(this.config);
 		this.repo = repo;
@@ -136,9 +136,9 @@ export default class CrudioDataWrapper {
 	public async PopulateDatabaseTables(): Promise<void> {
 		var instructions = new SqlInstructionList();
 
-		for (var index = 0; index < this.repo.tables.length; index++) {
-			const table: CrudioTable = this.repo.tables[index];
-			const entity = this.repo.GetEntityDefinition(table.entity);
+		for (var index = 0; index < this.repo.Tables.length; index++) {
+			const table: CrudioTable = this.repo.Tables[index];
+			const entity = this.repo.GetEntityDefinition(table.EntityDefinition);
 
 			this.BuildSqlColumnsForTable(entity, instructions);
 			this.BuildSqlForOneToManyKeys(entity, table, instructions);
@@ -190,10 +190,10 @@ export default class CrudioDataWrapper {
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @private
-	 * @param {CrudioEntityType} entity
+	 * @param {CrudioEntityDefinition} entity
 	 * @param {SqlInstructionList} instructions
 	 */
-	private BuildSqlColumnsForTable(entity: CrudioEntityType, instructions: SqlInstructionList) {
+	private BuildSqlColumnsForTable(entity: CrudioEntityDefinition, instructions: SqlInstructionList) {
 		instructions.table_column_names = "";
 		instructions.table_column_definitions = "";
 		instructions.table_field_list = [];
@@ -238,23 +238,23 @@ export default class CrudioDataWrapper {
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @private
-	 * @param {CrudioEntityType} entity
+	 * @param {CrudioEntityDefinition} entity
 	 * @param {CrudioTable} table
 	 * @param {SqlInstructionList} instructions
 	 */
-	private BuildSqlForOneToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
+	private BuildSqlForOneToManyKeys(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): void {
 		entity.OneToManyRelationships.map(r => {
-			const target = this.repo.tables.filter(t => t.entity === r.ToEntity)[0];
+			const target = this.repo.Tables.filter(t => t.EntityDefinition === r.ToEntity)[0];
 
 			if (!target) {
 				throw new Error(`Unable to find a table for ${JSON.stringify(r)} using name ${r.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);
 			}
 
 			instructions.create_foreign_keys += `
-			ALTER TABLE "${this.config.schema}"."${table.name}"
+			ALTER TABLE "${this.config.schema}"."${table.TableName}"
 			ADD CONSTRAINT FK_${r.RelationshipName}
 			FOREIGN KEY("${r.FromColumn}") 
-			REFERENCES "${this.config.schema}"."${target.name}"("${r.ToColumn}");
+			REFERENCES "${this.config.schema}"."${target.TableName}"("${r.ToColumn}");
 			`;
 		});
 	}
@@ -264,16 +264,16 @@ export default class CrudioDataWrapper {
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @private
-	 * @param {CrudioEntityType} entity
+	 * @param {CrudioEntityDefinition} entity
 	 * @param {CrudioTable} table
 	 * @param {SqlInstructionList} instructions
 	 */
-	private BuildSqlForManyToManyKeys(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): void {
+	private BuildSqlForManyToManyKeys(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): void {
 		var create_foreign_keys = "";
 
 		entity.ManyToManyRelationships.map(relationship_definition => {
-			const from_table = this.repo.tables.filter(t => t.entity === relationship_definition.FromEntity)[0];
-			const to_table = this.repo.tables.filter(t => t.entity === relationship_definition.ToEntity)[0];
+			const from_table = this.repo.Tables.filter(t => t.EntityDefinition === relationship_definition.FromEntity)[0];
+			const to_table = this.repo.Tables.filter(t => t.EntityDefinition === relationship_definition.ToEntity)[0];
 
 			if (!from_table) {
 				throw new Error(`Many to Many - Unable to find a table for ${JSON.stringify(relationship_definition)} using name ${relationship_definition.FromEntity}. Ensure entity names are singular, like Article, not Articles.`);
@@ -283,7 +283,7 @@ export default class CrudioDataWrapper {
 				throw new Error(`Many to Many - Unable to find a table for ${JSON.stringify(relationship_definition)} using name ${relationship_definition.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);
 			}
 
-			const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.name}_${to_table.name}`;
+			const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.TableName}_${to_table.TableName}`;
 
 			instructions.create_foreign_key_tables += `
 				CREATE TABLE "${this.config.schema}"."${fk_table_name}" 
@@ -298,14 +298,14 @@ export default class CrudioDataWrapper {
 				ALTER TABLE "${this.config.schema}"."${fk_table_name}"
 				ADD CONSTRAINT FK_${fk_table_name}_FROM
 				FOREIGN KEY("${relationship_definition.FromEntity}") 
-				REFERENCES "${this.config.schema}"."${from_table.name}"("id");
+				REFERENCES "${this.config.schema}"."${from_table.TableName}"("id");
 				`;
 
 			instructions.create_foreign_keys += `
 				ALTER TABLE "${this.config.schema}"."${fk_table_name}"
 				ADD CONSTRAINT FK_${fk_table_name}_TO
 				FOREIGN KEY("${relationship_definition.ToEntity}") 
-				REFERENCES "${this.config.schema}"."${to_table.name}"("id");
+				REFERENCES "${this.config.schema}"."${to_table.TableName}"("id");
 				`;
 		});
 	}
@@ -321,8 +321,8 @@ export default class CrudioDataWrapper {
 	private BuildInsertData(table: CrudioTable, instructions: SqlInstructionList): void {
 		instructions.insert_table_rows = "";
 
-		var insert_rows = `INSERT INTO "${this.config.schema}"."${table.name}" (${instructions.table_column_names}) VALUES`;
-		const rows = table.rows;
+		var insert_rows = `INSERT INTO "${this.config.schema}"."${table.TableName}" (${instructions.table_column_names}) VALUES`;
+		const rows = table.DataRows;
 
 		for (var r = 0; r < rows.length; r++) {
 			const entity = rows[r];
@@ -331,13 +331,13 @@ export default class CrudioDataWrapper {
 			var values = "";
 
 			instructions.table_field_list.map(i => {
-				var v = entity.values[i];
+				var v: any = entity.DataValues[i];
 
 				// Save foreign key values
 				// Check if the value is an object which as an id field
 				// If so, take the id of the object and use it as the field value
-				if (v && v.values) {
-					v = v.values.id;
+				if (v && v.DataValues) {
+					v = v.DataValues.id;
 				}
 
 				//Escape ' characters
@@ -370,25 +370,25 @@ export default class CrudioDataWrapper {
 	 */
 	private BuildInsertManyToManyData(instructions: SqlInstructionList): void {
 		instructions.insert_many_to_many_rows = "";
-		for (var index = 0; index < this.repo.tables.length; index++) {
-			const table: CrudioTable = this.repo.tables[index];
-			const entity = this.repo.GetEntityDefinition(table.entity);
+		for (var index = 0; index < this.repo.Tables.length; index++) {
+			const table: CrudioTable = this.repo.Tables[index];
+			const entity = this.repo.GetEntityDefinition(table.EntityDefinition);
 			const many_to_many = entity.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
 
 			many_to_many.map(async relationship_definition => {
 				const from_table = this.repo.GetTableForEntityName(relationship_definition.FromEntity);
 				const to_table = this.repo.GetTableForEntityName(relationship_definition.ToEntity);
-				const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.name}_${to_table.name}`;
+				const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.TableName}_${to_table.TableName}`;
 
 				var create_many_to_many_rows = `INSERT INTO "${this.config.schema}"."${fk_table_name}" ("${relationship_definition.FromEntity}","${relationship_definition.ToEntity}")
 				VALUES
 				`;
 
-				from_table.rows.map(r => {
+				from_table.DataRows.map(r => {
 					var unique_index = [];
 
 					while (unique_index.length < relationship_definition.NumberOfSeededRelations) {
-						const row_index = CrudioRepository.GetRandomNumber(0, to_table.rows.length);
+						const row_index = CrudioRepository.GetRandomNumber(0, to_table.DataRows.length);
 
 						if (unique_index.indexOf(row_index) >= 0) {
 							// Try again, as we've created a duplicate number
@@ -396,9 +396,9 @@ export default class CrudioDataWrapper {
 						}
 
 						unique_index.push(row_index);
-						const target_id = to_table.rows[row_index].values.id;
+						const target_id = to_table.DataRows[row_index].DataValues.id;
 
-						create_many_to_many_rows += `('${r.values.id}','${target_id}'),`;
+						create_many_to_many_rows += `('${r.DataValues.id}','${target_id}'),`;
 					}
 				});
 
@@ -413,15 +413,15 @@ export default class CrudioDataWrapper {
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @private
-	 * @param {CrudioEntityType} entity
+	 * @param {CrudioEntityDefinition} entity
 	 * @param {CrudioTable} table
 	 * @param {SqlInstructionList} instructions
 	 * @returns {string}
 	 */
-	private BuildCreateTableStatement(entity: CrudioEntityType, table: CrudioTable, instructions: SqlInstructionList): string {
+	private BuildCreateTableStatement(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): string {
 		const addKeySQL = `"${entity.KeyField.fieldName}" uuid DEFAULT gen_random_uuid() PRIMARY KEY,`;
 		const sql = `
-		CREATE TABLE "${this.config.schema}"."${table.name}" 
+		CREATE TABLE "${this.config.schema}"."${table.TableName}" 
 		(${addKeySQL} ${instructions.table_column_definitions});
 		`;
 
