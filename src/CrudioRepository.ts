@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
 import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioSchemaDefinition, ISchemaRelationship } from "./CrudioTypes";
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioEntityDefinition from "./CrudioEntityType";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
 import CrudioRelationship from "./CrudioRelationship";

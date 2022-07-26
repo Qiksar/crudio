@@ -1,4 +1,4 @@
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioEntityDefinition from "./CrudioEntityType";
 
 
 /**

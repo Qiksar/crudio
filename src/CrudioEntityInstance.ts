@@ -1,4 +1,4 @@
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioEntityDefinition from "./CrudioEntityType";
 
 /**
  * A data object populated with generated field values, equivalent to a row in a database

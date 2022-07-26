@@ -3,7 +3,7 @@ import CrudioField from "./CrudioField";
 import CrudioGQL from "./CrudioGQL";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioEntityDefinition from "./CrudioEntityType";
 
 /**
  * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
