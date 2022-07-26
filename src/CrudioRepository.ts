@@ -237,6 +237,37 @@ export default class CrudioRepository {
 			var entitySchema: any = repo.entities[entityname];
 			this.CreateEntityDefinition(entitySchema, entityname);
 		}
+
+		// create entities for many to many joins
+		// currently, these are abstract types as the data wrapper creates the tables
+		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
+		m2m.map(r => {
+			const me = new CrudioEntityDefinition(r.FromEntity + r.ToEntity);
+
+			me
+				.AddKey("id", "uuid")
+				.AddRelation(new CrudioRelationship({
+					type: "one",
+					name: r.FromEntity,
+					from: me.name,
+					from_column: r.FromEntity,
+					to: r.FromEntity,
+					to_column: "id"
+				}))
+				.AddRelation(new CrudioRelationship({
+					type: "one",
+					name: r.ToEntity,
+					from: me.name,
+					from_column: r.ToEntity,
+					to: r.ToEntity,
+					to_column: "id"
+				}))
+
+			const key = me.GetField("id");
+			key.fieldOptions.generator = "[uuid]";
+
+			this.entities.push(me);
+		});
 	}
 
 	/**
@@ -270,7 +301,7 @@ export default class CrudioRepository {
 	 * @param {ICrudioEntityDefinition} entityDefinition
 	 * @param {string} entityname
 	 */
-	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string) {
+	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string): void {
 		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname);
 		entityType.max_row_count = entityDefinition.count ?? CrudioRepository.DefaultNumberOfRowsToGenerate;
 
@@ -949,7 +980,7 @@ export default class CrudioRepository {
 	 * @param {CrudioEntityInstance} entity
 	 * @returns {string}
 	 */
-	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance): string {
+	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance | null = null): string {
 		do {
 			var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
 			var value: any;
@@ -977,9 +1008,16 @@ export default class CrudioRepository {
 
 				if (lookup) {
 					// get field value from current context
-					value = this.ProcessTokensInField(entity, fieldName, clean);
+					if (entity)
+						value = this.ProcessTokensInField(entity, fieldName, clean);
+					else
+						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`)
 				} else if (query) {
-					value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					if (entity)
+						value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					else
+						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`)
+
 				} else {
 					// use a generator
 					value = this.GetGeneratedValue(fieldName);
@@ -1151,6 +1189,8 @@ export default class CrudioRepository {
 	 * @param {string} script
 	 */
 	private ExecuteScript(parent_entity: CrudioEntityInstance, script: string): void {
+		script = this.ReplaceTokens(script);
+
 		const query_index = script.indexOf("?");
 		const query = script.slice(query_index + 1);
 
@@ -1159,13 +1199,29 @@ export default class CrudioRepository {
 		var entity_type = parts[1];
 		var row_index = -1;
 
-		const bracket = field_name.indexOf("[");
+		const rel = parent_entity
+			.EntityType
+			.ManyToManyRelationships
+			.filter(m =>
+				m.RelationshipName === parts[0]);
+
+		if (rel.length > 0) {
+			const t = this.GetTableForEntity(rel[0].ToEntity);
+			const te = this.GetEntityFromQuery(t.EntityDefinition, query);
+			const m = this.GetTable(field_name);
+			// TODO build the many to many entity joining the tag and blog
+			
+			//m.DataRows.push(ee);
+			return;
+		}
+
+		const bracket = field_name.indexOf("(");
 		if (bracket > -1) {
-			if (field_name.indexOf("]") < 0) {
-				throw new Error(`Error: Syntax error - missing ']' in ${script}`);
+			if (field_name.indexOf(")") < 0) {
+				throw new Error(`Error: Syntax error - missing ')' in ${script}`);
 			}
 
-			const index_text = field_name.slice(bracket + 1, field_name.indexOf("]", bracket + 1));
+			const index_text = field_name.slice(bracket + 1, field_name.indexOf(")", bracket + 1));
 			const row_parts = index_text.split("-");
 			var row_start = Number(row_parts[0]);
 			var row_end;

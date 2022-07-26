@@ -17,6 +17,7 @@ export default class CrudioEntityInstance {
 	 * @type {CrudioEntityDefinition}
 	 */
 	private entityType: CrudioEntityDefinition;
+	max_row_count: number;
 	public get EntityType(): CrudioEntityDefinition {
 		return this.entityType;
 	}

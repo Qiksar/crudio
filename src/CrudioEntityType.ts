@@ -33,14 +33,6 @@ export default class CrudioEntityDefinition {
 	 */
 	public abstract: boolean;
 	/**
-	 * Alias for the entity table name
-	 * @date 7/18/2022 - 2:17:32 PM
-	 *
-	 * @public
-	 * @type {string}
-	 */
-	public tableAlias: string = "";
-	/**
 	 * Name to use for the database table
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
@@ -220,19 +212,6 @@ export default class CrudioEntityDefinition {
 	}
 
 	/**
-	 * Assign a value for the table alias name
-	 * @date 7/18/2022 - 2:17:32 PM
-	 *
-	 * @public
-	 * @param {string} alias
-	 * @returns {CrudioEntityDefinition}
-	 */
-	public SetAlias(alias: string): CrudioEntityDefinition {
-		this.tableAlias = alias ?? this.name;
-		return this;
-	}
-
-	/**
 	 * Get a named field definition
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
@@ -272,7 +251,7 @@ export default class CrudioEntityDefinition {
 			throw new Error("'" + fieldName + "' is already defined on entity '" + this.name + "'");
 		}
 
-		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "number", fieldName);
+		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "uuid", fieldName);
 		keyField.fieldOptions.isKey = true;
 		keyField.fieldOptions.readonly = true;
 

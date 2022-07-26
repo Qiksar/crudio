@@ -57,13 +57,6 @@ class SqlInstructionList {
 	 * @type {string}
 	 */
 	public insert_table_rows: string = "";
-	/**
-	 * SQL to insert values for many to many join tables
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public insert_many_to_many_rows: string = "";
 }
 
 /**
@@ -142,7 +135,6 @@ export default class CrudioDataWrapper {
 
 			this.BuildSqlColumnsForTable(entity, instructions);
 			this.BuildSqlForOneToManyKeys(entity, table, instructions);
-			this.BuildSqlForManyToManyKeys(entity, table, instructions);
 
 			// -------------- Create the data table
 
@@ -180,9 +172,6 @@ export default class CrudioDataWrapper {
 		if (this.config.wipe) {
 			await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);
 		}
-
-		this.BuildInsertManyToManyData(instructions);
-		await this.gql.ExecuteSQL(instructions.insert_many_to_many_rows, false);
 	}
 
 	/**
@@ -260,57 +249,6 @@ export default class CrudioDataWrapper {
 	}
 
 	/**
-	 * Build the SQL to implement many to many relationships using join tables and foreign keys
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @private
-	 * @param {CrudioEntityDefinition} entity
-	 * @param {CrudioTable} table
-	 * @param {SqlInstructionList} instructions
-	 */
-	private BuildSqlForManyToManyKeys(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): void {
-		var create_foreign_keys = "";
-
-		entity.ManyToManyRelationships.map(relationship_definition => {
-			const from_table = this.repo.Tables.filter(t => t.EntityDefinition === relationship_definition.FromEntity)[0];
-			const to_table = this.repo.Tables.filter(t => t.EntityDefinition === relationship_definition.ToEntity)[0];
-
-			if (!from_table) {
-				throw new Error(`Many to Many - Unable to find a table for ${JSON.stringify(relationship_definition)} using name ${relationship_definition.FromEntity}. Ensure entity names are singular, like Article, not Articles.`);
-			}
-
-			if (!to_table) {
-				throw new Error(`Many to Many - Unable to find a table for ${JSON.stringify(relationship_definition)} using name ${relationship_definition.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);
-			}
-
-			const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.TableName}_${to_table.TableName}`;
-
-			instructions.create_foreign_key_tables += `
-				CREATE TABLE "${this.config.schema}"."${fk_table_name}" 
-				(
-				"id" uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-				"${relationship_definition.FromEntity}" uuid NOT NULL,
-				"${relationship_definition.ToEntity}" uuid NOT NULL
-				);
-				`;
-
-			instructions.create_foreign_keys += `
-				ALTER TABLE "${this.config.schema}"."${fk_table_name}"
-				ADD CONSTRAINT FK_${fk_table_name}_FROM
-				FOREIGN KEY("${relationship_definition.FromEntity}") 
-				REFERENCES "${this.config.schema}"."${from_table.TableName}"("id");
-				`;
-
-			instructions.create_foreign_keys += `
-				ALTER TABLE "${this.config.schema}"."${fk_table_name}"
-				ADD CONSTRAINT FK_${fk_table_name}_TO
-				FOREIGN KEY("${relationship_definition.ToEntity}") 
-				REFERENCES "${this.config.schema}"."${to_table.TableName}"("id");
-				`;
-		});
-	}
-
-	/**
 	 * Build the SQL to insert values into data tables
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
@@ -359,53 +297,6 @@ export default class CrudioDataWrapper {
 		}
 
 		instructions.insert_table_rows = insert_rows.substring(0, insert_rows.length - 1);
-	}
-
-	/**
-	 * Build SQL to insert values into many to many join tables
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @private
-	 * @param {SqlInstructionList} instructions
-	 */
-	private BuildInsertManyToManyData(instructions: SqlInstructionList): void {
-		instructions.insert_many_to_many_rows = "";
-		for (var index = 0; index < this.repo.Tables.length; index++) {
-			const table: CrudioTable = this.repo.Tables[index];
-			const entity = this.repo.GetEntityDefinition(table.EntityDefinition);
-			const many_to_many = entity.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
-
-			many_to_many.map(async relationship_definition => {
-				const from_table = this.repo.GetTableForEntityName(relationship_definition.FromEntity);
-				const to_table = this.repo.GetTableForEntityName(relationship_definition.ToEntity);
-				const fk_table_name = relationship_definition.RelationshipName ?? `${from_table.TableName}_${to_table.TableName}`;
-
-				var create_many_to_many_rows = `INSERT INTO "${this.config.schema}"."${fk_table_name}" ("${relationship_definition.FromEntity}","${relationship_definition.ToEntity}")
-				VALUES
-				`;
-
-				from_table.DataRows.map(r => {
-					var unique_index = [];
-
-					while (unique_index.length < relationship_definition.NumberOfSeededRelations) {
-						const row_index = CrudioRepository.GetRandomNumber(0, to_table.DataRows.length);
-
-						if (unique_index.indexOf(row_index) >= 0) {
-							// Try again, as we've created a duplicate number
-							continue;
-						}
-
-						unique_index.push(row_index);
-						const target_id = to_table.DataRows[row_index].DataValues.id;
-
-						create_many_to_many_rows += `('${r.DataValues.id}','${target_id}'),`;
-					}
-				});
-
-				create_many_to_many_rows = create_many_to_many_rows.slice(0, create_many_to_many_rows.length - 1) + ";";
-				instructions.insert_many_to_many_rows += create_many_to_many_rows;
-			});
-		}
 	}
 
 	/**

@@ -190,7 +190,7 @@ export interface ICrudioFieldOptions {
    *
    * @type {?boolean}
    */
-  isRequired?: boolean; // TODO add NOT NULL to field definition
+  isRequired?: boolean; 
   /**
    * Validation requirements
    * @date 7/18/2022 - 1:47:30 PM
@@ -303,7 +303,7 @@ export interface ICrudioField {
    *
    * @type {ICrudioFieldOptions}
    */
-  fieldOptions: ICrudioFieldOptions;
+  fieldOptions?: ICrudioFieldOptions;
   /**
    * Returns the field caption
    * @date 7/18/2022 - 1:47:30 PM
@@ -330,13 +330,6 @@ export interface ICrudioEntityDefinition {
    */
   name: string;
   /**
-   * Alias name to use for the entity name
-   * @date 7/18/2022 - 1:47:30 PM
-   *
-   * @type {string}
-   */
-  tableAlias: string;
-  /**
    * Name of the data table
    * @date 7/18/2022 - 1:47:30 PM
    *
@@ -356,7 +349,7 @@ export interface ICrudioEntityDefinition {
    *
    * @type {ISchemaRelationship[]}
    */
-  relationships: ISchemaRelationship[];
+  relationships?: ISchemaRelationship[];
 
   /**
    * Number of entities required
@@ -364,28 +357,28 @@ export interface ICrudioEntityDefinition {
    *
    * @type {number}
    */
-  count: number;
+  count?: number;
   /**
    * Base entity to inherit fields from
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {string}
    */
-  inherits: string;
+  inherits?: string;
   /**
    * If abstract, a table will not be created for the entity
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {boolean}
    */
-  abstract: boolean;
+  abstract?: boolean;
   /**
    * Field definition snippets to import
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {string[]}
    */
-  snippets: string[];
+  snippets?: string[];
 }
 
 /**
@@ -450,7 +443,7 @@ export interface ISchemaRelationship {
    *
    * @type {number}
    */
-  count: number;
+  count?: number;
 
   /**
    * describe a default relationship formed between two objects, such as all users in an organisation
