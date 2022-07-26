@@ -5,20 +5,14 @@
 			"count": 0,
 			"inherits": "Entity",
 			"name": {
-				"type": "string",
-				"name": "name",
 				"required": true,
 				"unique": true,
 				"generator": "[organisation_name]"
 			},
 			"address": {
-				"type": "string",
-				"name": "address",
 				"generator": "[address]"
 			},
 			"email": {
-				"type": "string",
-				"name": "email",
 				"generator": "contact@[!name].org.au"
 			}
 		},
@@ -88,13 +82,9 @@
 			"name": {
 				"required": true,
 				"unique": true,
-				"type": "string",
-				"name": "name",
 				"generator": "[program_name]"
 			},
 			"mission": {
-				"type": "string",
-				"name": "mission",
 				"generator": "[program_mission]"
 			},
 			"relationships": [
@@ -118,8 +108,6 @@
 			"name": {
 				"unique": true,
 				"required": true,
-				"type": "string",
-				"name": "name",
 				"generator": "[cohort_name]"
 			},
 			"relationships": [
@@ -134,8 +122,6 @@
 			"name": {
 				"unique": true,
 				"required": true,
-				"type": "string",
-				"name": "name",
 				"generator": "[survey_name]"
 			},
 			"relationships": [
@@ -160,17 +146,13 @@
 			"name": {
 				"unique": true,
 				"required": true,
-				"type": "string",
-				"name": "name",
 				"generator": "[tag]"
 			}
 		},
 		"Blog": {
 			"count": 20,
 			"inherits": "Entity",
-			"article_text": {
-				"type": "string",
-				"name": "article",
+			"article": {
 				"generator": "[article]"
 			},
 			"published_date": {
