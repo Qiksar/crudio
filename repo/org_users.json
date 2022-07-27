@@ -1,11 +1,4 @@
 {
-	"Blogs": {
-		"count": 20,
-		"scripts": [
-			"BlogTags?name=[tag]",
-			"BlogTags?name=[tag]"
-		]
-	},
 	"Organisations": {
 		"count": 4,
 		"scripts": [

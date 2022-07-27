@@ -16,6 +16,8 @@ import CrudioRepository from "./CrudioRepository";
  * @typedef {CrudioEntityDefinition}
  */
 export default class CrudioEntityDefinition {
+	//#region Properties
+
 	/**
 	 * Name of the entity definition
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -23,7 +25,18 @@ export default class CrudioEntityDefinition {
 	 * @public
 	 * @type {string}
 	 */
-	public name: string;
+	private name: string;
+	/**
+	 * Get name of entity definition
+	 * @date 7/27/2022 - 7:58:39 PM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {string}
+	 */
+	public get Name(): string {
+		return this.name;
+	}
 	/**
 	 * Abstract indicates that the definition is used to inherit from, and doesn't require a table of it's own
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -31,7 +44,66 @@ export default class CrudioEntityDefinition {
 	 * @public
 	 * @type {boolean}
 	 */
-	public abstract: boolean;
+	private abstract: boolean;
+	/**
+	 * Indicates that the entity does not require a table in the database
+	 * @date 7/27/2022 - 10:59:45 AM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {boolean}
+	 */
+	public get IsAbstract(): boolean {
+		return this.abstract;
+	}
+	/**
+	 * Indicates that the table is a join table to connect multiple entities in a a many to many relationship
+	 * @date 7/27/2022 - 10:59:45 AM
+	 *
+	 * @type {boolean}
+	 */
+	private many_to_many: boolean;
+	/**
+	 * Indicates that the table is a join table to connect multiple entities in a a many to many relationship
+	 * @date 7/27/2022 - 10:59:45 AM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {boolean}
+	 */
+	public get IsManyToManyJoin(): boolean {
+		return this.many_to_many;
+	}
+
+	/**
+	 * The relationship which gave rise to this table, if many to many join
+	 * @date 7/27/2022 - 7:58:39 PM
+	 *
+	 * @private
+	 * @type {CrudioRelationship}
+	 */
+	private source_relationship: CrudioRelationship;
+	/**
+	 * The relationship which gave rise to this table, if many to many join
+	 * @date 7/27/2022 - 7:58:39 PM
+	 *
+	 * @public
+	 * @type {CrudioRelationship}
+	 */
+	public get SourceRelationship(): CrudioRelationship {
+		return this.source_relationship;
+	}
+	/**
+	 * The relationship which gave rise to this table, if many to many join
+	 * @date 7/27/2022 - 7:58:39 PM
+	 *
+	 * @public
+	 * @type {*}
+	 */
+	public set SourceRelationship(r: CrudioRelationship) {
+		this.source_relationship = r;
+		
+	}
 	/**
 	 * Name to use for the database table
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -39,7 +111,19 @@ export default class CrudioEntityDefinition {
 	 * @public
 	 * @type {string}
 	 */
-	public tableName: string;
+	private tableName: string;
+	/**
+	 * Description placeholder
+	 * @date 7/27/2022 - 7:58:39 PM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {string}
+	 */
+	public get TableName(): string {
+		return this.tableName;
+	}
+
 	/**
 	 * List of field definitions
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -129,20 +213,25 @@ export default class CrudioEntityDefinition {
 	public get ManyToManyRelationships(): CrudioRelationship[] {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
 	}
+	//#endregion
 
 	/**
-	 * Creates an instance of CrudioEntityType.
-	 * @date 7/18/2022 - 2:17:32 PM
+	 * Creates an instance of CrudioEntityDefinition.
+	 * @date 7/27/2022 - 10:59:45 AM
 	 *
 	 * @constructor
 	 * @param {string} name
-	 * @param {(string | null)} [table=null]
+	 * @param {boolean} isAbstract
+	 * @param {boolean} isManyToMany
+	 * @param {(string | null)} [tableName=null]
 	 */
-	constructor(name: string, table: string | null = null) {
-		if (!table) table = CrudioUtils.Plural(name);
+	constructor(name: string, isAbstract: boolean, isManyToMany: boolean, tableName: string | null = null) {
+		if (!tableName) tableName = CrudioUtils.Plural(name);
 
 		this.name = name;
-		this.tableName = table;
+		this.tableName = tableName;
+		this.abstract = isAbstract;
+		this.many_to_many = isManyToMany;
 	}
 
 	/**
@@ -224,11 +313,11 @@ export default class CrudioEntityDefinition {
 		var fields: CrudioField[] = this.fields.filter(f => f.fieldName === fieldName);
 
 		if (fields.length > 1) {
-			throw new Error("'" + fieldName + "' matches multiple fields on entity '" + this.name + "'");
+			throw new Error("'" + fieldName + "' matches multiple fields on entity '" + this.Name + "'");
 		}
 
 		if (failIfNotFound && fields.length !== 1) {
-			throw new Error("'" + fieldName + "' is not a valid data field on entity '" + this.name + "'");
+			throw new Error("'" + fieldName + "' is not a valid data field on entity '" + this.Name + "'");
 		}
 
 		return fields[0];
@@ -244,11 +333,11 @@ export default class CrudioEntityDefinition {
 	 */
 	AddKey(fieldName: string, fieldType?: string): CrudioEntityDefinition {
 		if (this.KeyField !== null) {
-			throw new Error("a key field is already defined on entity '" + this.name + "'");
+			throw new Error("a key field is already defined on entity '" + this.Name + "'");
 		}
 
 		if (this.GetField(fieldName)) {
-			throw new Error("'" + fieldName + "' is already defined on entity '" + this.name + "'");
+			throw new Error("'" + fieldName + "' is already defined on entity '" + this.Name + "'");
 		}
 
 		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "uuid", fieldName);
@@ -346,7 +435,6 @@ export default class CrudioEntityDefinition {
 		return this;
 	}
 
-
 	/**
 	 * Add a relationship
 	 * @date 7/18/2022 - 2:17:32 PM
@@ -367,7 +455,7 @@ export default class CrudioEntityDefinition {
 	 * @param {{}} values
 	 * @returns {CrudioEntityInstance}
 	 */
-	CreateInstance(values: {}): CrudioEntityInstance {
-		return new CrudioEntityInstance(this, values);
+	CreateInstance(): CrudioEntityInstance {
+		return new CrudioEntityInstance(this, {});
 	}
 }

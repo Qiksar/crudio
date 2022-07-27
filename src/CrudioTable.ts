@@ -1,3 +1,4 @@
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 
 /**
@@ -20,24 +21,14 @@ export default class CrudioTable {
 	 */
 	private tableName: string = "";
 	/**
-   * Name of the table
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {string}
-   */
-  public get TableName(): string {
+	 * Name of the table
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {string}
+	 */
+	public get TableName(): string {
 		return this.tableName;
-	}
-	/**
-   * Name of the table
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {string}
-   */
-  public set TableName(name: string) {
-		this.tableName = name;
 	}
 
 	/**
@@ -47,26 +38,16 @@ export default class CrudioTable {
 	 * @public
 	 * @type {string}
 	 */
-	private entityDefinition: string = "";
+	private entityDefinition: CrudioEntityDefinition;
 	/**
-   * Name of the entity definition used for this table
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {string}
-   */
-  public get EntityDefinition(): string {
+	 * Name of the entity definition used for this table
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {string}
+	 */
+	public get EntityDefinition(): CrudioEntityDefinition {
 		return this.entityDefinition;
-	}
-	/**
-   * Name of the entity definition used for this table
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {string}
-   */
-  public set EntityDefinition(name: string) {
-		this.entityDefinition = name;
 	}
 	/**
 	 * Maximum number of rows
@@ -77,23 +58,23 @@ export default class CrudioTable {
 	 */
 	public maxRowCount: number = 0;
 	/**
-   * Maximum number of rows
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {number}
-   */
-  public get MaxRowCount(): number {
+	 * Maximum number of rows
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {number}
+	 */
+	public get MaxRowCount(): number {
 		return this.maxRowCount;
 	}
 	/**
-   * Maximum number of rows
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {number}
-   */
-  public set MaxRowCount(max: number) {
+	 * Maximum number of rows
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {number}
+	 */
+	public set MaxRowCount(max: number) {
 		this.maxRowCount = max;
 	}
 
@@ -106,23 +87,23 @@ export default class CrudioTable {
 	 */
 	private dataRows: CrudioEntityInstance[] = [];
 	/**
-   * Array of entity instances populated with data
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {CrudioEntityInstance[]}
-   */
-  public get DataRows(): CrudioEntityInstance[] {
+	 * Array of entity instances populated with data
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {CrudioEntityInstance[]}
+	 */
+	public get DataRows(): CrudioEntityInstance[] {
 		return this.dataRows;
 	}
 	/**
-   * Array of entity instances populated
-   * @date 7/26/2022 - 12:43:42 PM
-   *
-   * @public
-   * @type {{}}
-   */
-  public set DataRows(rows: CrudioEntityInstance[]) {
+	 * Array of entity instances populated
+	 * @date 7/26/2022 - 12:43:42 PM
+	 *
+	 * @public
+	 * @type {{}}
+	 */
+	public set DataRows(rows: CrudioEntityInstance[]) {
 		this.dataRows = rows;
 	}
 
@@ -130,11 +111,15 @@ export default class CrudioTable {
 
 	/**
 	 * Creates an instance of CrudioTable.
-	 * @date 7/18/2022 - 2:29:00 PM
+	 * @date 7/27/2022 - 10:49:09 AM
 	 *
 	 * @constructor
+	 * @param {string} tableName
+	 * @param {string} entityDefinitionName
 	 */
-	constructor() {
+	constructor(tableName: string, entityDefinition: CrudioEntityDefinition) {
+		this.tableName = tableName;
+		this.entityDefinition = entityDefinition;
 		this.DataRows = [];
 	}
 

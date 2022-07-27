@@ -3,7 +3,7 @@ import CrudioField from "./CrudioField";
 import CrudioGQL from "./CrudioGQL";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
-import CrudioEntityDefinition from "./CrudioEntityType";
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 
 /**
  * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
@@ -131,14 +131,13 @@ export default class CrudioDataWrapper {
 
 		for (var index = 0; index < this.repo.Tables.length; index++) {
 			const table: CrudioTable = this.repo.Tables[index];
-			const entity = this.repo.GetEntityDefinition(table.EntityDefinition);
 
-			this.BuildSqlColumnsForTable(entity, instructions);
-			this.BuildSqlForOneToManyKeys(entity, table, instructions);
+			this.BuildSqlColumnsForTable(table.EntityDefinition, instructions);
+			this.BuildSqlForOneToManyKeys(table.EntityDefinition, table, instructions);
 
 			// -------------- Create the data table
 
-			const sql_create_tables = this.BuildCreateTableStatement(entity, table, instructions);
+			const sql_create_tables = this.BuildCreateTableStatement(table.EntityDefinition, table, instructions);
 			if (this.config.wipe) {
 				await this.gql.ExecuteSQL(sql_create_tables);
 			}
@@ -233,7 +232,7 @@ export default class CrudioDataWrapper {
 	 */
 	private BuildSqlForOneToManyKeys(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): void {
 		entity.OneToManyRelationships.map(r => {
-			const target = this.repo.Tables.filter(t => t.EntityDefinition === r.ToEntity)[0];
+			const target = this.repo.Tables.filter(t => t.EntityDefinition.Name === r.ToEntity)[0];
 
 			if (!target) {
 				throw new Error(`Unable to find a table for ${JSON.stringify(r)} using name ${r.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);

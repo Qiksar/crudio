@@ -52,6 +52,23 @@ describe("Create fake data", () => {
 		expect(users.length).toBeGreaterThan(0);
 	});
 
+	test("All Blogs have at least one tag", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json");
+
+		const blogs = repo.GetTable("Blogs");
+		const tags = repo.GetTable("BlogTags");
+		
+		var count = 0;
+		blogs.DataRows.map(blog_post => {
+			const blog_tags = repo.ExecuteCrudioQuery(tags.EntityDefinition.Name, `Blog=${blog_post.DataValues.id}`);
+			if (blog_tags.length == 0) 
+				count++;
+		});
+
+		// How many blogs don't have tags?
+		expect(count).toEqual(0);
+	});
+
 	test("Load repository with include file", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
 

@@ -205,7 +205,7 @@ Once you have tracked the tables and relationships in [Hasura Console](http://lo
 ```
 {
   crudio_test_Blogs {
-    article_text
+    article
     BlogTags {
       tagByTag {
         name

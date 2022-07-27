@@ -4,12 +4,13 @@ import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
 import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioSchemaDefinition, ISchemaRelationship } from "./CrudioTypes";
-import CrudioEntityDefinition from "./CrudioEntityType";
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
 import CrudioRelationship from "./CrudioRelationship";
 import CrudioTable from "./CrudioTable";
 import CrudioUtils from "./CrudioUtils";
+import { option } from "commander-ts";
 
 /**
  * Concrete implementation of the data model description and state
@@ -84,7 +85,7 @@ export default class CrudioRepository {
 	 * @public
 	 * @type {CrudioEntityDefinition[]}
 	 */
-	private entities: CrudioEntityDefinition[] = [];
+	private entityDefinitions: CrudioEntityDefinition[] = [];
 	/**
 	 * List of relationships
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -118,13 +119,13 @@ export default class CrudioRepository {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @constructor
-	 * @param {ICrudioSchemaDefinition} repo
+	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
-	constructor(repo: ICrudioSchemaDefinition, include: string = null) {
-		this.PreProcessRepositoryDefinition(repo, include);
-		this.ExpandAllSnippets(repo);
-		this.LoadEntityDefinitions(repo);
-		this.CreateInMemoryDataTables(this.entities);
+	constructor(dataModel: ICrudioSchemaDefinition, include: string = null) {
+		this.PreProcessRepositoryDefinition(dataModel, include);
+		this.ExpandAllSnippets(dataModel);
+		this.LoadEntityDefinitions(dataModel);
+		this.CreateInMemoryDataTables();
 		this.FillDataTables();
 		this.RunScripts();
 	}
@@ -140,13 +141,13 @@ export default class CrudioRepository {
 	 * @param {CrudioRepository} schema
 	 */
 	private static SetPrototypes(schema: CrudioRepository) {
-		if (!schema.entities) schema.entities = [];
+		if (!schema.entityDefinitions) schema.entityDefinitions = [];
 		if (!schema.generators) schema.generators = {};
 		if (!schema.relationships) schema.relationships = [];
 
 		Object.setPrototypeOf(schema, CrudioRepository.prototype);
 
-		schema.entities.map((e: any) => {
+		schema.entityDefinitions.map((e: any) => {
 			Object.setPrototypeOf(e, CrudioEntityDefinition.prototype);
 
 			e.fields.map((f: any) => {
@@ -229,7 +230,7 @@ export default class CrudioRepository {
 	 * @param {ICrudioSchemaDefinition} repo
 	 */
 	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
-		this.entities = [];
+		this.entityDefinitions = [];
 		var entity_names: string[] = Object.keys(repo.entities);
 
 		for (var index: number = 0; index < entity_names.length; index++) {
@@ -240,33 +241,51 @@ export default class CrudioRepository {
 
 		// create entities for many to many joins
 		// currently, these are abstract types as the data wrapper creates the tables
-		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
-		m2m.map(r => {
-			const me = new CrudioEntityDefinition(r.FromEntity + r.ToEntity);
+		this.CreateManyToManyJoinTables();
+	}
 
-			me
-				.AddKey("id", "uuid")
-				.AddRelation(new CrudioRelationship({
-					type: "one",
-					name: r.FromEntity,
-					from: me.name,
-					from_column: r.FromEntity,
-					to: r.FromEntity,
-					to_column: "id"
-				}))
-				.AddRelation(new CrudioRelationship({
-					type: "one",
-					name: r.ToEntity,
-					from: me.name,
-					from_column: r.ToEntity,
-					to: r.ToEntity,
-					to_column: "id"
-				}))
+	/**
+	 * Create join tables for many to many joins
+	 * @date 7/27/2022 - 10:54:24 AM
+	 *
+	 * @private
+	 */
+	private CreateManyToManyJoinTables() {
+		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
+
+		m2m.map(r => {
+			const me = new CrudioEntityDefinition(r.FromEntity + r.ToEntity, false, true);
+
+			// many to many join tables need to trace back to the relationship they were spawned from
+			// to assist with data generation
+			me.SourceRelationship = r;
+
+			me.AddKey("id", "uuid")
+				.AddRelation(
+					new CrudioRelationship({
+						type: "one",
+						name: r.FromEntity,
+						from: me.Name,
+						from_column: r.FromEntity,
+						to: r.FromEntity,
+						to_column: "id",
+					})
+				)
+				.AddRelation(
+					new CrudioRelationship({
+						type: "one",
+						name: r.ToEntity,
+						from: me.Name,
+						from_column: r.ToEntity,
+						to: r.ToEntity,
+						to_column: "id",
+					})
+				);
 
 			const key = me.GetField("id");
 			key.fieldOptions.generator = "[uuid]";
 
-			this.entities.push(me);
+			this.entityDefinitions.push(me);
 		});
 	}
 
@@ -302,12 +321,9 @@ export default class CrudioRepository {
 	 * @param {string} entityname
 	 */
 	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string): void {
-		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname);
+		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname, entityDefinition.abstract, false);
 		entityType.max_row_count = entityDefinition.count ?? CrudioRepository.DefaultNumberOfRowsToGenerate;
 
-		if (entityDefinition.abstract) entityType.abstract = true;
-
-		// copy inherited fields from the base entity
 		if (entityDefinition.inherits) {
 			this.InheritBaseFields(entityDefinition.inherits, entityType);
 		}
@@ -333,7 +349,7 @@ export default class CrudioRepository {
 		if (entityDefinition.relationships) {
 			entityDefinition.relationships.map((r: ISchemaRelationship) => {
 				const new_rel = new CrudioRelationship({
-					from: entityType.name,
+					from: entityType.Name,
 					...r,
 				});
 
@@ -361,7 +377,7 @@ export default class CrudioRepository {
 		baseEntity.fields.map((f: CrudioField) => {
 			if (f.fieldName.toLocaleLowerCase() != "abstract") {
 				if (targetEntity.GetField(f.fieldName)) {
-					throw new Error(`InheritFields - child:'${targetEntity.name}' base:'${baseEntity.name}' : can not have fields in child which are already specifified in base. field:'${f.fieldName}'`);
+					throw new Error(`InheritFields - child:'${targetEntity.Name}' base:'${baseEntity.Name}' : can not have fields in child which are already specifified in base. field:'${f.fieldName}'`);
 				}
 
 				// Duplicate the field from the base type onto the child entity
@@ -380,7 +396,7 @@ export default class CrudioRepository {
 	 * @returns {(CrudioEntityDefinition | null)}
 	 */
 	public GetEntityDefinition(entityName: string, failIfNotFound: boolean = true): CrudioEntityDefinition | null {
-		var matches: CrudioEntityDefinition[] = this.entities.filter((e: CrudioEntityDefinition) => e.name === entityName);
+		var matches: CrudioEntityDefinition[] = this.entityDefinitions.filter((e: CrudioEntityDefinition) => e.Name === entityName);
 
 		if (failIfNotFound && matches.length === 0) {
 			throw new Error(`Entity '${entityName}' not found`);
@@ -402,9 +418,9 @@ export default class CrudioRepository {
 	 * @param {boolean} [failIfNotFound=true]
 	 * @returns {(CrudioEntityDefinition | null)}
 	 */
-	public GetEntityDefinitionFromTableName(tableName: string, failIfNotFound: boolean = true): CrudioEntityDefinition | null {
-		const entityName = this.GetTable(tableName).EntityDefinition;
-		return this.GetEntityDefinition(entityName);
+	public GetEntityDefinitionFromTableName(tableName: string): CrudioEntityDefinition {
+		const table = this.GetTable(tableName);
+		return table.EntityDefinition;
 	}
 
 	/**
@@ -416,7 +432,7 @@ export default class CrudioRepository {
 	 * @returns {CrudioTable}
 	 */
 	public GetTableForEntityName(name: string): CrudioTable {
-		return this.Tables.filter(t => t.EntityDefinition === name)[0];
+		return this.Tables.filter(t => t.EntityDefinition.Name === name)[0];
 	}
 
 	/**
@@ -427,20 +443,20 @@ export default class CrudioRepository {
 	 * @param {string} name
 	 * @returns {CrudioEntityDefinition}
 	 */
-	private CreateEntityType(name: string): CrudioEntityDefinition {
+	private CreateEntityType(name: string, isAbstract, isManyToMany): CrudioEntityDefinition {
 		var exists: CrudioEntityDefinition | null = this.GetEntityDefinition(name, false);
 
 		if (exists !== null) {
 			throw new Error(`CreateEntityType: '${name}' already exists in model`);
 		}
 
-		var entity: CrudioEntityDefinition | null;
-		entity = this.GetEntityDefinition(name, false);
+		var entityDefinition: CrudioEntityDefinition | null = (entityDefinition = this.GetEntityDefinition(name, false));
 
-		if (entity === null) {
-			entity = new CrudioEntityDefinition(name);
-			this.entities.push(entity);
-			return entity;
+		if (entityDefinition === null) {
+			entityDefinition = new CrudioEntityDefinition(name, isAbstract, isManyToMany);
+			this.entityDefinitions.push(entityDefinition);
+
+			return entityDefinition;
 		}
 
 		throw new Error(`Entity '${name} already exists'`);
@@ -453,15 +469,18 @@ export default class CrudioRepository {
 	 * @private
 	 * @param {CrudioEntityDefinition[]} entities
 	 */
-	private CreateInMemoryDataTables(entities: CrudioEntityDefinition[]) {
-		entities.map((e: CrudioEntityDefinition) => {
-			if (!e.abstract) {
-				var t: CrudioTable = new CrudioTable();
-				t.TableName = CrudioUtils.TitleCase(e.tableName);
-				t.EntityDefinition = CrudioUtils.TitleCase(e.name);
+	private CreateInMemoryDataTables() {
+		const tables = this.entityDefinitions.filter(e => !e.IsManyToManyJoin && !e.IsAbstract);
+		const joins = this.entityDefinitions.filter(e => e.IsManyToManyJoin);
 
-				this.Tables.push(t);
-			}
+		tables.map((e: CrudioEntityDefinition) => {
+			const t: CrudioTable = new CrudioTable(CrudioUtils.TitleCase(e.TableName), this.GetEntityDefinition(CrudioUtils.TitleCase(e.Name)));
+			this.Tables.push(t);
+		});
+
+		joins.map((e: CrudioEntityDefinition) => {
+			const t: CrudioTable = new CrudioTable(CrudioUtils.TitleCase(e.TableName), this.GetEntityDefinition(CrudioUtils.TitleCase(e.Name)));
+			this.Tables.push(t);
 		});
 	}
 
@@ -471,31 +490,15 @@ export default class CrudioRepository {
 	 *
 	 * @private
 	 */
-	private ConnectOneToManyRelationships(postfix = false): void {
-		this.entities.map(e => {
+	private ConnectOneToManyRelationships(): void {
+		const definitions = this.entityDefinitions.filter(e => !e.IsManyToManyJoin);
+
+		definitions.map(e => {
 			e.relationships
-				.filter(r => !r.DefaultTargetQuery)
+				.filter(r => !r.DefaultTargetQuery && !e.IsManyToManyJoin)
 				.map(r => {
 					if (r.RelationshipType === "one") {
 						this.JoinOneToMany(r);
-					}
-				});
-		});
-	}
-
-	/**
-	 * Connect entities through their relationships
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @private
-	 */
-	private ConnectNamedRelationships(postfix = false): void {
-		this.entities.map(e => {
-			e.relationships
-				.filter(r => r.DefaultTargetQuery)
-				.map(r => {
-					if (r.RelationshipType === "one") {
-						this.JoinNamedRelationships(r);
 					}
 				});
 		});
@@ -509,8 +512,8 @@ export default class CrudioRepository {
 	 * @param {CrudioRelationship} r
 	 */
 	private JoinOneToMany(r: CrudioRelationship): void {
-		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
-		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
+		var sourceTable: CrudioTable = this.GetTableForEntityDefinition(r.FromEntity)!;
+		var targetTable: CrudioTable = this.GetTableForEntityDefinition(r.ToEntity)!;
 
 		if (sourceTable === null) {
 			throw new Error(`Can not find source '${r.FromEntity}'`);
@@ -534,6 +537,73 @@ export default class CrudioRepository {
 	}
 
 	/**
+	 * Connect entities through their relationships
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	private ConnectManyToManyRelationships(): void {
+		const definitions = this.entityDefinitions.filter(e => e.IsManyToManyJoin);
+		definitions.map(d => this.JoinManyToMany(d));
+	}
+
+	/**
+	 * Process all data rows and connect entities to referenced enties, e.g. user -> organisations
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 * @param {CrudioRelationship} r
+	 */
+	private JoinManyToMany(d: CrudioEntityDefinition): void {
+		var joinTable: CrudioTable = this.GetTableForEntityDefinition(d.Name);
+		var sourceTable: CrudioTable = this.GetTableForEntityDefinition(d.SourceRelationship.FromEntity);
+		var targetTable: CrudioTable = this.GetTableForEntityDefinition(d.SourceRelationship.ToEntity);
+
+		const source_ids = sourceTable.DataRows.map(r => r.DataValues["id"]);
+		const target_ids = targetTable.DataRows.map(r => r.DataValues["id"]);
+
+		var index: number = 0;
+
+		// Iterate through every entity in the source table, e.g.Blog
+		source_ids.map((source_id: string) => {
+			const options = [...target_ids];
+			const c = Math.min(options.length, d.SourceRelationship.NumberOfSeededRelations);
+
+			// add the required number of target objects, e.g. Tag
+			for (var i = 0; i < c; i++) {
+				const row_num = CrudioRepository.GetRandomNumber(0, options.length);
+				options.slice(row_num, 1);
+
+				const row = this.CreateEntityInstance(d);
+				this.SetupEntityGenerators(row);
+				this.ProcessTokensInEntity(row);
+				row.DataValues[d.SourceRelationship.FromEntity] = source_id;
+				row.DataValues[d.SourceRelationship.ToEntity] = options[row_num];
+
+				joinTable.DataRows.push(row);
+			}
+		});
+	}
+
+	/**
+	 * Connect entities through their relationships
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	private ConnectDefaultRelationships(postfix = false): void {
+		this.entityDefinitions.map(e => {
+			e.relationships
+				.filter(r => r.DefaultTargetQuery)
+				.map(r => {
+					if (r.RelationshipType === "one") {
+						this.JoinNamedRelationships(r);
+					}
+				});
+		});
+	}
+
+	/**
 	 * Connect specific entities in a relationship
 	 * For example an organisation has one CEO, so assign only one user to this role in an organisation
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -542,14 +612,14 @@ export default class CrudioRepository {
 	 * @param {CrudioRelationship} r
 	 */
 	private JoinNamedRelationships(r: CrudioRelationship): void {
-		var sourceTable: CrudioTable = this.GetTableForEntity(r.FromEntity)!;
-		var targetTable: CrudioTable = this.GetTableForEntity(r.ToEntity)!;
+		var sourceTable: CrudioTable = this.GetTableForEntityDefinition(r.FromEntity)!;
+		var targetTable: CrudioTable = this.GetTableForEntityDefinition(r.ToEntity)!;
 
 		if (sourceTable === null) throw new Error(`Can not find source '${r.FromEntity}'`);
 
 		if (targetTable === null) throw new Error(`Can not find target '${r.ToEntity}'`);
 
-		const enumerated_table = this.GetTableForEntity(r.EnumeratedTable);
+		const enumerated_table = this.GetTableForEntityDefinition(r.EnumeratedTable);
 
 		// process relationships where there is only one instance allowed, e.g. one user as CEO of an organisation
 
@@ -612,11 +682,11 @@ export default class CrudioRepository {
 
 		if (!targetRow) throw "Error: targetRow must be specified";
 
-		const sourceTable = this.GetTableForEntity(sourceRow.EntityType.name);
-		const targetTable = this.GetTableForEntity(targetRow.EntityType.name);
+		const sourceTable = this.GetTableForEntityDefinition(sourceRow.EntityType.Name);
+		const targetTable = this.GetTableForEntityDefinition(targetRow.EntityType.Name);
 
 		// the source points to a single target record... user 1 -> 1 organisation
-		sourceRow.DataValues[targetTable.EntityDefinition] = targetRow;
+		sourceRow.DataValues[targetTable.EntityDefinition.Name] = targetRow;
 
 		// initialise all target entities with an empty array to receive referencing entities
 		if (!targetRow.DataValues[sourceTable.TableName] || targetRow.DataValues[sourceTable.TableName] === undefined) {
@@ -653,8 +723,8 @@ export default class CrudioRepository {
 	 * @param {string} name
 	 * @returns {CrudioTable}
 	 */
-	public GetTableForEntity(name: string): CrudioTable {
-		var matches: CrudioTable[] = this.Tables.filter((t: CrudioTable) => t.EntityDefinition === name);
+	public GetTableForEntityDefinition(name: string): CrudioTable {
+		var matches: CrudioTable[] = this.Tables.filter((t: CrudioTable) => t.EntityDefinition.Name === name);
 
 		if (matches.length === 0) {
 			throw new Error(`Table for entity '${name}' not found`);
@@ -764,8 +834,8 @@ export default class CrudioRepository {
 	private FillDataTables(): void {
 		this.ClearAllInMemoryTables();
 
-		// create data for each table
-		const tables = this.Tables.filter((t: any) => !t.abstract);
+		// create data for each table, but skip abstract and many to many join tables
+		const tables = this.Tables.filter((t: CrudioTable) => !t.EntityDefinition.IsAbstract && !t.EntityDefinition.IsManyToManyJoin);
 
 		tables.map((t: CrudioTable) => {
 			this.FillTable(t);
@@ -778,11 +848,14 @@ export default class CrudioRepository {
 		// lookup values in related objects
 		this.ProcessTokensInAllTables();
 
+		// connect entities with many to many relationships
+		this.ConnectManyToManyRelationships();
+
 		// Run over all relationships again to handle cases
 		// where a relationship has a constraint, such as one user in the role of CEO in an organisation
 		// This must be done after token processing, because that is the step in the process where all
 		// value generators have executed, which enables the lookups to complete
-		this.ConnectNamedRelationships();
+		this.ConnectDefaultRelationships();
 	}
 
 	/**
@@ -792,11 +865,10 @@ export default class CrudioRepository {
 	 * @param {CrudioTable} table
 	 */
 	FillTable(table: CrudioTable): void {
-		var entity: CrudioEntityDefinition | null = this.GetEntityDefinition(table.EntityDefinition, true);
 		var records: CrudioEntityInstance[] = [];
 
-		for (var c: number = 0; c < entity.max_row_count; c++) {
-			records.push(this.CreateEntityInstance(entity));
+		for (var c = 0; c < table.EntityDefinition.max_row_count; c++) {
+			records.push(this.CreateEntityInstance(table.EntityDefinition));
 		}
 
 		table.DataRows = records;
@@ -847,7 +919,7 @@ export default class CrudioRepository {
 	 * @returns {CrudioEntityInstance}
 	 */
 	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
-		var entity: CrudioEntityInstance = entityType.CreateInstance({});
+		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
 
 		return entity;
@@ -869,7 +941,7 @@ export default class CrudioRepository {
 
 	//#endregion
 
-	//#region create and populate entities
+	//#region Token Processing and value generation
 
 	/**
 	 * Process all tokens in entities for all tables
@@ -916,7 +988,6 @@ export default class CrudioRepository {
 		const new_instance = new CrudioEntityInstance(entityInstance.EntityType);
 		new_instance.DataValues = { ...entityInstance.DataValues };
 
-
 		for (var i = 0; i < keys.length; i++) {
 			const field_name = keys[i];
 			const field_value: string = new_instance.DataValues[field_name];
@@ -926,7 +997,7 @@ export default class CrudioRepository {
 				new_instance.DataValues[field_name] = detokenised_value;
 
 				if (detokenised_value.indexOf("[") >= 0) {
-					throw new Error(`Error: Detokenisation failed in Entity:${new_instance.EntityType.name} - ${field_name}`);
+					throw new Error(`Error: Detokenisation failed in Entity:${new_instance.EntityType.Name} - ${field_name}`);
 				}
 				const entity_field = new_instance.EntityType.GetField(field_name);
 
@@ -1008,16 +1079,11 @@ export default class CrudioRepository {
 
 				if (lookup) {
 					// get field value from current context
-					if (entity)
-						value = this.ProcessTokensInField(entity, fieldName, clean);
-					else
-						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`)
+					if (entity) value = this.ProcessTokensInField(entity, fieldName, clean);
+					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 				} else if (query) {
-					if (entity)
-						value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
-					else
-						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`)
-
+					if (entity) value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 				} else {
 					// use a generator
 					value = this.GetGeneratedValue(fieldName);
@@ -1169,7 +1235,7 @@ export default class CrudioRepository {
 
 			// For each new entity, run the script
 			while (count-- > 0) {
-				const parent_entity = this.CreateEntityInstance(this.GetEntityDefinition(table.EntityDefinition));
+				const parent_entity = this.CreateEntityInstance(table.EntityDefinition);
 				this.ProcessTokensInEntity(parent_entity);
 				table.DataRows.push(parent_entity);
 
@@ -1199,18 +1265,20 @@ export default class CrudioRepository {
 		var entity_type = parts[1];
 		var row_index = -1;
 
-		const rel = parent_entity
-			.EntityType
-			.ManyToManyRelationships
-			.filter(m =>
-				m.RelationshipName === parts[0]);
+		const rel = parent_entity.EntityType.ManyToManyRelationships.filter(m => m.RelationshipName === parts[0]);
 
 		if (rel.length > 0) {
-			const t = this.GetTableForEntity(rel[0].ToEntity);
-			const te = this.GetEntityFromQuery(t.EntityDefinition, query);
+			const t = this.GetTableForEntityDefinition(rel[0].ToEntity);
+
+			const rows = this.ExecuteCrudioQuery(t.EntityDefinition.Name, query);
+			if (rows.length == 0) {
+				throw new Error(`Error: Failed to find ${t.EntityDefinition} matching query: ${query}`);
+			}
+
+			const te = rows[0];
 			const m = this.GetTable(field_name);
+
 			// TODO build the many to many entity joining the tag and blog
-			
 			//m.DataRows.push(ee);
 			return;
 		}
@@ -1237,7 +1305,11 @@ export default class CrudioRepository {
 		}
 
 		// When we get the entity by index below, it will be connected to this target entity
-		var target_connection = this.GetEntityFromQuery(entity_type, query);
+		var rows = this.ExecuteCrudioQuery(entity_type, query);
+		if (rows.length == 0) {
+			throw new Error(`Error: Failed to find ${entity_type} matching query: ${query}`);
+		}
+		const target_connection = rows[0];
 
 		for (var ri = row_start; ri <= row_end; ri++) {
 			this.ConnectChildWithRelatedEntity(parent_entity, field_name, row_index, target_connection);
@@ -1245,29 +1317,29 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Get an entity using the query notation ?fieldname=search_value
+	 * For a given entity type, get data rows matching a simple query, e.g. user=Bob
 	 * @date 7/25/2022 - 9:41:03 AM
 	 *
 	 * @private
-	 * @param {string} entityType
+	 * @param {string} entityDefinition
 	 * @param {string} query
 	 * @returns {CrudioEntityInstance}
 	 */
-	private GetEntityFromQuery(entityType: string, query: string): CrudioEntityInstance {
-		if (!query) throw new Error("Error: query parameter must be specified");
+	public ExecuteCrudioQuery(entityDefinition: string, query: string | null): CrudioEntityInstance[] {
+		if (!query || query === "*" || (query && query.trim().length == 0)) {
+			return this.GetTableForEntityDefinition(entityDefinition).DataRows;
+		}
 
 		const parts = query.split("=");
 		const field = parts[0];
 		const value = parts[1];
 
-		if (!parts || !field || !value) throw new Error(`Error: Querying entity type: ${entityType}. Syntax error in query: ${query}. Format is ?fieldname=value `);
+		if (!parts || !field || !value) throw new Error(`Error: Querying entity type: ${entityDefinition}. Syntax error in query: ${query}. Format is ?fieldname=value `);
 
-		const table = this.GetTableForEntityName(entityType);
-		const match = table.DataRows.filter(r => r.DataValues[field] === value)[0];
+		const table = this.GetTableForEntityName(entityDefinition);
+		const rows = table.DataRows.filter(r => r.DataValues[field] === value);
 
-		if (!match) throw new Error(`Error: Failed to find math for Entity:${entityType} using query: ${query}`);
-
-		return match;
+		return rows;
 	}
 
 	/**
@@ -1295,7 +1367,7 @@ export default class CrudioRepository {
 			var r = row_index;
 			while (parent_array.length < row_index + 1) {
 				const new_entity = this.CreateEntityInstance(entity_definition);
-				const global_table = this.GetTableForEntityName(entity_definition.name);
+				const global_table = this.GetTableForEntityName(entity_definition.Name);
 
 				// add the new entity to the global table
 				global_table.DataRows.push(new_entity);

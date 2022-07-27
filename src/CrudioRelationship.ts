@@ -107,7 +107,8 @@ export default class CrudioRelationship {
 	}
 
 	/**
-	 * Query string of field:value
+	 * Query string of field:value which connects an enumerated child object to a specific default target object
+	 * For example, connecting employee to staff role as the default setting
 	 * @date 7/25/2022 - 10:37:12 AM
 	 *
 	 * @readonly

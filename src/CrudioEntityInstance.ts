@@ -1,4 +1,4 @@
-import CrudioEntityDefinition from "./CrudioEntityType";
+import CrudioEntityDefinition from "./CrudioEntityDefinition";
 
 /**
  * A data object populated with generated field values, equivalent to a row in a database
@@ -53,7 +53,7 @@ export default class CrudioEntityInstance {
 		if (strict) {
 			Object.keys(this.DataValues).map(k => {
 				if (!entityType.GetField(k)) {
-					throw new Error("CrudioEntityInstance.constructor '" + k + "' is not a valid field on entity '" + this.EntityType.name + "'");
+					throw new Error("CrudioEntityInstance.constructor '" + k + "' is not a valid field on entity '" + this.EntityType.Name + "'");
 				}
 			});
 		}
