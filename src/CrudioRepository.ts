@@ -827,11 +827,11 @@ export default class CrudioRepository {
 			output += `}\r`;
 
 			e.relationships
-			.filter(r => r.RelationshipType === "one")
-			.map(r => {
-				const rel = r.RelationshipType === "one" ? "}o--||" : "}o--o{";
-				output += `${r.FromEntity} ${rel} ${r.ToEntity} : "has"\r`;
-			});
+				.filter(r => r.RelationshipType === "one")
+				.map(r => {
+					const rel = r.RelationshipType === "one" ? "}o--||" : "}o--o{";
+					output += `${r.FromEntity} ${rel} ${r.ToEntity} : "has"\r`;
+				});
 
 		});
 
@@ -1058,7 +1058,8 @@ export default class CrudioRepository {
 			}
 		}
 
-		entityInstance.DataValues = { ...new_instance.DataValues };
+		entityInstance.DataValues = new_instance.DataValues;
+
 		return true;
 	}
 

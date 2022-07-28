@@ -180,6 +180,8 @@ describe("Create fake data", () => {
 		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
 	});
 
+	// NOTE: This test method will occasionally fail. There is some kind of race condition in the unit test context
+	// The issues does not seem to be reproducable through the CLI
 	test("Populate database", async () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
 		const db = new CrudioDataWrapper(config, repo);
