@@ -40,13 +40,14 @@ export default class CrudioCLI {
 			.name("crudio")
 			.description("create databases pre-loaded with large volumes of sensible test data.")
 			.version("1.0.0")
+			.option("-v, --verbose", "Verbose output")
 			.option("-e, --hasuraEndpoint <endpoint>", "GraphQL endpoint", "http://localhost:6789")
 			.option("-a, --hasuraAdminSecret <secret>", "Secret to access administrative privileges", "crudio")
             .option("-k, --idField <idfield>", "Default name for primary key column", "id")
 			.option("-w, --wipe", "Drop all tables in the schema if they already exist", true)
 			.option("-s, --schema <schema>", "Place tables in the nominated schema", "crudio")
 			.option("-r, --repo <repo_file>", "Repository definition file (JSON)")
-			.option("-i, --include <include_file>", "Merge an additional repository definition");
+			.option("-i, --include <include_file>", "Merge an additional repository definition")
 
 		this.config = this.command_line.parse(args).opts();
 	}
