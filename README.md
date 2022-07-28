@@ -188,6 +188,8 @@ CLI Options:
 
 -i, --include <include_file>      Merge an additional repository definition (OPTIONAL)
   Note: Must be a JSON format file
+
+-d, --diagram <output_file>       Output Mermaid diagram of the data model
 ```
 
 # About Crudio

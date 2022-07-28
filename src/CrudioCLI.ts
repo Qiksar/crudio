@@ -48,6 +48,7 @@ export default class CrudioCLI {
 			.option("-s, --schema <schema>", "Place tables in the nominated schema", "crudio")
 			.option("-r, --repo <repo_file>", "Repository definition file (JSON)")
 			.option("-i, --include <include_file>", "Merge an additional repository definition")
+			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
 
 		this.config = this.command_line.parse(args).opts();
 	}

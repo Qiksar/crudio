@@ -11,6 +11,7 @@
 import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioRepository from "./CrudioRepository";
+import * as fs from "fs";
 
 setTimeout(async () => {
 	const cli = new CrudioCLI(process.argv);
@@ -32,6 +33,14 @@ setTimeout(async () => {
 
 	const db = new CrudioDataWrapper(config, repo);
 	console.log("Data repository populated");
+
+	if(config.diagram) {
+		console.log(`Output diagram to ${config.diagram}`);
+		
+		const diagram = repo.ToMermaid();
+
+		fs.writeFileSync(config.diagram, diagram);
+	}
 
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();
