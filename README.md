@@ -16,7 +16,7 @@ Click here to find the latest published package: [NPM](https://www.npmjs.com/pac
 
 # Build the Crudio Demo
 
-Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Posgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
+Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
 
 ```
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
@@ -34,7 +34,7 @@ By setting up tracking in Hasura, you have instantly gained a data management AP
 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
-# Example GraphQL Queries - Working in Hasura Console
+# GraphQL Queries - Hasura Console
 
 Next, go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:
 
@@ -156,7 +156,7 @@ Build a database from the repo.json data model, and include all of the entities 
 
 
 ```
-npx @qiksar/crudio -v -w -r  repo/repo.json -i repo/iot.json
+npx @qiksar/crudio -v -w -r repo/repo.json -i repo/iot.json
 
 # Note: this assumes you have either cloned the Github repository, or you have previously run the init script...
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
@@ -191,6 +191,133 @@ CLI Options:
 
 -d, --diagram <output_file>       Output Mermaid diagram of the data model
 ```
+
+## Example Mermaid output
+The following output is created using the `-d` option
+
+```mermaid
+erDiagram
+Entity {
+timestamp created
+timestamp deleted
+uuid id
+}
+Lookup {
+timestamp created
+timestamp deleted
+uuid id
+string name
+string value
+}
+Organisation {
+timestamp created
+timestamp deleted
+uuid id
+string name
+string address
+string email
+}
+OrganisationDepartment {
+timestamp created
+timestamp deleted
+uuid id
+string name
+}
+OrganisationRole {
+timestamp created
+timestamp deleted
+uuid id
+string name
+}
+Person {
+timestamp created
+timestamp deleted
+uuid id
+date dob
+integer height
+integer weight
+string firstname
+string lastname
+string address
+string email
+}
+User {
+timestamp created
+timestamp deleted
+uuid id
+date dob
+integer height
+integer weight
+string firstname
+string lastname
+string address
+string email
+}
+User }o--|| Organisation : "has"
+User }o--|| OrganisationDepartment : "has"
+User }o--|| OrganisationRole : "has"
+Program {
+timestamp created
+timestamp deleted
+uuid id
+string name
+string mission
+}
+Program }o--|| Organisation : "has"
+Cactus {
+timestamp created
+timestamp deleted
+uuid id
+integer height
+}
+Cohort {
+timestamp created
+timestamp deleted
+uuid id
+string name
+}
+Cohort }o--|| Program : "has"
+Survey {
+timestamp created
+timestamp deleted
+uuid id
+string name
+}
+Survey }o--|| Program : "has"
+Client {
+timestamp created
+timestamp deleted
+uuid id
+date dob
+integer height
+integer weight
+string firstname
+string lastname
+string address
+string email
+}
+Client }o--|| Cohort : "has"
+Tag {
+timestamp created
+timestamp deleted
+uuid id
+string name
+}
+Blog {
+timestamp created
+timestamp deleted
+uuid id
+string article
+timestamp published_date
+}
+Blog }o--|| User : "has"
+BlogTag {
+uuid id
+}
+BlogTag }o--|| Blog : "has"
+BlogTag }o--|| Tag : "has"
+```
+
 
 # About Crudio
 
@@ -329,9 +456,9 @@ When the tests have run, open the [Hasura Console](http://localhost:6789), go to
 
 # The Crudio data repository structure
 
-The main purpose of a repository (*repo*) is to act as a container for test data.
+*NOTE* Crudio is rapidly evolving, and it is best to refer to [Crudio Syntax reference](repo-syntax.md) and the `repo` folder for up to date information.
 
-The test data itself is a collection of data entities, like Person or Organisation.
+The main purpose of a repository (*repo*) is to act as a container for test data. The test data itself is a collection of data entities, like Person or Organisation.
 
 Imagine you want 4000 people connected with one organisation, so you can load test your application. You don't want to type all of the data in. So you might be tempted to use randomly generated strings as people's first and last name, but then you also want an email address, and would that be any old random text, or should it be the person's first and last name joined to make an email address?
 
@@ -348,6 +475,7 @@ Here is the basic outline
    include:[]
    generators: {}
    entities:{}
+   scripts:{}
 }
 ```
 
@@ -445,19 +573,12 @@ And by the way...Crudio is free forever. We don't intend to start launching "Ent
 
 # Roadmap
 
-## More work on expressing relationships
-At the moment we are thinking about the different types of relationships between entities, such as users and which departments they work in.
-
 ## Scipting engine
 There is a unit test just to see if we can stimulate discussion about a scripting engine. We are looking at `eval` which everyone says is evil, but Crudio is not designed as a production tool, so you won't be letting third parties write scripts that execute on your platform.
 
 But why would you need scripting? We are trying to answer many common out of the box use cases, like creating organisations, with teams, roles, and clients. When we consider modelling the kind of data that IoT or Health devices create, you might not want the data to be so random. If you don't care, you're already good to go, as our current demonstration model shows.
 
 We are envisioning a use case, like trying to make environmental monitoring data, where a timestamp appears to progress through a 24 hour period, and as it does, a daylight sensor increases in value, and as night approaches, the sensor value falls as it gets darker. This capability would create very convincing test data.
-
-## Visualisation
-
-This is about being able to output a graphical version of the data model so you can quickly review and validate it, even work with others, non-technical people, to ask if the data model makes sense in real-life.
 
 ## User interface
 
@@ -481,5 +602,5 @@ When comes to workig with Hasura, QikTrak gives you super powers!
 
 Thank you to the key repository owners below:
 
-Data sources
+*Data sources*
 Used to create a large list of first names: https://github.com/hadley/data-baby-names/blob/master/baby-names.csv
