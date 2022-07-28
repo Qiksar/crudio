@@ -322,7 +322,9 @@ export default class CrudioRepository {
 	 */
 	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string): void {
 		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname, entityDefinition.abstract, false);
-		entityType.max_row_count = entityDefinition.count ?? CrudioRepository.DefaultNumberOfRowsToGenerate;
+		entityType.MaxRowCount = entityDefinition.count;
+
+		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioRepository.DefaultNumberOfRowsToGenerate;
 
 		if (entityDefinition.inherits) {
 			this.InheritBaseFields(entityDefinition.inherits, entityType);
@@ -528,7 +530,7 @@ export default class CrudioRepository {
 		sourceTable.DataRows.map((sourceRow: CrudioEntityInstance) => {
 			// row_num is intended to ensure every entity on the "many" side gets at least one
 			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
-			const row_num = index > targetTable.DataRows.length - 1 ? CrudioRepository.GetRandomNumber(1, targetTable.DataRows.length + 1) - 1 : index++;
+			const row_num = index > targetTable.DataRows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.DataRows.length) : index++;
 			if (row_num < targetTable.DataRows.length) {
 				const targetRow = targetTable.DataRows[row_num];
 				this.ConnectRows(sourceRow, targetRow);
@@ -866,8 +868,22 @@ export default class CrudioRepository {
 	 */
 	FillTable(table: CrudioTable): void {
 		var records: CrudioEntityInstance[] = [];
+		var count = 0;
 
-		for (var c = 0; c < table.EntityDefinition.max_row_count; c++) {
+		if (typeof table.EntityDefinition.MaxRowCount === "string") {
+			const g = table.EntityDefinition.MaxRowCount.replace(/\[|\]/g, "");
+			const v = this.GetGenerator(g);
+			count = v.split(";").length - 1;
+
+			if (count == 0) 
+				throw new Error(`Error: Unable to determine entity count for ${table.TableName} using "${v}" `);
+		} else if (typeof table.EntityDefinition.MaxRowCount === "number") {
+			count = table.EntityDefinition.MaxRowCount;
+		} else {
+			count = CrudioRepository.DefaultNumberOfRowsToGenerate;
+		}
+
+		for (var c = 0; c < count; c++) {
 			records.push(this.CreateEntityInstance(table.EntityDefinition));
 		}
 
@@ -958,7 +974,7 @@ export default class CrudioRepository {
 				while (!ok && maxtries-- > 0) {
 					if (maxtries == 0) {
 						throw new Error(
-							`Error: Failed to create unique value for ${table.TableName}. Table contains ${table.DataRows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`
+							`Error: Failed to create unique value for ${table.TableName} with ${table.DataRows.length} rows. Table contains ${table.DataRows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`
 						);
 					}
 
@@ -1119,10 +1135,6 @@ export default class CrudioRepository {
 
 		var value: any = "";
 
-		if (!Object.keys(this.generators).includes(generatorName)) {
-			throw new Error(`Generator name is invalid '${generatorName}'`);
-		}
-
 		switch (generatorName.toLowerCase()) {
 			case "uuid":
 				return randomUUID();
@@ -1134,18 +1146,14 @@ export default class CrudioRepository {
 				return DateTime.TIME_24_WITH_SECONDS;
 
 			case "timestamp":
-				//const v = new Date(Date.now()).toISOString().replace('T',' ').replace('Z','');
 				const v = new Date(Date.now()).toISOString().replace("Z", "");
 				return v;
 		}
 
-		var content: string = this.generators[generatorName] as string;
+		var content: string = this.GetGenerator(generatorName);
 
 		if (content.includes(";")) {
-			var words: string[] = content.replace(/(^;)|(;$)/g, "").split(";");
-			var rndWord: number = Math.random();
-			var index: number = Math.floor(words.length * rndWord);
-			value = words[index];
+			value = this.GetRandomStringFromList(content);
 		} else if (content.includes(">")) {
 			var vals: string[] = content.split(">");
 			value = CrudioRepository.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
@@ -1154,6 +1162,38 @@ export default class CrudioRepository {
 		}
 
 		return value;
+	}
+
+	/**
+	 * Randomly select a word from a separated list
+	 * @date 7/28/2022 - 1:30:00 PM
+	 *
+	 * @private
+	 * @param {string} content
+	 * @returns {*}
+	 */
+	private GetRandomStringFromList(content: string, seperator = ";") {
+		const words: string[] = content.replace(/(^;)|(;$)/g, "").split(seperator);
+		const rndWord: number = Math.random();
+		const index: number = Math.floor(words.length * rndWord);
+		const value = words[index];
+		return value;
+	}
+
+	/**
+	 * Get a data generator by name
+	 * @date 7/28/2022 - 1:30:00 PM
+	 *
+	 * @private
+	 * @param {string} generatorName
+	 * @returns {string}
+	 */
+	private GetGenerator(generatorName: string): string {
+		if (!Object.keys(this.generators).includes(generatorName)) {
+			throw new Error(`Generator name is invalid '${generatorName}'`);
+		}
+
+		return this.generators[generatorName] as string;
 	}
 
 	/**
@@ -1307,6 +1347,8 @@ export default class CrudioRepository {
 		// When we get the entity by index below, it will be connected to this target entity
 		var rows = this.ExecuteCrudioQuery(entity_type, query);
 		if (rows.length == 0) {
+			rows = this.ExecuteCrudioQuery(entity_type, query);
+
 			throw new Error(`Error: Failed to find ${entity_type} matching query: ${query}`);
 		}
 		const target_connection = rows[0];
@@ -1326,8 +1368,12 @@ export default class CrudioRepository {
 	 * @returns {CrudioEntityInstance}
 	 */
 	public ExecuteCrudioQuery(entityDefinition: string, query: string | null): CrudioEntityInstance[] {
+		const rows = this.GetTableForEntityDefinition(entityDefinition).DataRows;
+
+		if (rows.length == 0) throw new Error(`Error: Source table ${entityDefinition} has no rows, executing query ${query ?? "*"}`);
+
 		if (!query || query === "*" || (query && query.trim().length == 0)) {
-			return this.GetTableForEntityDefinition(entityDefinition).DataRows;
+			return rows;
 		}
 
 		const parts = query.split("=");
@@ -1337,9 +1383,9 @@ export default class CrudioRepository {
 		if (!parts || !field || !value) throw new Error(`Error: Querying entity type: ${entityDefinition}. Syntax error in query: ${query}. Format is ?fieldname=value `);
 
 		const table = this.GetTableForEntityName(entityDefinition);
-		const rows = table.DataRows.filter(r => r.DataValues[field] === value);
+		const results = table.DataRows.filter(r => r.DataValues[field] === value);
 
-		return rows;
+		return results;
 	}
 
 	/**

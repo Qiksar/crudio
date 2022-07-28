@@ -102,7 +102,6 @@ export default class CrudioEntityDefinition {
 	 */
 	public set SourceRelationship(r: CrudioRelationship) {
 		this.source_relationship = r;
-		
 	}
 	/**
 	 * Name to use for the database table
@@ -113,7 +112,7 @@ export default class CrudioEntityDefinition {
 	 */
 	private tableName: string;
 	/**
-	 * Description placeholder
+	 * The name of the table
 	 * @date 7/27/2022 - 7:58:39 PM
 	 *
 	 * @public
@@ -171,7 +170,15 @@ export default class CrudioEntityDefinition {
 	 * @public
 	 * @type {number}
 	 */
-	public max_row_count: number = CrudioRepository.DefaultNumberOfRowsToGenerate;
+	private max_row_count: number | string = CrudioRepository.DefaultNumberOfRowsToGenerate;
+	public set MaxRowCount(value: string | number) {
+		this.max_row_count = value;
+	}
+
+	public get MaxRowCount(): string | number {
+		return this.max_row_count as number;
+	}
+
 	/**
 	 * Snippets imported to enable short-hand inclusion of pre-defined fields
 	 * @date 7/18/2022 - 2:17:32 PM

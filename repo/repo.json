@@ -17,7 +17,7 @@
 			}
 		},
 		"OrganisationDepartment": {
-			"count": 7,
+			"count": "[organisation_department]",
 			"inherits": "Entity",
 			"name": {
 				"required": true,
@@ -26,7 +26,7 @@
 			}
 		},
 		"OrganisationRole": {
-			"count": 8,
+			"count": "[organisation_role]",
 			"inherits": "Entity",
 			"name": {
 				"required": true,
@@ -77,7 +77,6 @@
 			]
 		},
 		"Program": {
-			"count": 50,
 			"inherits": "Entity",
 			"name": {
 				"required": true,
@@ -103,7 +102,6 @@
 			}
 		},
 		"Cohort": {
-			"count":20,
 			"inherits": "Entity",
 			"name": {
 				"unique": true,
@@ -141,7 +139,7 @@
 			]
 		},
 		"Tag": {
-			"count": 25,
+			"count": "[tag]",
 			"inherits": "Entity",
 			"name": {
 				"unique": true,
@@ -193,8 +191,8 @@
 		"article_line5": "Until next time, adios;See you next time;We will be back with more news soon",
 		"article": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]",
 		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
-		"organisation_role": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff",
-		"organisation_department": "IT;HR;Finance;Sales;Engineering;Marketing;Board"
+		"organisation_role": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;",
+		"organisation_department": "IT;HR;Finance;Sales;Engineering;Marketing;Board;"
 	},
 	"scripts": ["repo/org_users.json"]
 }

@@ -17,7 +17,7 @@
 	"entities": {
 		"DeviceType": {
 			"inherits": "Entity",
-			"count": 8,
+			"count": "[device_type]",
 			"name": {
 				"generator": "[device_type]",
 				"unique": true
@@ -25,7 +25,7 @@
 		},
 		"DeviceSite": {
 			"inherits": "Entity",
-			"count": 4,
+			"count": "[device_site]",
 			"name": {
 				"generator": "[device_site]",
 				"unique": true

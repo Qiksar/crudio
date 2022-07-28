@@ -230,7 +230,7 @@ export interface ICrudioFieldOptions {
   range_high?: any;
 
   /**
-   * Placeholder text
+   * Placeholder text for the UI field
    * @date 7/18/2022 - 1:47:30 PM
    *
    * @type {?string}
