@@ -4,6 +4,10 @@ Using Crudio will enable you to rapidly build a database filled with data based 
 
 Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data.
 
+## More Information
+
+When you are ready, and need more information about how to create your own data models and values, take a look here [Crudio Syntax reference](repo-syntax.md)
+
 ## Where to find the code and NPM package
 
 Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
@@ -37,7 +41,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 **`IMPORTANT NOTE:`** When you run the initialisation script, the database schema will be `crudio`, so the example queries below will work as is. But if you run the unit tests, the schema will be `crudio_test`, so you will have to prefix the tables like so... `crudio_test_Blogs` instead of `crudio_Blogs`
 
 ## Get a list of blog posts with their related tags
-```
+```graphql
 {
   crudio_Blogs {
     article
@@ -51,7 +55,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ```
 
 ## Get a list of users with their organisations and prove their email addresses match the orgniation they work for
-```
+```graphql
 {
   crudio_Users{
     firstname
@@ -65,7 +69,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ```
 
 ## Get values for IoT devices which measure blood pressure
-```
+```graphql
 {
   crudio_DeviceReadings(
     where: {
@@ -82,7 +86,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ``` 
 
 ## List all users with organisations, department and role
-```
+```graphql
 {
   crudio_Users {
     firstname
@@ -102,7 +106,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ```
 
 ## List the CEO and CFO for all organisations
-```
+```graphql
 {
   CEO:crudio_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
     firstname
