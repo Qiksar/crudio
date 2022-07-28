@@ -812,6 +812,34 @@ export default class CrudioRepository {
 		return serialised;
 	}
 
+	public ToMermaid(): string {
+		var output = "# Class Diagram\r";
+		output += "```mermaid\rerDiagram\r";
+
+		this.entityDefinitions.map(e => {
+
+			output += `${e.Name} {\r`;
+
+			e.fields.map(f => {
+				output += `${f.fieldType} ${f.fieldName}\r`;
+			});
+
+			output += `}\r`;
+
+			e.relationships
+			.filter(r => r.RelationshipType === "one")
+			.map(r => {
+				const rel = r.RelationshipType === "one" ? "}o--||" : "}o--o{";
+				output += `${r.FromEntity} ${rel} ${r.ToEntity} : "has"\r`;
+			});
+
+		});
+
+		output += "```\r";
+
+		return output;
+	}
+
 	/**
 	 * Save the schema definition to a target file
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -875,7 +903,7 @@ export default class CrudioRepository {
 			const v = this.GetGenerator(g);
 			count = v.split(";").length - 1;
 
-			if (count == 0) 
+			if (count == 0)
 				throw new Error(`Error: Unable to determine entity count for ${table.TableName} using "${v}" `);
 		} else if (typeof table.EntityDefinition.MaxRowCount === "number") {
 			count = table.EntityDefinition.MaxRowCount;

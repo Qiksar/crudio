@@ -54,6 +54,12 @@ describe("Create fake data", () => {
 		expect(users.length).toBeGreaterThan(0);
 	});
 
+	test("Create mermaid diagram", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const diagram = repo.ToMermaid();
+		fs.writeFileSync("test/unit/output/repo.md", diagram);
+	});
+
 	test("All Blogs have at least one tag", () => {
 		const repo = CrudioRepository.FromJson("repo/repo.json");
 
