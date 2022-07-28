@@ -2,12 +2,14 @@
 // tslint:disable: no-unused-expression
 
 import { stringify, parse } from "flatted";
+import * as fs from "fs";
 
 import { ICrudioConfig } from "../../src/CrudioTypes";
 import CrudioRepository from "../../src/CrudioRepository";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
+import { fstat } from "fs";
 
 const config: ICrudioConfig = {
 	hasuraEndpoint: "http://localhost:6789",
@@ -57,11 +59,11 @@ describe("Create fake data", () => {
 
 		const blogs = repo.GetTable("Blogs");
 		const tags = repo.GetTable("BlogTags");
-		
+
 		var count = 0;
 		blogs.DataRows.map(blog_post => {
 			const blog_tags = repo.ExecuteCrudioQuery(tags.EntityDefinition.Name, `Blog=${blog_post.DataValues.id}`);
-			if (blog_tags.length == 0) 
+			if (blog_tags.length == 0)
 				count++;
 		});
 
@@ -177,7 +179,12 @@ describe("Create fake data", () => {
 		const db = new CrudioDataWrapper(config, repo);
 		expect(db).not.toBeNull;
 
-		await db.CreateDatabaseSchema();
-		await db.PopulateDatabaseTables();
+		try {
+			await db.CreateDatabaseSchema();
+			await db.PopulateDatabaseTables();
+		} catch (e: any) {
+			fs.writeFileSync("test/unit/output/db.log", e.message + "\r\n" + e.stack);
+			throw e;
+		}
 	});
 });
