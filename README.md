@@ -34,10 +34,12 @@ You now have a prototype database to beging your next rapid prototyping project,
 
 Next, go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:
 
+**`IMPORTANT NOTE:`** When you run the initialisation script, the database schema will be `crudio`, so the example queries below will work as is. But if you run the unit tests, the schema will be `crudio_test`, so you will have to prefix the tables like so... `crudio_test_Blogs` instead of `crudio_Blogs`
+
 ## Get a list of blog posts with their related tags
 ```
 {
-  crudio_test_Blogs {
+  crudio_Blogs {
     article
     BlogTags {
       tagByTag {
@@ -51,7 +53,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ## Get a list of users with their organisations and prove their email addresses match the orgniation they work for
 ```
 {
-  crudio_test_Users{
+  crudio_Users{
     firstname
     lastname
     email
@@ -65,7 +67,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ## Get values for IoT devices which measure blood pressure
 ```
 {
-  crudio_test_DeviceReadings(
+  crudio_DeviceReadings(
     where: {
     deviceByDevice: {
       deviceTypeByDevicetype: {
@@ -82,7 +84,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ## List all users with organisations, department and role
 ```
 {
-  crudio_test_Users {
+  crudio_Users {
     firstname
     lastname
     email
@@ -102,7 +104,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ## List the CEO and CFO for all organisations
 ```
 {
-  CEO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
+  CEO:crudio_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CEO"}}}) {
     firstname
     lastname
     email
@@ -114,7 +116,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
     }
   }
   
-  CFO:crudio_test_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CFO"}}}) {
+  CFO:crudio_Users(where: {organisationRoleByOrganisationrole: {name: {_eq: "CFO"}}}) {
     firstname
     lastname
     email
@@ -127,6 +129,16 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
   }
 }
 ```
+
+# Remove the Crudio Demo environment
+
+Run the following command in the same folder as the `docker-compose.yml` file, and the demonstration Postgres and Hasura containers, and their images, will be removed.
+
+```
+docker-compose down --rmi all
+```
+
+You can then delete all of the files that were fetched from the Github repository. You may need administrative rights to delete the dbscripts folder, which is created by Postgres.
 
 # Crudio CLI - Command Line Arguments
 
