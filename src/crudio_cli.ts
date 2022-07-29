@@ -20,7 +20,14 @@ const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tool
 const docker_compose = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/docker-compose.yml";
 
 const Fetch = async (url: string, output_path: string): Promise<void> => {
-	var result: AxiosResponse = await axios.get(url);
+	var result: AxiosResponse;
+
+	try {
+		result = await axios.get(url);
+	} catch (e) {
+		console.log(`Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`);
+	}
+
 	var text = typeof result.data === "object" ? stringify(result.data) : result.data;
 
 	const parts = url.replace("https://", "").split("/");
@@ -44,7 +51,6 @@ const Init = async (config: any): Promise<void> => {
 	if (config.verbose) {
 		console.log();
 		console.log("Created folder: " + config.init);
-
 	}
 
 	Fetch(docker_compose, config.init);
@@ -60,10 +66,15 @@ const Init = async (config: any): Promise<void> => {
 	fs.mkdirSync(manifest_path);
 
 	var result: AxiosResponse = await axios.get(manifest_file);
-	var manifest = result.data as string [];
+	var manifest = result.data as string[];
 
 	for (var i = 0; i < manifest.length; i++) {
 		const file = manifest[i];
+
+		if (config.verbose) {
+			console.log("Fetch: " + file);
+		}
+
 		await Fetch(file, manifest_path);
 	}
 };
