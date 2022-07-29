@@ -10,7 +10,7 @@
 
 import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
-import { stringify } from "flatted";
+import { stringify, parse } from "flatted";
 
 import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
@@ -45,11 +45,7 @@ const Init = async (config: any): Promise<void> => {
 		console.log();
 		console.log("Created folder: " + config.init);
 
-		console.log("Fetch manifest");
 	}
-
-	var result: AxiosResponse = await axios.get(manifest_file);
-	var manifest = typeof result.data === "object" ? stringify(result.data) : result.data;
 
 	Fetch(docker_compose, config.init);
 
@@ -58,9 +54,13 @@ const Init = async (config: any): Promise<void> => {
 	if (config.verbose) {
 		console.log();
 		console.log("Created folder: " + manifest_path);
+		console.log("Fetch manifest");
 	}
 
 	fs.mkdirSync(manifest_path);
+
+	var result: AxiosResponse = await axios.get(manifest_file);
+	var manifest = result.data as string [];
 
 	for (var i = 0; i < manifest.length; i++) {
 		const file = manifest[i];
