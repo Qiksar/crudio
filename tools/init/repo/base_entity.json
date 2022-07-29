@@ -1,0 +1,32 @@
+{
+	"entities": {
+		"Entity": {
+			"abstract": true,
+			"snippets": [
+				"id"
+			],
+			"created": {
+				"required": true,
+				"type": "timestamp",
+				"name": "created",
+				"generator": "[timestamp]"
+			},
+			"deleted": {
+				"type": "timestamp",
+				"name": "deleted"
+			}
+		},
+		"Lookup": {
+			"abstract": true,
+			"inherits": "Entity",
+			"name": {
+				"required": true,
+				"type": "string",
+				"unique": "true"
+			},
+			"value": {
+				"type": "string"
+			}
+		}
+	}
+}

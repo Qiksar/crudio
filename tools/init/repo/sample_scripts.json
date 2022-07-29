@@ -1,0 +1,27 @@
+{
+	"Organisations": {
+		"count": 4,
+		"scripts": [
+			"Users(0).OrganisationRole?name=CEO",
+			"Users(0).OrganisationDepartment?name=Board",
+			"Users(1).OrganisationRole?name=CFO",
+			"Users(1).OrganisationDepartment?name=Board",
+			"Users(2).OrganisationRole?name=COO",
+			"Users(2).OrganisationDepartment?name=Board",
+			"Users(3).OrganisationRole?name=Head of Sales",
+			"Users(3).OrganisationDepartment?name=Sales",
+			"Users(4).OrganisationRole?name=Head of HR",
+			"Users(4).OrganisationDepartment?name=HR",
+			"Users(5).OrganisationRole?name=Head of Marketing",
+			"Users(5).OrganisationDepartment?name=Marketing",
+			"Users(6-10).OrganisationRole?name=Staff",
+			"Users(6-10).OrganisationDepartment?name=Sales",
+			"Users(10-20).OrganisationRole?name=Staff",
+			"Users(10-20).OrganisationDepartment?name=Marketing",
+			"Users(21-30).OrganisationRole?name=Staff",
+			"Users(21-30).OrganisationDepartment?name=HR",
+			"Users(31-40).OrganisationRole?name=Staff",
+			"Users(31-40).OrganisationDepartment?name=IT"
+		]
+	}
+}

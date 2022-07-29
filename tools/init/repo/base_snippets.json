@@ -1,0 +1,30 @@
+{
+	"snippets": {
+		"id": {
+			"type": "uuid",
+			"name": "id",
+			"key": true,
+			"generator": "[uuid]"
+		},
+		"firstname": {
+			"type": "string",
+			"name": "firstname",
+			"generator": "[firstname]"
+		},
+		"lastname": {
+			"type": "string",
+			"name": "lastname",
+			"generator": "[lastname]"
+		},
+		"address": {
+			"type": "string",
+			"name": "address",
+			"generator": "[address]"
+		},
+		"email": {
+			"type": "string",
+			"name": "email",
+			"generator": "[!firstname].[!lastname]@[server].[tld]"
+		}
+	}
+}
