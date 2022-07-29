@@ -8,32 +8,6 @@ Why use it? You might be building a prototype app and want a database that is fi
 
 When you are ready, and need more information about how to create your own data models and values, take a look here [Crudio Syntax reference](repo-syntax.md)
 
-## Where to find the code and NPM package
-
-Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
-
-Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
-
-# Build the Crudio Demo
-
-Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
-
-```
-wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
-```
-
-- Fetches the initialisation script from Github and executes it
-- The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
-- Crudio then populates the database with awesome test data like organisations, departments, roles and users
-
-Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
-
-In less than 2 minutes you have created a database filled with rich demonstration data that could be used by your new prototype application.
-
-By setting up tracking in Hasura, you have instantly gained a data management API to help you read and maintain the data.
-
-You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
-
 # CLI - Initialise New Project
 
 Further information appears below for the CLI. But here is how to quickly initialise a new project:
@@ -41,10 +15,27 @@ Further information appears below for the CLI. But here is how to quickly initia
 Create a new folder called `crudio_test`, then create a `repo` folder which contains the sample data model for guidance...
 
 ```
+# Initialise the new Crudio folder
 npx @qiksar/crudio -v -p crudio_test
+
+cd crudio_test
+
+# Build the containers, but you may want to ensure the port numbers don't clash with any of your active containers
+docker-compose up -d
+
+# Tell Crudio to build and populate the data
+npx @qiksar/crudio -v -w -r repo/repo.json 
 ```
 
-The `-v` option just provides verbose output.
+Browse to [Hasura Console](http://localhost:6789) (or whatever post you have used), to see the new database through Hasura GraphQL.
+
+Read how to complete the next steps in Hasura, below. 
+
+# Where to find the code and NPM package
+
+Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
+
+Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
 
 # GraphQL Queries - Hasura Console
 
@@ -117,6 +108,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 }
 ```
 
+
 ## List the CEO and CFO for all organisations
 ```graphql
 {
@@ -145,6 +137,29 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
   }
 }
 ```
+
+
+# Build a Complete Demo From Github
+
+These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
+
+Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
+
+```
+wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
+```
+
+- Fetches the initialisation script from Github and executes it
+- The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
+- Crudio then populates the database with awesome test data like organisations, departments, roles and users
+
+Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
+
+In less than 2 minutes you have created a database filled with rich demonstration data that could be used by your new prototype application.
+
+By setting up tracking in Hasura, you have instantly gained a data management API to help you read and maintain the data.
+
+You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
 # Remove the Crudio Demo environment
 
