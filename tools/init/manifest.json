@@ -1,9 +1,9 @@
 [
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base_entity.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base_generators.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base_snippets.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/iot.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/repo.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/repo/org_users.json"
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_entity.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_generators.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_snippets.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/iot.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/repo.json",
+	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/org_users.json"
 ]
