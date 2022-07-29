@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.5.00",
+  "version": "0.5.1",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "lib/crudio_cli.js",
   "main": "lib/crudio_cli.js",
@@ -12,6 +12,7 @@
     "test": "jest --env=node --colors --coverage test --silent=false",
     "build": "tsc -p tsconfig.json",
     "start_cli": "node lib/crudio_cli.js -v -w -r repo/repo.json -i repo/iot.json -d test/unit/output.repo.md",
+    "cli_init": "node lib/crudio_cli.js -v -i test/unit/output/test_cli_folder",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
     "remove": "docker-compose down --rmi all"
@@ -30,9 +31,7 @@
     "commander-ts": "^0.2.0",
     "flatted": "^3.2.6",
     "global": "^4.4.0",
-    "jquery-csv": "^1.0.5",
-    "luxon": "^1.19.3",
-    "yaml": "^1.6.0"
+    "luxon": "^1.19.3"
   },
   "keywords": [
     "hasura",
