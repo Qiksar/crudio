@@ -34,6 +34,18 @@ By setting up tracking in Hasura, you have instantly gained a data management AP
 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
+# CLI - Initialise New Project
+
+Further information appears below for the CLI. But here is how to quickly initialise a new project:
+
+Create a new folder called `crudio_test`, then create a `repo` folder which contains the sample data model for guidance...
+
+```
+npx @qiksar/crudio -v -p crudio_test
+```
+
+The `-v` option just provides verbose output.
+
 # GraphQL Queries - Hasura Console
 
 Next, go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:

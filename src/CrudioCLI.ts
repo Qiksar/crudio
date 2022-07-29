@@ -41,7 +41,7 @@ export default class CrudioCLI {
 			.description("create databases pre-loaded with large volumes of sensible test data.")
 			.version("1.0.0")
 			.option("-v, --verbose", "Verbose output")
-			.option("-i, --init <project_folder_name>", "Create a folder and initialise a new Crudio project")
+			.option("-p, --project <project_folder_name>", "Create a new project folder")
 			.option("-e, --hasuraEndpoint <endpoint>", "GraphQL endpoint", "http://localhost:6789")
 			.option("-a, --hasuraAdminSecret <secret>", "Secret to access administrative privileges", "crudio")
             .option("-k, --idField <idfield>", "Default name for primary key column", "id")

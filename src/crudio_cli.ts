@@ -38,24 +38,24 @@ const Fetch = async (url: string, output_path: string): Promise<void> => {
 };
 
 const Init = async (config: any): Promise<void> => {
-	console.log("Initialise new Crudio project in: " + config.init);
+	console.log("Initialise new Crudio project in: " + config.project);
 	console.log("");
 
-	if (fs.existsSync(config.init)) {
+	if (fs.existsSync(config.project)) {
 		console.error("Folder already exists, can not continue");
 		return;
 	}
 
-	fs.mkdirSync(config.init);
+	fs.mkdirSync(config.project);
 
 	if (config.verbose) {
 		console.log();
-		console.log("Created folder: " + config.init);
+		console.log("Created folder: " + config.project);
 	}
 
-	Fetch(docker_compose, config.init);
+	Fetch(docker_compose, config.project);
 
-	const manifest_path = config.init + "/repo";
+	const manifest_path = config.project + "/repo";
 
 	if (config.verbose) {
 		console.log();
@@ -77,6 +77,9 @@ const Init = async (config: any): Promise<void> => {
 
 		await Fetch(file, manifest_path);
 	}
+	
+	console.log();
+	console.log("Project setup complete. Remember to edit the docker-compose file and set correct ports to avoid conflicts between projects.");
 };
 
 setTimeout(async () => {
@@ -91,7 +94,7 @@ setTimeout(async () => {
 		console.log();
 	}
 
-	if (config.init) {
+	if (config.project) {
 		await Init(config);
 		return;
 	}
