@@ -271,7 +271,7 @@ export default class CrudioDataWrapper {
 				var v: any = entity.DataValues[i];
 
 				// Save foreign key values
-				// Check if the value is an object which as an id field
+				// Check if the value is an object which has an id field
 				// If so, take the id of the object and use it as the field value
 				if (v && v.DataValues) {
 					v = v.DataValues.id;
@@ -288,11 +288,11 @@ export default class CrudioDataWrapper {
 
 			values = values.substring(0, values.length - 1);
 
-			insert_rows += `(${values}),`;
-
 			if (values.indexOf("[") >= 0) {
-				throw new Error(`Error: Found an unprocessed token in ${values}`);
+				throw new Error(`Error: Found an unprocessed token at row ${r} in ${values}`);
 			}
+
+			insert_rows += `(${values}),`;
 		}
 
 		instructions.insert_table_rows = insert_rows.substring(0, insert_rows.length - 1);
