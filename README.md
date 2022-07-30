@@ -33,8 +33,8 @@ cd crudio_test
 # Build the containers, but you may want to ensure the port numbers don't clash with any of your active containers
 docker-compose up -d
 
-# Tell Crudio to build and populate the data
-npx @qiksar/crudio -v -w -r repo/repo.json 
+# Build and populate the data
+npx crudio -v -w -r repo/repo.json 
 ```
 
 Browse to [Hasura Console](http://localhost:6789) (or whatever post you have used), to see the new database through Hasura GraphQL.
@@ -149,7 +149,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 ```
 
 
-# Build a Complete Demo From Github
+# Build a Rich Demo From Github
 
 These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
 
@@ -161,7 +161,7 @@ wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | b
 
 - Fetches the initialisation script from Github and executes it
 - The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
-- Crudio then populates the database with awesome test data like organisations, departments, roles and users
+- Crudio then populates the database with awesome test data like organisations, departments, roles and users, IoT devices and their related data logs
 
 Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
 
