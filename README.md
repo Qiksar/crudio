@@ -1,3 +1,5 @@
+[HOME](README.md)
+
 # Crudio
 
 Using Crudio will enable you to rapidly build a database filled with data based upon a data model which you build with a simple JSON file. Your data model can leverage pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and users). 
@@ -6,7 +8,9 @@ Why use it? You might be building a prototype app and want a database that is fi
 
 ## More Information
 
-When you are ready, and need more information about how to create your own data models and values, take a look here [Crudio Syntax reference](repo-syntax.md)
+When you are ready, and need more information about how to create your own data models and values, take a look here:
+- [Crudio Syntax reference](documentation/repo-syntax.md)
+- [How Crudio Works](documentation/how-crudio-works.md)
 
 # CLI - Initialise New Project
 

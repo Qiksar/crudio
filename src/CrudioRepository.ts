@@ -327,7 +327,13 @@ export default class CrudioRepository {
 		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioRepository.DefaultNumberOfRowsToGenerate;
 
 		if (entityDefinition.inherits) {
-			this.InheritBaseFields(entityDefinition.inherits, entityType);
+			if (typeof entityDefinition.inherits === "string")
+				this.InheritBaseFields(entityDefinition.inherits, entityType);
+			else if (Array.isArray(entityDefinition.inherits)) {
+				(entityDefinition.inherits as []).map((i: string) => {
+					this.InheritBaseFields(i, entityType);
+				});
+			}
 		}
 
 		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
