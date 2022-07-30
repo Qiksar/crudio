@@ -14,9 +14,19 @@ Further information appears below for the CLI. But here is how to quickly initia
 
 Create a new folder called `crudio_test`, then create a `repo` folder which contains the sample data model for guidance...
 
+Install crudio on your machine:
+
 ```
+npm install @qiksar/crudio --location=global
+```
+
+NOTE: older version of NPM use:
+```
+npm install @qiksar/crudio -g
+```
+
 # Initialise the new Crudio folder
-npx @qiksar/crudio -v -p crudio_test
+npx crudio -v -p crudio_test
 
 cd crudio_test
 
