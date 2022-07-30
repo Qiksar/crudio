@@ -1,4 +1,4 @@
-[HOME](README.md)
+[HOME](../README.md)
 
 # Crudio Syntax reference
 
