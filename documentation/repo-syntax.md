@@ -1,16 +1,58 @@
 [HOME](../README.md)
 
-# Crudio Syntax reference
+# Crudio Syntax Introduction
 
-## Describing Entities in the Data model
+Crudio provides a convenient method of describing a data model, which will lead to the creation of a database, which is then populated with test data.
 
-Below are two simple data objects of blog and blog tag, describing how a blog post can have several tags applied, which we would call a many to many relationship.
+Therefore, Crudio provides a means of using a single description to describe data objects and the types of values assigned to data fields.
 
-This a bit of a hack... If we left off the `count:25` field, then Crudio would by default, try to create 50 Tag objects with a random name taken from the `[tag]` generator.
+The final piece of the puzzle, once data objects exist with populated fields, is to connect objects together through relationships, where required.
 
-But the tag generator only has 25 different values, and the name of tag has to be unique. So this is why we specify the `count` here, to help Crudio fill the tags table with tags having unique names. If we didn't lend a hand here, then Crudio would likely crash.
+With the Crudio data model, we can quickly describe an organisation, departments, roles and place users in those roles and departments, but moreover, we can create many organisations, and they will all be populated with users, in seconds.
 
-So just remember this approach. It means Crudio will do a lot of heavy lifting for you, i.e. create tables, where rows can have unique values for each row. 
+Read on to understand how we describe data objects in the model, and how to create the values for their fields, then onwards to connect objects through relationships.
+
+# Key Aspects of the Data Model
+
+## Entities
+Can be thought of as data objects and rows of data in a database table.
+
+Examples of an Entity could be Organisation, Employee, Department, IoT Device, etc.
+
+## Fields
+
+Attributes of an Entity and their related values.
+
+Examples of Attributes could be the name, age and address of an Employee, or the name and address of an Organisation.
+
+## Generators
+
+Generators are the means by which data is randomly created, which can be assigned to Attributes of an Entity.
+
+An example of a Generator is, `transport: "car;boat;plane;scooter;bus;train"`, which instructs Crudio to randomly select one of the possible values.
+Also, `age: "10>87"`, instructs Crudio to create a random number within the specified range.
+
+## Relationships
+
+One of two relationship types are available:
+
+one to many - for example, an employee has one employer, therefore the employee record carries the ID field of the employer organisation.
+
+and
+
+many to many - for example, a blog tag and blog post, where the blog tag can be related to many blog posts, therefore neither record can have the ID field of the other. Instead, we need a join table, where a row in such a table, carries the ID of the blog post, and the ID of a blog tag. Many rows are created in the join table, showing that blogs have many tags, and there can be many blog posts. 
+
+## Scripts
+
+For added convenience, when setting up complex data model, Crudio can handle several special cases where an Entity (row of data) has a relationship with another Entity. An example is a CEO role, being assigned to a specific Employee. When Crudio creates the Organisation, and its Employees, an employee will be assigned the role of CEO, and only one employee with be assigned.
+
+We can also create many Employees and assign them all to a specified Department.
+
+See more on scripts below.
+
+# Describing Entities in the Data model
+
+Let's being with a simple example of a blog and blog tag, describing how a blog post can have several tags applied, involving what we would call a many to many relationship.
 
 The `inherits` field tells Crudio to copy fields from a related object. You can only have one `inherits` per data object.
 
@@ -26,7 +68,7 @@ Both `required` and `unique` will be implemented in the database as constraints.
 
 ```json
 		"Tag": {
-			"count": 25,
+			"count": "[tag]",
 			"inherits": "Entity",
 			"name": {
 				"unique": true,
@@ -61,7 +103,37 @@ Both `required` and `unique` will be implemented in the database as constraints.
 		}
 ```
 
-## Describing Relationships
+# Specify Required Number of Objects 
+
+There is something very powerful going on in this example and it is here in these parts:
+
+Let's start with the blog post, as it's easy to understand that we are requesting 20 blog posts should be created.
+
+For `Blog`
+```
+"count": 20,
+```
+
+If we do not provide a `count` value, then by default Crudio will create 50 objects. 
+
+However, please read more below about the `unique` constraint as it can conflict with `count` and cause errors, where it is not possible for Crudio to create sufficient unique values.
+
+Continuing to the blog tag, we see a different way of stating how many objects are to be created. 
+
+For `Tag`
+```
+"count": "[tag]",
+```
+
+We might think of `Tag` as a lookup type, i.e. it is a list of values having unique names. So if we create random tags from "a;b;c;d", we can only have a maximum of 4 tag values, as all the values are to be unique. Note that the name field of `tag` has the `unique` constraint applied. 
+
+So by using the `[tag]` text as the value of count, we are telling Crudio to only allow as many blog tags, as there are values available from its generator, which might look like "cars;pets;food", hence three values is the maximum. Put simply, we just let Crudio figure out what to do. 
+
+Please take a moment to truly understand the implications here. It means Crudio will do a lot of heavy lifting for you, i.e. create tables, where rows can have unique values for each row.
+
+Use numbers where you want to have a large number of data objects created, and use the generator name, e.g. `"[tag]"` where you want to limit the number of objects based on the number of values available in the generator. 
+
+# Describing Relationships
 
 This snippet is taken from the above description of blogs and tags.
 
@@ -84,15 +156,17 @@ Here we see relationships between a blog post, and a user which is the author of
 
 Next, we see a blog poast can have many blog tags. In database designs, it's normal to create a join table, i.e. a table is created, and each row of the table has a reference to a blog post and a blog tag. This way we can have "Blog 1" connected to multiple tags, "tag1,tag2,tag3".
 
-Crudio will again take care of everything. Our earlier descriptions describe how we want blogs and tags to be created. Crudio will populate the many to many join table, ensuring that every blog post has tags, and that any tag only occurs once for each blog post.
+Crudio will again take care of everything. Our earlier descriptions express how we want blogs and tags to be created. Crudio will populate the many to many join table (BlogTags), ensuring that every blog post has tags, and that any tag only occurs once for each blog post.
+
+Finally, if we omit the name of the relationship (i.e. the name of the join table) then Crudio will form it by joining the related table names together, e.g. BlogTag.
 
 # Crudio Scripts
 
 Below is a simple description of an `Organisation` data object, which will lead to the creation of an `Organisations` data table in the database.
 
-Normally, if we leave out the `count` field, by default Crudio will create 50 objects in the table. 
+Normally, if we leave out the `count` field, by default Crudio will create 50 objects in the table. But in the following example, we will see it's not sufficient to simply create 50 random `Users`. Rather, we want randomly created users to be placed in very specific relationships with the `Organisation`.
 
-But we have complex relationships between users, roles and departments, so we want to create the data a different way. So we specify `count:0` which tells Crudio not to automatically generate data, but rather, use our `scripts` which will create data and connect objects for us.
+Complex relationships between users, roles and departments are required, so we want to create the data a different way. So we specify `count:0` which tells Crudio not to automatically generate data, but rather, use our `scripts` node which will point to instructions of how to create data and connect objects for us.
 
 ```json		
 "Organisation": {
@@ -117,7 +191,7 @@ But we have complex relationships between users, roles and departments, so we wa
 }
 ```
 
-## Crudio Scripts - Creating Special Relationships Between Objects
+# Crudio Scripts - Creating Special Relationships Between Objects
 
 The `sripts` node can specify multiple script files to import and use.
 
@@ -125,7 +199,7 @@ Imagine a typical organisation structure, having one CEO, one CFO, one Head of H
 
 In plain English, it is easy to say, "every organisation must have one CEO, one CFO, one head of department for each department", etc.
 
-### Specifying Crudio Scripts
+## Specifying Crudio Scripts
 
 Refer to `org_users.json` for examples.
 
@@ -157,7 +231,7 @@ The script below says:
 ```
 The above is a snippet with lines deleted. Refer to `org_users.json` for complete file.
 
-## How to Interpret Script Syntax
+# How to Interpret Script Syntax
 
 We specify `Organisations` first, as the primary table that we are thinking about, as we are building an organisation and its team.
 
