@@ -1,9 +1,12 @@
 {
-    "$schema": "http://json-schema.org/schema#",
+    "$schema": "http://json-schema.org/schema",
     "type": "object",
     "properties": {
         "include": {
-            "type": "array",
+            "type": [
+                "array",
+                "string"
+            ],
             "items": [
                 {
                     "type": "string"
@@ -17,7 +20,7 @@
                     "type": "object",
                     "properties": {
                         "count": {
-                            "type": "integer"
+                            "type": ["integer","string"]
                         },
                         "inherits": {
                             "type": "array",

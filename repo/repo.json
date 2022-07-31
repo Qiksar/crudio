@@ -1,9 +1,6 @@
 {
-	"$schema": "../schema/crudio.json",
-	"include": [
-		"repo/base.json"
-	],
-	"hello": "",
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+	"include": "repo/base.json",
 	"entities": {
 		"Organisation": {
 			"count": 10,

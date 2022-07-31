@@ -649,5 +649,9 @@ When comes to workig with Hasura, QikTrak gives you super powers!
 
 Thank you to the key repository owners below:
 
-*Data sources*
+## Data sources
 Used to create a large list of first names: https://github.com/hadley/data-baby-names/blob/master/baby-names.csv
+
+## JSON Schema
+https://json-schema.org
+https://www.liquid-technologies.com/online-json-to-schema-converter
