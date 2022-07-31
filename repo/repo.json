@@ -1,10 +1,15 @@
 {
-	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
-	"include": ["repo/base.json"],
+	"$schema": "../schema/crudio.json",
+	"include": [
+		"repo/base.json"
+	],
+	"hello": "",
 	"entities": {
 		"Organisation": {
 			"count": 10,
-			"inherits": ["Entity"],
+			"inherits": [
+				"Entity"
+			],
 			"name": {
 				"required": true,
 				"unique": true,
@@ -38,7 +43,12 @@
 		"Person": {
 			"abstract": true,
 			"inherits": "Entity",
-			"snippets": ["firstname", "lastname", "address", "email"],
+			"snippets": [
+				"firstname",
+				"lastname",
+				"address",
+				"email"
+			],
 			"dob": {
 				"type": "date",
 				"name": "dob",
@@ -194,5 +204,7 @@
 		"organisation_role": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;",
 		"organisation_department": "IT;HR;Finance;Sales;Engineering;Marketing;Board;"
 	},
-	"scripts": ["repo/org_users.json"]
+	"scripts": [
+		"repo/org_users.json"
+	]
 }
