@@ -31,7 +31,8 @@ npm install @qiksar/crudio -g
 
 # Initialise the new Crudio folder
 ```
-npx crudio -v -p crudio_test
+npx qiksar/crudio -v -p crudio_test
+
 
 cd crudio_test
 ```
@@ -43,7 +44,7 @@ docker-compose up -d
 
 # Build and populate the data
 ```
-npx crudio -v -w -r repo/repo.json 
+npx qiksar/crudio -v -w -r repo/repo.json 
 ```
 
 Browse to [Hasura Console](http://localhost:6789) (or whatever post you have used), to see the new database through Hasura GraphQL.
@@ -202,7 +203,7 @@ Build a database from the repo.json data model, and include all of the entities 
 
 
 ```
-npx @qiksar/crudio -v -w -r repo/repo.json -i repo/iot.json
+npx qiksar/crudio -v -w -r repo/repo.json -i repo/iot.json
 
 # Note: this assumes you have either cloned the Github repository, or you have previously run the init script...
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
