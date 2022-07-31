@@ -205,8 +205,17 @@ Complex relationships between users, roles and departments are required, so we w
 
 ...lines removed...
 
-    "scripts": ["repo/org_users.json"]
-
+    "triggers": [
+        {
+        "entity": "Organisation",
+        "scripts": [
+            "Users(0).OrganisationRole?name=CEO",
+            "Users(0).OrganisationDepartment?name=Board",
+            "Users(1).OrganisationRole?name=CFO",
+            "Users(1).OrganisationDepartment?name=Board",
+        ]
+        }
+    ]
 }
 ```
 
@@ -248,7 +257,7 @@ The script below says:
 	}
 }
 ```
-The above is a snippet with lines deleted. Refer to `org_users.json` for complete file.
+The above is a snippet with lines deleted. Refer to `repo.json` for complete file.
 
 # How to Interpret Script Syntax
 

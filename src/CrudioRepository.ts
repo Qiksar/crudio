@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioSchemaDefinition, ICrudioTriggers, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -23,13 +23,13 @@ export default class CrudioRepository {
 	//#region Properties
 
 	/**
-	 * List of trigger scripts to run when entities are created
+	 * List of triggers to run when entities are created
 	 * @date 7/31/2022 - 9:31:00 AM
 	 *
 	 * @private
 	 * @type {[]}
 	 */
-	private on_create: Record<string, ICrudioTriggers> = {};
+	private triggers = {};
 
 	/**
 	 * maintain an internal list of files loaded to prevent circular references
@@ -133,7 +133,6 @@ export default class CrudioRepository {
 		this.PreProcessRepositoryDefinition(dataModel, include);
 		this.ExpandAllSnippets(dataModel);
 		this.LoadEntityDefinitions(dataModel);
-		this.CreateInMemoryDataTables();
 		this.FillDataTables();
 	}
 
@@ -177,7 +176,11 @@ export default class CrudioRepository {
 	 */
 	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition, include: string = null): void {
 		if (!repo.generators) {
-			repo.generators = {};
+			repo.generators = [];
+		}
+
+		if (!repo.triggers) {
+			repo.triggers = [];
 		}
 
 		if (!repo.snippets) {
@@ -196,10 +199,8 @@ export default class CrudioRepository {
 			this.Merge(filename, repo);
 		});
 
-		this.generators = repo.generators;
-
-		this.scripts = repo.scripts ?? [];
-		this.LoadTriggers();
+		this.LoadGenerators(repo.generators);
+		this.LoadTriggers(repo.triggers);
 	}
 
 	// Merge an external repository into the current one
@@ -218,7 +219,7 @@ export default class CrudioRepository {
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
 		if (input.generators) {
-			repo.generators = { ...repo.generators, ...input.generators };
+			repo.generators = [ ...repo.generators, ...input.generators ];
 		}
 
 		if (input.snippets) {
@@ -228,9 +229,12 @@ export default class CrudioRepository {
 		if (input.entities) {
 			repo.entities = { ...input.entities, ...repo.entities };
 		}
+
+		if (input.triggers) {
+			repo.triggers = [...repo.triggers, ...input.triggers];
+		}
 	}
 
-	// Create the basic entity structures
 	/**
 	 * Load entity definitions from the schema
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -906,6 +910,7 @@ export default class CrudioRepository {
 	 */
 	private FillDataTables(): void {
 		this.ClearAllInMemoryTables();
+		this.CreateInMemoryDataTables();
 
 		// create data for each table, but skip abstract and many to many join tables
 		const tables = this.Tables.filter((t: CrudioTable) => !t.EntityDefinition.IsAbstract && !t.EntityDefinition.IsManyToManyJoin);
@@ -1330,13 +1335,15 @@ export default class CrudioRepository {
 	 *
 	 * @private
 	 */
-	private LoadTriggers(): void {
-		this.scripts.map(filename => {
-			const json: any = CrudioRepository.LoadJson(filename);
+	private LoadTriggers(triggers: ICrudioTrigger[]): void {
+		triggers.map(t => {
+			this.triggers[t.entity] = t.scripts;
+		});
+	}
 
-			Object.keys(json).map(entityName => {
-				this.on_create[entityName] = json[entityName];
-			});
+	private LoadGenerators(generators: ICrudioGenerator[]): void {
+		generators.map(g => {
+			this.generators[g.name] = g.values;
 		});
 	}
 
@@ -1351,11 +1358,11 @@ export default class CrudioRepository {
 	 */
 	private ProcessTriggersForEntity(entityInstance: CrudioEntityInstance): void {
 		// For each new entity, run the script
-		const trigger = this.on_create[entityInstance.EntityType.Name];
+		const triggers = this.triggers[entityInstance.EntityType.Name];
 
-		if (!trigger) return;
+		if (!triggers) return;
 
-		trigger.scripts.map((s: any) => {
+		triggers.map((s: any) => {
 			this.ExecuteScript(entityInstance, s);
 		});
 	}

@@ -457,7 +457,6 @@ Folder: `repo`
 |File|Purpose|
 |-|-|
 |`repo.json`|Defines the demonstration respository, as a JSON object. In here, you will find descriptions of the data objects (organisation, client, etc.)
-|`org_users.json`|Creates the organisations and then connects one user in each role of CEO, CFO etc. This is where Crudio gets super-awesome!
 |`iot.json`|Include this data model to populate your database with IoT devices and related data
 |`base.json`|Includes all of the base repository components include the base entity, snippets and generators
 |`base_entity.json`|Contains the base entity from which all other entities should be based (use - `"inhert": "Entity"` on your entity definitions)

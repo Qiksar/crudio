@@ -97,7 +97,7 @@ export interface ICrudioSchemaDefinition {
 	 *
 	 * @type {?Record<string, unknown>}
 	 */
-	generators?: Record<string, unknown>;
+	generators?: [];
 	/**
 	 * Reusable field definitions
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -106,12 +106,12 @@ export interface ICrudioSchemaDefinition {
 	 */
 	snippets?: {};
 	/**
-	 * Explicit data setup instructions
+	 * Actions to execute when entities are created
 	 * @date 7/18/2022 - 1:47:30 PM
 	 *
 	 * @type {string[]}
 	 */
-	scripts?: string[];
+	triggers?: ICrudioTrigger[];
 }
 
 /**
@@ -504,6 +504,12 @@ interface ISingularNamedRelationship {
 	values: string;
 }
 
-export interface ICrudioTriggers {
+export interface ICrudioTrigger {
+	entity: string;
 	scripts: string[];
+}
+
+export interface ICrudioGenerator {
+	name: string;
+	values: string;
 }

@@ -1,19 +1,58 @@
 {
-	"generators": {
-		"temperature": "-10>44",
-		"humidity": "5>100",
-		"light": "0>100",
-		"windspeed": "5>110",
-		"body_temperature": "36>44",
-		"bp_dia": "75>110",
-		"bp_sys": "115>200",
-		"bptext": "[bp_sys]/[bp_dia]",
-		"bp": "{\"diastolic\":\"[bp_sys]\",\"systolic\":\"[bp_dia]\"}",
-		"bpm": "50>150",
-		"glucose": "5>20",
-		"device_type": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature",
-		"device_site": "shed;north paddock;south paddock;stock yard;"
-	},
+	"generators": [
+		{
+			"name": "temperature",
+			"values": "-10>44"
+		},
+		{
+			"name": "humidity",
+			"values": "5>100"
+		},
+		{
+			"name": "light",
+			"values": "0>100"
+		},
+		{
+			"name": "windspeed",
+			"values": "5>110"
+		},
+		{
+			"name": "body_temperature",
+			"values": "36>44"
+		},
+		{
+			"name": "bp_dia",
+			"values": "75>110"
+		},
+		{
+			"name": "bp_sys",
+			"values": "115>200"
+		},
+		{
+			"name": "bptext",
+			"values": "[bp_sys]/[bp_dia]"
+		},
+		{
+			"name": "bp",
+			"values": "{\"diastolic\":\"[bp_sys]\",\"systolic\":\"[bp_dia]\"}"
+		},
+		{
+			"name": "bpm",
+			"values": "50>150"
+		},
+		{
+			"name": "glucose",
+			"values": "5>20"
+		},
+		{
+			"name": "device_type",
+			"values": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature"
+		},
+		{
+			"name": "device_site",
+			"values": "shed;north paddock;south paddock;stock yard;"
+		}
+	],
 	"entities": {
 		"DeviceType": {
 			"inherits": "Entity",

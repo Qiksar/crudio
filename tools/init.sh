@@ -5,7 +5,6 @@ wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base_generator
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/base_snippets.json -P repo
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/iot.json -P repo
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/repo.json -P repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/org_users.json -P repo
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/docker-compose.yml
 
 docker-compose up -d
