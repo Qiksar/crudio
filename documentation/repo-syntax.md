@@ -2,51 +2,70 @@
 
 # Crudio Syntax Introduction
 
-Crudio provides a convenient method of describing a data model, which will lead to the creation of a database, which is then populated with test data.
+Crudio provides a convenient method of describing a data model, which describes how a database should be created, then populated with test data.
 
-Therefore, Crudio provides a means of using a single description to describe data objects and the types of values assigned to data fields.
+For example, we can quickly describe an organisation, departments, and roles, then place people in those roles and departments, but moreover, we can create many organisations, and they will all be automatically populated with users. 
 
-The final piece of the puzzle, once data objects exist with populated fields, is to connect objects together through relationships, where required.
+Crudio creats test data very quickly, and requires no user input after configuration, therefore it is perfect for quickly generating awesome databases for prototype apps and services.
 
-With the Crudio data model, we can quickly describe an organisation, departments, roles and place users in those roles and departments, but moreover, we can create many organisations, and they will all be populated with users, in seconds.
+Read on to understand how to:
+- describe a data model
+- populate the data model with Entities
+- ensure Entities have data values which look sensible, even though they are randomly created
+- connect Entities using relationships
 
-Read on to understand how we describe data objects in the model, and how to create the values for their fields, then onwards to connect objects through relationships.
-
-# Key Aspects of the Data Model
+# Describing a Data Model - Key Aspects
 
 ## Entities
-Can be thought of as data objects and rows of data in a database table.
+Entities can be thought of as data objects and rows of data in a database table.
 
 Examples of an Entity could be Organisation, Employee, Department, IoT Device, etc.
 
+Think of the data model as a world, and inside that world there are types of objects (Entity Definitions), and instances (Entity Instances). 
+
+`Person` is an example of an Entity Definition, it is generic, a general description of a person, such as the name, age and address they live at.
+
+`You` are a great example of an Entity Instance. You are a `Person`, and the data which is captured about you, is defined by the `Person` Entity Definition.
+
 ## Fields
 
-Attributes of an Entity and their related values.
+Fields are the attributes of an Entity and have values. Just like you have an `age` attribute.
 
-Examples of Attributes could be the name, age and address of an Employee, or the name and address of an Organisation.
+Other examples of attributes are `name`, `address`, and `height`.
 
 ## Generators
 
-Generators are the means by which data is randomly created, which can be assigned to Attributes of an Entity.
+Generators are the means by which data is randomly created, and assigned to Entity Fields.
 
 An example of a Generator is, `transport: "car;boat;plane;scooter;bus;train"`, which instructs Crudio to randomly select one of the possible values.
+
 Also, `age: "10>87"`, instructs Crudio to create a random number within the specified range.
 
 ## Relationships
 
-One of two relationship types are available:
+One of two relationship types are available to connect Entities to each other:
 
-one to many - for example, an employee has one employer, therefore the employee record carries the ID field of the employer organisation.
+`one to many` - For example, an employee has an employer, therefore the employee record carries the ID field of the employer organisation.
 
 and
 
-many to many - for example, a blog tag and blog post, where the blog tag can be related to many blog posts, therefore neither record can have the ID field of the other. Instead, we need a join table, where a row in such a table, carries the ID of the blog post, and the ID of a blog tag. Many rows are created in the join table, showing that blogs have many tags, and there can be many blog posts. 
+`many to many` - For example, a blog tag and blog post, where the blog tag can be used on many blog posts. Therefore neither record can have the ID field of the other. 
 
-## Scripts
+Instead, we use a join table, where a row in such a table, carries the ID of the blog post, and the ID of a blog tag. Many rows are created in the join table, showing that blogs have many tags, and there can be many blog posts. 
 
-For added convenience, when setting up complex data model, Crudio can handle several special cases where an Entity (row of data) has a relationship with another Entity. An example is a CEO role, being assigned to a specific Employee. When Crudio creates the Organisation, and its Employees, an employee will be assigned the role of CEO, and only one employee with be assigned.
+`one to many` and `many to many` relationship types are very common, in database design. If these concepts are unfamiliar to you, it is worth taking some time to study a little bit more about database design. It will help you understand even more about why Crudio is so useful.  
 
-We can also create many Employees and assign them all to a specified Department.
+## Scripts (Triggers)
+
+Currently, the concept of a Script is only applied to what is internally referred to as a Trigger, in Crudio. Meaning, when a new instance of an Entity is created, Crudio looks for scripts that have to be run for that new Entity instance. This is how Organisations, Users, Roles and Departments are all perfectly interconnected when a new Organisation is created.
+
+The term `Triggers` is used to describe actions which are executed when a specfic event occurs, currently only when a new Entity Instance is created.
+
+When setting up complex data models, Crudio can handle special cases where entity relationships exist within a very contrained context. The best way to describe how Scripts work is to think of them like triggers, which are executed every time an Entity is created.
+
+In the example data model provided in Crudio, we create Organisations, and when each Organisation is created, we create related Users, and some Users are placed in special roles, and all Users are placed in departments. 
+
+An example is a CEO role, being assigned to a specific User. When Crudio creates the Organisation, only one of its Users is assigned the role of CEO. This demonstrates that Crudio can create very specific relationships between objects in accordance with our requirements.
 
 See more on scripts below.
 

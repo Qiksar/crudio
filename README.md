@@ -18,26 +18,31 @@ Further information appears below for the CLI. But here is how to quickly initia
 
 Create a new folder called `crudio_test`, then create a `repo` folder which contains the sample data model for guidance...
 
-Install crudio on your machine:
+Install crudio on your machine (note the use of the new `--location` option):
 
 ```
 npm install @qiksar/crudio --location=global
 ```
 
-NOTE: older version of NPM use:
+NOTE: older versions of NPM use:
 ```
 npm install @qiksar/crudio -g
 ```
 
 # Initialise the new Crudio folder
+```
 npx crudio -v -p crudio_test
 
 cd crudio_test
+```
 
 # Build the containers, but you may want to ensure the port numbers don't clash with any of your active containers
+```
 docker-compose up -d
+```
 
 # Build and populate the data
+```
 npx crudio -v -w -r repo/repo.json 
 ```
 

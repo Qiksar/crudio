@@ -1,6 +1,5 @@
 {
 	"Organisations": {
-		"count": 4,
 		"scripts": [
 			"Users(0).OrganisationRole?name=CEO",
 			"Users(0).OrganisationDepartment?name=Board",

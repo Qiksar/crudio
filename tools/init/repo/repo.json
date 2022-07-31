@@ -2,8 +2,8 @@
 	"include": ["repo/base.json"],
 	"entities": {
 		"Organisation": {
-			"count": 0,
-			"inherits": "Entity",
+			"count": 10,
+			"inherits": ["Entity"],
 			"name": {
 				"required": true,
 				"unique": true,
@@ -55,7 +55,7 @@
 			}
 		},
 		"User": {
-			"count": 0,
+			"count": 50,
 			"inherits": "Person",
 			"email": {
 				"unique": true,
@@ -160,14 +160,13 @@
 			},
 			"relationships": [
 				{
-					"type": "many",
 					"to": "Tag",
-					"name": "BlogTags",
+					"type": "many",
 					"count": 2
 				},
 				{
-					"type": "one",
 					"to": "User",
+					"type": "one",
 					"name": "Author"
 				}
 			]
