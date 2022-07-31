@@ -2,8 +2,6 @@
 
 import { Command } from "commander";
 
-const packageJson = require("package.json")
-
 /**
  * Command Line (CLI) Entry Point
  * @date 7/25/2022 - 10:35:40 AM
@@ -41,7 +39,7 @@ export default class CrudioCLI {
 		this.command_line
 			.name("crudio")
 			.description("create databases pre-loaded with large volumes of sensible test data.")
-			.version(packageJson.version)
+			.version(process.env.npm_package_version)
 			.option("-v, --verbose", "Verbose output")
 			.option("-p, --project <project_folder_name>", "Create a new project folder")
 			.option("-e, --hasuraEndpoint <endpoint>", "GraphQL endpoint", "http://localhost:6789")
@@ -54,7 +52,7 @@ export default class CrudioCLI {
 			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
 
 		this.config = this.command_line.parse(args).opts();
-		this.config.version = packageJson.version;
+		this.config.version = process.env.npm_package_version;
 	}
 
 	/**
