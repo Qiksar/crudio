@@ -3,40 +3,124 @@
 	"include": [
 		"repo/base.json"
 	],
+	"generators": [
+		{
+			"name": "cohort_title",
+			"values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
+		},
+		{
+			"name": "cohort_name",
+			"values": "[year] intake, [cohort_title]"
+		},
+		{
+			"name": "program_title",
+			"values": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk"
+		},
+		{
+			"name": "program_name",
+			"values": "[program_title] for [cohort_name]"
+		},
+		{
+			"name": "program_mission",
+			"values": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;"
+		},
+		{
+			"name": "survey1",
+			"values": "Measure;Assess;Understand;"
+		},
+		{
+			"name": "survey2",
+			"values": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;"
+		},
+		{
+			"name": "survey_name",
+			"values": "[survey1] [survey2] of the [cohort_name] community"
+		},
+		{
+			"name": "tag",
+			"values": "food;online shopping;investing;retirement;youth unemployment;education;finance;health;technology;property;art;music;3D printing;makers;coworking;community;electronics;machine learning;cyber security;employment;psychology;child health;aged care;disability services;accessibility;"
+		},
+		{
+			"name": "article_subject",
+			"values": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;"
+		},
+		{
+			"name": "article_line1",
+			"values": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;"
+		},
+		{
+			"name": "article_line2",
+			"values": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;"
+		},
+		{
+			"name": "article_person",
+			"values": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;"
+		},
+		{
+			"name": "article_said",
+			"values": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;"
+		},
+		{
+			"name": "article_line5",
+			"values": "Until next time, adios;See you next time;We will be back with more news soon"
+		},
+		{
+			"name": "article",
+			"values": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]"
+		},
+		{
+			"name": "user_email",
+			"values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+		},
+		{
+			"name": "organisation_role",
+			"values": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
+		},
+		{
+			"name": "organisation_department",
+			"values": "IT;HR;Finance;Sales;Engineering;Marketing;Board;"
+		}
+	],
 	"entities": {
 		"Organisation": {
 			"count": 10,
 			"inherits": [
 				"Entity"
 			],
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_name]"
-			},
-			"address": {
-				"generator": "[address]"
-			},
-			"email": {
-				"generator": "contact@[!name].org.au"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_name]"
+				},
+				"address": {
+					"generator": "[address]"
+				},
+				"email": {
+					"generator": "contact@[!name].org.au"
+				}
 			}
 		},
 		"OrganisationDepartment": {
 			"count": "[organisation_department]",
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_department]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_department]"
+				}
 			}
 		},
 		"OrganisationRole": {
 			"count": "[organisation_role]",
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_role]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_role]"
+				}
 			}
 		},
 		"Person": {
@@ -48,28 +132,32 @@
 				"address",
 				"email"
 			],
-			"dob": {
-				"type": "date",
-				"name": "dob",
-				"generator": "[dob]"
-			},
-			"height": {
-				"type": "integer",
-				"name": "height",
-				"generator": "[height]"
-			},
-			"weight": {
-				"type": "integer",
-				"name": "weight",
-				"generator": "[weight]"
+			"fields": {
+				"dob": {
+					"type": "date",
+					"name": "dob",
+					"generator": "[dob]"
+				},
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[height]"
+				},
+				"weight": {
+					"type": "integer",
+					"name": "weight",
+					"generator": "[weight]"
+				}
 			}
 		},
 		"User": {
 			"count": 50,
 			"inherits": "Person",
-			"email": {
-				"unique": true,
-				"generator": "[user_email]"
+			"fields": {
+				"email": {
+					"unique": true,
+					"generator": "[user_email]"
+				}
 			},
 			"relationships": [
 				{
@@ -88,13 +176,15 @@
 		},
 		"Program": {
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[program_name]"
-			},
-			"mission": {
-				"generator": "[program_mission]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[program_name]"
+				},
+				"mission": {
+					"generator": "[program_mission]"
+				}
 			},
 			"relationships": [
 				{
@@ -105,18 +195,22 @@
 		},
 		"Cactus": {
 			"inherits": "Entity",
-			"height": {
-				"type": "integer",
-				"name": "height",
-				"generator": "[length]"
+			"fields": {
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[length]"
+				}
 			}
 		},
 		"Cohort": {
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[cohort_name]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[cohort_name]"
+				}
 			},
 			"relationships": [
 				{
@@ -127,10 +221,12 @@
 		},
 		"Survey": {
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[survey_name]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[survey_name]"
+				}
 			},
 			"relationships": [
 				{
@@ -151,22 +247,26 @@
 		"Tag": {
 			"count": "[tag]",
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[tag]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[tag]"
+				}
 			}
 		},
 		"Blog": {
 			"count": 20,
 			"inherits": "Entity",
-			"article": {
-				"generator": "[article]"
-			},
-			"published_date": {
-				"type": "timestamp",
-				"name": "published_date",
-				"generator": "[timestamp]"
+			"fields": {
+				"article": {
+					"generator": "[article]"
+				},
+				"published_date": {
+					"type": "timestamp",
+					"name": "published_date",
+					"generator": "[timestamp]"
+				}
 			},
 			"relationships": [
 				{
@@ -181,27 +281,6 @@
 				}
 			]
 		}
-	},
-	"generators": {
-		"cohort_title": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me",
-		"cohort_name": "[year] intake, [cohort_title]",
-		"program_title": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk",
-		"program_name": "[program_title] for [cohort_name]",
-		"program_mission": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;",
-		"survey1": "Measure;Assess;Understand;",
-		"survey2": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;",
-		"survey_name": "[survey1] [survey2] of the [cohort_name] community",
-		"tag": "food;online shopping;investing;retirement;youth unemployment;education;finance;health;technology;property;art;music;3D printing;makers;coworking;community;electronics;machine learning;cyber security;employment;psychology;child health;aged care;disability services;accessibility;",
-		"article_subject": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;",
-		"article_line1": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;",
-		"article_line2": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;",
-		"article_person": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;",
-		"article_said": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;",
-		"article_line5": "Until next time, adios;See you next time;We will be back with more news soon",
-		"article": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]",
-		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
-		"organisation_role": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;",
-		"organisation_department": "IT;HR;Finance;Sales;Engineering;Marketing;Board;"
 	},
 	"triggers": [
 		{
