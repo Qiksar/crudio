@@ -1,4 +1,5 @@
 {
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
 	"generators": [
 		{
 			"name": "title",

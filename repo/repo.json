@@ -87,34 +87,40 @@
 			"inherits": [
 				"Entity"
 			],
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_name]"
-			},
-			"address": {
-				"generator": "[address]"
-			},
-			"email": {
-				"generator": "contact@[!name].org.au"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_name]"
+				},
+				"address": {
+					"generator": "[address]"
+				},
+				"email": {
+					"generator": "contact@[!name].org.au"
+				}
 			}
 		},
 		"OrganisationDepartment": {
 			"count": "[organisation_department]",
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_department]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_department]"
+				}
 			}
 		},
 		"OrganisationRole": {
 			"count": "[organisation_role]",
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[organisation_role]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_role]"
+				}
 			}
 		},
 		"Person": {
@@ -126,28 +132,32 @@
 				"address",
 				"email"
 			],
-			"dob": {
-				"type": "date",
-				"name": "dob",
-				"generator": "[dob]"
-			},
-			"height": {
-				"type": "integer",
-				"name": "height",
-				"generator": "[height]"
-			},
-			"weight": {
-				"type": "integer",
-				"name": "weight",
-				"generator": "[weight]"
+			"fields": {
+				"dob": {
+					"type": "date",
+					"name": "dob",
+					"generator": "[dob]"
+				},
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[height]"
+				},
+				"weight": {
+					"type": "integer",
+					"name": "weight",
+					"generator": "[weight]"
+				}
 			}
 		},
 		"User": {
 			"count": 50,
 			"inherits": "Person",
-			"email": {
-				"unique": true,
-				"generator": "[user_email]"
+			"fields": {
+				"email": {
+					"unique": true,
+					"generator": "[user_email]"
+				}
 			},
 			"relationships": [
 				{
@@ -166,13 +176,15 @@
 		},
 		"Program": {
 			"inherits": "Entity",
-			"name": {
-				"required": true,
-				"unique": true,
-				"generator": "[program_name]"
-			},
-			"mission": {
-				"generator": "[program_mission]"
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[program_name]"
+				},
+				"mission": {
+					"generator": "[program_mission]"
+				}
 			},
 			"relationships": [
 				{
@@ -183,18 +195,22 @@
 		},
 		"Cactus": {
 			"inherits": "Entity",
-			"height": {
-				"type": "integer",
-				"name": "height",
-				"generator": "[length]"
+			"fields": {
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[length]"
+				}
 			}
 		},
 		"Cohort": {
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[cohort_name]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[cohort_name]"
+				}
 			},
 			"relationships": [
 				{
@@ -205,10 +221,12 @@
 		},
 		"Survey": {
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[survey_name]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[survey_name]"
+				}
 			},
 			"relationships": [
 				{
@@ -229,22 +247,26 @@
 		"Tag": {
 			"count": "[tag]",
 			"inherits": "Entity",
-			"name": {
-				"unique": true,
-				"required": true,
-				"generator": "[tag]"
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[tag]"
+				}
 			}
 		},
 		"Blog": {
 			"count": 20,
 			"inherits": "Entity",
-			"article": {
-				"generator": "[article]"
-			},
-			"published_date": {
-				"type": "timestamp",
-				"name": "published_date",
-				"generator": "[timestamp]"
+			"fields": {
+				"article": {
+					"generator": "[article]"
+				},
+				"published_date": {
+					"type": "timestamp",
+					"name": "published_date",
+					"generator": "[timestamp]"
+				}
 			},
 			"relationships": [
 				{

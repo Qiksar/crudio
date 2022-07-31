@@ -138,6 +138,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	readonly?: boolean;
+	
 	/**
 	 * Specifies the default value for the field
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -153,6 +154,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	canSort?: boolean;
+
 	/**
 	 * Indicates the field can be filtered
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -160,6 +162,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	canFilter?: boolean;
+
 	/**
 	 * Indicates the field is the default sort key
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -183,6 +186,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	sensitiveData?: boolean;
+
 	/**
 	 * Indicates the field must have a value
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -190,6 +194,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	isRequired?: boolean;
+
 	/**
 	 * Validation requirements
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -205,6 +210,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?string}
 	 */
 	choices?: string;
+
 	/**
 	 * Indicates that multiple choices can be selected
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -220,6 +226,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?*}
 	 */
 	range_low?: any;
+
 	/**
 	 * Highest allowed value
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -235,6 +242,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?string}
 	 */
 	placeholder?: string;
+
 	/**
 	 * Help text
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -250,6 +258,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?string}
 	 */
 	generator?: string;
+
 	/**
 	 * Field value has to be unique
 	 * @date 7/18/2022 - 1:47:30 PM

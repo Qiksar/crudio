@@ -219,7 +219,7 @@ export default class CrudioRepository {
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
 		if (input.generators) {
-			repo.generators = [ ...repo.generators, ...input.generators ];
+			repo.generators = [...repo.generators, ...input.generators];
 		}
 
 		if (input.snippets) {
@@ -318,7 +318,7 @@ export default class CrudioRepository {
 
 			if (entity_snippets) {
 				entity_snippets.map(s => {
-					entity[s] = { ...repo.snippets[s] };
+					entity.fields[s] = { ...repo.snippets[s] };
 				});
 
 				// snippets can be deleted from the definition once they have been expanded
@@ -342,7 +342,9 @@ export default class CrudioRepository {
 		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioRepository.DefaultNumberOfRowsToGenerate;
 
 		if (entityDefinition.inherits) {
-			if (typeof entityDefinition.inherits === "string") this.InheritBaseFields(entityDefinition.inherits, entityType);
+			if (typeof entityDefinition.inherits === "string") {
+				this.InheritBaseFields(entityDefinition.inherits, entityType);
+			}
 			else if (Array.isArray(entityDefinition.inherits)) {
 				(entityDefinition.inherits as []).map((i: string) => {
 					this.InheritBaseFields(i, entityType);
@@ -350,11 +352,11 @@ export default class CrudioRepository {
 			}
 		}
 
-		var fKeys: string[] = Object.keys(entityDefinition).filter(f => !this.ignoreFields.includes(f));
+		var fKeys: string[] = Object.keys(entityDefinition.fields ?? {}).filter(f => !this.ignoreFields.includes(f));
 
 		for (var findex: number = 0; findex < fKeys.length; findex++) {
 			var fieldname: string = fKeys[findex];
-			var fieldSchema: any = entityDefinition[fieldname];
+			var fieldSchema: any = entityDefinition.fields[fieldname];
 
 			const fieldOptions: ICrudioFieldOptions = {
 				isKey: fieldSchema.key,
@@ -1307,6 +1309,10 @@ export default class CrudioRepository {
 
 		const source_field_name = path[path.length - 1];
 		const value = source.DataValues[source_field_name];
+
+		if (!value)
+			throw "whoops";
+
 		return value;
 	}
 

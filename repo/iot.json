@@ -1,4 +1,5 @@
 {
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
 	"generators": [
 		{
 			"name": "temperature",
@@ -57,17 +58,21 @@
 		"DeviceType": {
 			"inherits": "Entity",
 			"count": "[device_type]",
-			"name": {
-				"generator": "[device_type]",
-				"unique": true
+			"fields": {
+				"name": {
+					"generator": "[device_type]",
+					"unique": true
+				}
 			}
 		},
 		"DeviceSite": {
 			"inherits": "Entity",
 			"count": "[device_site]",
-			"name": {
-				"generator": "[device_site]",
-				"unique": true
+			"fields": {
+				"name": {
+					"generator": "[device_site]",
+					"unique": true
+				}
 			}
 		},
 		"Device": {
@@ -87,9 +92,11 @@
 		"DeviceReading": {
 			"inherits": "Entity",
 			"count": 240,
-			"value": {
-				"type": "jsonb",
-				"generator": "[?Device.DeviceType.name]"
+			"fields": {
+				"value": {
+					"type": "jsonb",
+					"generator": "[?Device.DeviceType.name]"
+				}
 			},
 			"relationships": [
 				{

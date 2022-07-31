@@ -12,9 +12,6 @@
                 }
             ]
         },
-        "entities": {
-            "type": "object"
-        },
         "generators": {
             "type": "array",
             "items": {
@@ -56,6 +53,100 @@
                     "entity",
                     "scripts"
                 ]
+            }
+        },
+        "entities": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/$defs/options"
+            }
+        },
+        "snippets": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/$defs/field"
+            }
+        },
+        "$defs": {
+            "options": {
+                "type": "object",
+                "properties": {
+                    "abstract": {
+                        "type": "boolean"
+                    },
+                    "count": {
+                        "type": [
+                            "string",
+                            "number"
+                        ]
+                    },
+                    "inherits": {
+                        "type": "string"
+                    },
+                    "snippets": {
+                        "type": "array",
+                        "items": [
+                            "string"
+                        ]
+                    },
+                    "relationships": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "one",
+                                        "many"
+                                    ]
+                                },
+                                "to": {
+                                    "type": "string"
+                                },
+                                "count": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "to",
+                                "type"
+                            ]
+                        }
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/$defs/field"
+                        }
+                    }
+                }
+            },
+            "field": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "key": {
+                        "type": "boolean"
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "unique": {
+                        "type": "boolean"
+                    },
+                    "generator": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "string": "string"
+                    }
+                }
             }
         }
     }
