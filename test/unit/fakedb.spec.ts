@@ -9,7 +9,6 @@ import CrudioRepository from "../../src/CrudioRepository";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
-import { fstat } from "fs";
 
 const config: ICrudioConfig = {
 	hasuraEndpoint: "http://localhost:6789",

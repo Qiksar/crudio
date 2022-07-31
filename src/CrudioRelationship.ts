@@ -18,16 +18,36 @@ export default class CrudioRelationship {
 	 */
 	constructor(private relationship: ISchemaRelationship) {
 		if (!relationship.to) throw new Error("Relationship schema must provide a 'to' field specifying the target entity");
-
 		if (!relationship.type) throw new Error("Relationship schema must provide a 'type' field specifying the relationship cardinality of, one:one to many or many:many to many");
+		if (!relationship.required) relationship.required = false;
 
 		relationship.type = relationship.type.toLowerCase().trim();
 
-		// The user can specify relationships in shorthand, where field values to default to the name of the target entity and its primary key
+
+		// The user can specify relationships in shorthand, where field values default to the name of the target entity
+		// and its primary key
 		if (!relationship.name && relationship.type != "many") relationship.name = relationship.to;
 		if (!relationship.from_column) relationship.from_column = relationship.to;
 		if (!relationship.to_column) relationship.to_column = "id";
-		if (!relationship.count) relationship.count = 0;
+
+		if (relationship.type === "one" && relationship.count === undefined) {
+			if (!relationship.required) {
+				relationship.count = 0;
+			} else {
+				relationship.count = 1;
+			}
+		}
+	}
+
+	/**
+	 * Indicates the foreign key column must have a value
+	 * @date 7/31/2022 - 8:51:52 AM
+	 *
+	 * @readonly
+	 * @type {boolean}
+	 */
+	get Required(): boolean {
+		return this.relationship.required;
 	}
 
 	/**
@@ -126,12 +146,12 @@ export default class CrudioRelationship {
 	 * @type {string}
 	 */
 	get Description(): string {
-		return `RELATIONSHIP:${this.FromEntity}.${this.FromColumn} -> ${this.ToEntity}.${this.ToColumn} `
+		return `RELATIONSHIP:${this.FromEntity}.${this.FromColumn} -> ${this.ToEntity}.${this.ToColumn} `;
 	}
 
 	/**
 	 * An enumerated table is a parent, for which relationships are created between it's children and a second entity.
-	 * For example, an organisation, which needs to have users created, and the users have to be connected to a role and / or department 
+	 * For example, an organisation, which needs to have users created, and the users have to be connected to a role and / or department
 	 * @date 7/25/2022 - 10:37:12 AM
 	 *
 	 * @readonly

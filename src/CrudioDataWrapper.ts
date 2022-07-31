@@ -36,13 +36,6 @@ class SqlInstructionList {
 	public table_column_names: string = "";
 
 	/**
-	 * SQL to create foreign key tables for many to many joins
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public create_foreign_key_tables: string = "";
-	/**
 	 * SQL to create foreign key relationships for all tables
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
@@ -148,7 +141,7 @@ export default class CrudioDataWrapper {
 			await this.gql.ExecuteSQL(instructions.insert_table_rows);
 		}
 
-		await this.ProcessForeignKeys(instructions);
+		await this.CreateForeignKeys(instructions);
 	}
 
 	/**
@@ -160,13 +153,7 @@ export default class CrudioDataWrapper {
 	 * @param {SqlInstructionList} instructions
 	 * @returns {Promise<void>}
 	 */
-	private async ProcessForeignKeys(instructions: SqlInstructionList): Promise<void> {
-		// -------------- Create many to many join tables
-
-		if (this.config.wipe) {
-			await this.gql.ExecuteSQL(instructions.create_foreign_key_tables, false);
-		}
-
+	private async CreateForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Add foreign keys to tables
 		if (this.config.wipe) {
 			await this.gql.ExecuteSQL(instructions.create_foreign_keys, false);

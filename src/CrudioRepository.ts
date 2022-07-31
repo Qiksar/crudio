@@ -127,7 +127,6 @@ export default class CrudioRepository {
 		this.LoadEntityDefinitions(dataModel);
 		this.CreateInMemoryDataTables();
 		this.FillDataTables();
-		this.RunScripts();
 	}
 
 	//#region Initialise repository, entities and relationships
@@ -269,6 +268,7 @@ export default class CrudioRepository {
 						from_column: r.FromEntity,
 						to: r.FromEntity,
 						to_column: "id",
+						required:true
 					})
 				)
 				.AddRelation(
@@ -279,6 +279,7 @@ export default class CrudioRepository {
 						from_column: r.ToEntity,
 						to: r.ToEntity,
 						to_column: "id",
+						required:true
 					})
 				);
 
@@ -883,6 +884,9 @@ export default class CrudioRepository {
 		// we have to connect relationships first so that token processing can use generators that
 		// lookup values in related objects
 		this.ProcessTokensInAllTables();
+		
+		// Scripts will create more entities
+		this.RunScripts();
 
 		// connect entities with many to many relationships
 		this.ConnectManyToManyRelationships();
@@ -1249,7 +1253,8 @@ export default class CrudioRepository {
 			source = source.DataValues[child_entity_name];
 		}
 
-		if (!source) throw "whoops";
+		if (!source) 
+			throw "whoops";
 
 		const source_field_name = path[path.length - 1];
 		const value = source.DataValues[source_field_name];

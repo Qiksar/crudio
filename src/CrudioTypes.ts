@@ -391,6 +391,13 @@ export interface ICrudioEntityDefinition {
  */
 export interface ISchemaRelationship {
   /**
+   * Indicates that the foreign key must have a value
+   * @date 7/31/2022 - 8:41:55 AM
+   *
+   * @type {boolean}
+   */
+  required: boolean;
+  /**
    * The name of the referencing table
    * @date 7/18/2022 - 1:47:30 PM
    *
