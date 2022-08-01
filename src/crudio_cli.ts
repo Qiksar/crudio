@@ -9,7 +9,6 @@
 //
 
 import * as fs from "fs";
-import { parse } from "flatted";
 import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
@@ -28,7 +27,7 @@ const Fetch = async (url: string, output_path: string): Promise<void> => {
 		console.log(`Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`);
 	}
 
-	var text = typeof result.data === "object" ? parse(result.data) : result.data;
+	var text = typeof result.data === "object" ? JSON.stringify(result.data) : result.data;
 
 	const parts = url.replace("https://", "").split("/");
 	const filename = parts[parts.length - 1];
