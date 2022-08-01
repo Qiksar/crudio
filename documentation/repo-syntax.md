@@ -2,19 +2,206 @@
 
 # Crudio Syntax Introduction
 
-Crudio provides a convenient method of describing a data model, which describes how a database should be created, then populated with test data.
+Crudio provides a convenient and powerful way of describing a data model, that in turn describes how a database should be created and populated with test data.
 
-For example, we can quickly describe an organisation, departments, and roles, then place people in those roles and departments, but moreover, we can create many organisations, and they will all be automatically populated with users. 
+For example, we can quickly describe an Organisation, Departments, and Roles, then place people in those roles and departments. 
+
+But moreover, we can create many Organisations, and each will be automatically populated with Users spread across the multiple departmens, and every user will be assigned a role. 
 
 Crudio creats test data very quickly, and requires no user input after configuration, therefore it is perfect for quickly generating awesome databases for prototype apps and services.
 
 Read on to understand how to:
+
 - describe a data model
 - populate the data model with Entities
 - ensure Entities have data values which look sensible, even though they are randomly created
 - connect Entities using relationships
 
+# Quick Reference - Extracts from an Example Data Model
+
+Let's peek at the [base_generators.json](../repo/base_generators.json) file to understand a data model by beginning with the end in mind. 
+
+Crudio can create a database filled with great looking data. How does it do that?
+
+First of all we need to think about the types of data that we will store. Let's think about people as a datatype. In our model `Users` and `Clients` are a `Person`, so if we figure out how to create names for people, then we have a good start on creating users and clients.
+
+## Introducing Generators
+
+Generators are the feature used to create values that are assigned to the data fields of our entities, e.g. the names of people...
+
+```json
+{
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+	"generators": [
+		{
+			"name": "title",
+			"values": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady;Prof;"
+		},
+		{
+			"name": "firstname",
+			"values": "Emma;Isabella;Emily;Madison;Ava;Olivia;Sophia;Abigail;Elizabeth;Chloe;Samantha;Addison;Natalie;Mia;Alexis;Alyssa;Hannah;"
+		},
+		{
+			"name": "lastname",
+			"values": "Smith;Johnson;Williams;Brown;Jones;Garcia;Miller;Davis;Rodriguez;Martinez;Hernandez;Lopez;Gonzalez;Wilson;Anderson;"
+		},
+		{
+			"name": "fullname",
+			"values": "[title] [firstname] [lastname]"
+		}
+}
+```
+
+In order to generate a person we need multiple data fields, such as a `title`, `firstname` and `lastname`.  We could also create a single `fullname` data fiel`d, which adds all of the other name parts together. This is exactly what the generators above enable us to do.  
+
+##  Entities Use Generators
+
+First of all, the term `Entities` relates to a concept, it's like saying that there are different types of things in the world.
+
+Then, the related term `Entity` refers to a specific type of data, like a person, organisation, or customer. 
+
+An Entity can either be a fully described piece of data, such as a `ThermometerReading`, which could have a temperature, date and time, or a `Person`, as seen in our example datamodel, which is `abstract`, meaning it is a building block used to create more specific entities. 
+
+`Person` is `abstract`, so Crudio will not create such a table in the database. Instead, any other Entity that `inherits` `Person` will copy the fields from `Person`, and they will be populated by the same generators, so our data will be consistent.  
+
+From: [base_generators.json](../repo/repo.json)
+```
+  "entities": {
+  		"Person": {
+			"abstract": true,
+			"inherits": "Entity",
+			"snippets": [
+				"firstname",
+				"lastname",
+				"address",
+				"email"
+			],
+			"fields": {
+				"dob": {
+					"type": "date",
+					"name": "dob",
+					"generator": "[dob]"
+				},
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[height]"
+				},
+				"weight": {
+					"type": "integer",
+					"name": "weight",
+					"generator": "[weight]"
+				}
+			}
+		},
+}
+```
+
+In the `Person` Entity we see it using `snippets`, more on that below. `Person` defines fields for date of birth and height , and those field definitions are using generators for `[dob]`, `[weight]` and `[height]`.
+
+## Entities Use Snippets
+
+Snippets are just predefined fields that can be used on any other Entity. So rather than `Person` defining what a firstname and lastname are, we use the `firstname` and `lastname` snippets. We prefer to keep the most common snippets in `base_snippets.json`.
+
+Each snippet is a field definition which can be used on any other Entity, just as we saw in our `Person` example above.
+
+```json
+	"snippets": {
+		"id": {
+			"type": "uuid",
+			"name": "id",
+			"key": true,
+			"generator": "[uuid]"
+		},
+		"firstname": {
+			"type": "string",
+			"name": "firstname",
+			"generator": "[firstname]"
+		},
+		"lastname": {
+			"type": "string",
+			"name": "lastname",
+			"generator": "[lastname]"
+		},
+		"address": {
+			"type": "string",
+			"name": "address",
+			"generator": "[address]"
+		},
+		"email": {
+			"type": "string",
+			"name": "email",
+			"generator": "[!firstname].[!lastname]@[server].[tld]"
+		}
+	}
+```
+
+So to complete the story of our data model...
+
+`Person` is not actually going to be a table in our database. Rather, `User` will be a table in the database, and so will `Client`, and both of these Entities inherit (copy fields from) `Person`. 
+
+Any fields that a `Person` has, the `User` and `Client` will also have. So, using `inherit` reuses parts of our data model, increasing our speed of development and consistency within our datamodel.
+
+```
+"User": {
+  "count": 50,
+  "inherits": "Person",
+  "fields": {
+    "email": {
+      "unique": true,
+      "generator": "[user_email]"
+    }
+  },
+  "relationships": [
+    {
+      "type": "one",
+      "to": "Organisation"
+    },
+    {
+      "type": "one",
+      "to": "OrganisationDepartment"
+    },
+    {
+      "type": "one",
+      "to": "OrganisationRole"
+    }
+  ]
+},
+```
+
+## Example Complex Generator
+
+We say that Crudio creates great looking data. Here is why...
+
+In the above example of `User` we see the `email` field using the `[user_email]` generator. Most data generation tools might create a 'randomtext@email.com'.
+
+If you read into the example repo, you will see this:
+
+```
+{
+        "name": "user_email",
+        "values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+},
+```
+
+The `User` will have its own randomly generated `firstname` and `lastname`, so the email address will use that exact name, and the organisation that the user is connected to, in order to create the perfect email address. So when we look at users and their emails, they will all make sense. It is so much easier to test and explain issues, or demonstrate your prototype to people, when the data just looks this great!
+
+## Wrapping up the Quick Start
+Do take time to read the additional documentation and example JSON files in the `repo` folder. These files are intended to help us automatically test Crudio, thoroughly, but are also intended to be a resource from which you can learn.
+
 # Describing a Data Model - Key Aspects
+
+## Background
+Crudio started out as a way of creating random data objects which could be participants in surveys, and then random answers for those surveys. But the idea grew and we needed more and more ways to create data, which looked sensible.
+
+Put another way... If you rely on people to create test data, a few things generally happen:
+
+- They get bored, and you start to see text like this appearing in fields: "asjboijbfi aihioaghoiadhg lhfgshdfgdhf". Now if you get a bug in your system, and you try to debug it, and attempt to form an image of the data which is involved, it gets hard! Well, it just doesn't make sense that customer "saldlsfjj flsdhig" bought 10 "isgoihogihoh iudsfuhfiufdg" and then asked a question on the chat channel "sfsddsh1767221212".
+- People tend not to create "enough" test data. They create a few rows of data, and then say the system works. But to load test your system, you sometimes want thousands of records.
+- People don't test all of the possible scenarios, all of the time. When we first think of a way to break our system, we test very carefully. But months down the track, our attention moves to new problems, so we stop looking for regressions.
+- People are likely to play by the rules. We tend to avoid breaking things, which is not a good habbit as a tester. So we tend not to try typing "Apple" in to date fields. So we never know if our user interface can handle such instances.
+
+So the mission for Crudio started out with needing to create lots of data, that looked like people might have created it, but which included a good range of values, and lots and lots of rows where required.
 
 ## Entities
 Entities can be thought of as data objects and rows of data in a database table.
@@ -28,8 +215,7 @@ Think of the data model as a world, and inside that world there are types of obj
 `You` are a great example of an Entity Instance. You are a `Person`, and the data which is captured about you, is defined by the `Person` Entity Definition.
 
 ## Fields
-
-Fields are the attributes of an Entity and have values. Just like you have an `age` attribute.
+Fields are the attributes of an Entity and contain data values. Just like you have an `age` attribute, which has a value of how old you are.
 
 Other examples of attributes are `name`, `address`, and `height`.
 
@@ -40,6 +226,9 @@ Generators are the means by which data is randomly created, and assigned to Enti
 An example of a Generator is, `transport: "car;boat;plane;scooter;bus;train"`, which instructs Crudio to randomly select one of the possible values.
 
 Also, `age: "10>87"`, instructs Crudio to create a random number within the specified range.
+
+
+## Generators in More Detail
 
 ## Relationships
 
@@ -67,7 +256,75 @@ In the example data model provided in Crudio, we create Organisations, and when 
 
 An example is a CEO role, being assigned to a specific User. When Crudio creates the Organisation, only one of its Users is assigned the role of CEO. This demonstrates that Crudio can create very specific relationships between objects in accordance with our requirements.
 
-See more on scripts below.
+### Dates
+Here is a quick and easy way to create dates. 
+TODO: We actually need to improve date creation though.
+
+```json
+		"day": "1>28",
+		"month": "1>12",
+		"year": "1970>2021",
+```
+
+The generators above create a random day, month and year ranging from the low number to the high number, i.e. "low>high"
+This is great, but not awesome. We want to avoid creating a date for 31st of February, which is why our day generator is "1>28"
+
+### Technical Data
+
+See how the generators below all interconnect to create ranges of IP Addresses and MAX addresses.
+
+It all a simple question of how do you create a little snippet of information, that looks sensible, and then use snippets to build more complex types of data.
+
+```json
+    "positive_byte": "1>255",
+    "byte": "0>255",
+    "hex_digit": "0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F;",
+    "hex": "[hex_digit][hex_digit]",
+    "mac_address": "[hex]:[hex]:[hex]:[hex]:[hex]:[hex]",
+    "ipaddress": "[positive_byte].[byte].[byte].[byte]",
+    "ipv6address": "[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]",
+```
+
+### Using Lookup and Cleanup
+
+Consider the following generator
+```
+		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
+```
+
+Get the firstname field from the current record then make it lower case and remove any spaces `[!~firstname]`
+Same for lastname `[!~lastname]`
+
+Next, get the name field from the Organisation, which is connected to the current record, and remove spaces and make it lowercase `[!~Organisation.name]`
+
+This is really powerful, because now when we generate users, their emails can look like they below to the organisation which they are connected to. 
+
+All we have to do is use the `[user_email]` generator like this:
+
+```json
+    "User": {
+        "count": 0,
+        "inherits": "Person",
+        "email": {
+            "unique": true,
+            "generator": "[user_email]"
+        },
+        "relationships": [
+            {
+                "type": "one",
+                "to": "Organisation"
+            },
+            {
+                "type": "one",
+                "to": "OrganisationDepartment"
+            },
+            {
+                "type": "one",
+                "to": "OrganisationRole"
+            }
+        ]
+    }
+```
 
 # Describing Entities in the Data model
 
@@ -179,218 +436,83 @@ Crudio will again take care of everything. Our earlier descriptions express how 
 
 Finally, if we omit the name of the relationship (i.e. the name of the join table) then Crudio will form it by joining the related table names together, e.g. BlogTag.
 
-# Crudio Scripts
+# Crudio Triggers 
 
 Below is a simple description of an `Organisation` data object, which will lead to the creation of an `Organisations` data table in the database.
 
 Normally, if we leave out the `count` field, by default Crudio will create 50 objects in the table. But in the following example, we will see it's not sufficient to simply create 50 random `Users`. Rather, we want randomly created users to be placed in very specific relationships with the `Organisation`.
 
-Complex relationships between users, roles and departments are required, so we want to create the data a different way. So we specify `count:0` which tells Crudio not to automatically generate data, but rather, use our `scripts` node which will point to instructions of how to create data and connect objects for us.
+Complex relationships between users, roles and departments are required, so we want to create the data a different way. 
+
+So we specify a `count:20` which tells Crudio to automatically generate 20 `Organisation` entities.
 
 ```json		
 "Organisation": {
-    "count": 0,
+    "count": 20,
     "inherits": "Entity",
-    "name": {
-        "required": true,
-        "unique": true,
-        "generator": "[organisation_name]"
-    },
-    "address": {
-        "generator": "[address]"
-    },
-    "email": {
-        "generator": "contact@[!name].org.au"
+    "fields":{
+        "name": {
+            "required": true,
+            "unique": true,
+            "generator": "[organisation_name]"
+        },
+        "address": {
+            "generator": "[address]"
+        },
+        "email": {
+            "generator": "contact@[!name].org.au"
+        }
     }
+```
 
-...lines removed...
+In the datamodel, The `triggers` node contains instructions about what to do each time an `Organisation` is created...
 
-    "triggers": [
-        {
+```json
+"triggers": [
+    {
         "entity": "Organisation",
         "scripts": [
             "Users(0).OrganisationRole?name=CEO",
             "Users(0).OrganisationDepartment?name=Board",
             "Users(1).OrganisationRole?name=CFO",
             "Users(1).OrganisationDepartment?name=Board",
+            "Users(2).OrganisationRole?name=COO",
+            "Users(2).OrganisationDepartment?name=Board",
+            "Users(3).OrganisationRole?name=Head of Sales",
+            "Users(3).OrganisationDepartment?name=Sales",
+            "Users(4).OrganisationRole?name=Head of HR",
+            "Users(4).OrganisationDepartment?name=HR",
+            "Users(5).OrganisationRole?name=Head of Marketing",
+            "Users(5).OrganisationDepartment?name=Marketing",
+            "Users(6-10).OrganisationRole?name=Staff",
+            "Users(6-10).OrganisationDepartment?name=Sales",
+            "Users(10-20).OrganisationRole?name=Staff",
+            "Users(10-20).OrganisationDepartment?name=Marketing",
+            "Users(21-30).OrganisationRole?name=Staff",
+            "Users(21-30).OrganisationDepartment?name=HR",
+            "Users(31-40).OrganisationRole?name=Staff",
+            "Users(31-40).OrganisationDepartment?name=IT"
         ]
-        }
-    ]
-}
+    }
+]
 ```
 
-# Crudio Scripts - Creating Special Relationships Between Objects
+Imagine a typical organisation structure, having one CEO, one CFO, one Head of HR, but many people working in HR, Marketing and IT, then lots of other people in the role of Staff being assigned to various departments.
 
-The `sripts` node can specify multiple script files to import and use.
+In plain English, it is easy to say, "every organisation must have one CEO, one CFO, one head of department, for each department, which has many staff working within it".
 
-Imagine a typical organisation structure, having one CEO, one CFO, one Head of HR, but many people working in HR, Marketing and IT, then lots of other people in the role of Staff are assigned to departments, and these are not Head of Department, but more like Team Members.
+This is achieved in our `triggers` as described above.
 
-In plain English, it is easy to say, "every organisation must have one CEO, one CFO, one head of department for each department", etc.
+The triggers say:
+- Everytime we create an `Organisation`
+- Create a user and place it in the CEO role and in the Board department.
+- Do the same for the CFO role, and heads of each department.
 
-## Specifying Crudio Scripts
-
-Refer to `org_users.json` for examples.
-
-Crudio makes it really easy to build relationships between objects using a simple script notation.
-
-The script below says:
-- We are filling the Organisations table
-- We are creating 4 data records
-- Every Organisation data record gets connected to a bunch of users
-- The users are automatically created
-- Specific roles are then connected to a user, like CEO, CFO...
-- Groups of users are created and connected to specific departments, like Board, HR, IT, etc.
-
-
-```json
-{
-	"Organisations": {
-		"count": 4,
-		"scripts": [
-			"Users(0).OrganisationRole?name=CEO",
-			"Users(0).OrganisationDepartment?name=Board",
-			"Users(3).OrganisationRole?name=Head of Sales",
-			"Users(3).OrganisationDepartment?name=Sales",
-			"Users(6-10).OrganisationRole?name=Staff",
-			"Users(6-10).OrganisationDepartment?name=Sales",
-		]
-	}
-}
-```
-The above is a snippet with lines deleted. Refer to `repo.json` for complete file.
-
-# How to Interpret Script Syntax
-
-We specify `Organisations` first, as the primary table that we are thinking about, as we are building an organisation and its team.
-
-We need to create a `User` next and assign it to the role of `CEO` with a department of `Board`:
+Now, everytime we create a head of department, we need to create their team...
 
 ```json
     "Users(0).OrganisationRole?name=CEO",
     "Users(0).OrganisationDepartment?name=Board",
 ```
 
-We this approach over and over until we have populated all the key leadership roles.
-
-Next, we need to create a lot of users, all with the `Staff` role, but placed in different departments, like Sales and Marketing teams:
-
-Imagine we have built User 0, 1, 2, 3, 4...and  then connected them with specific roles and teams, we are gradually filling our list of users.
-
-We continue to fill the list of users under the organisation, by using start - end notation, like (6-10).
-
-So we continue creating user 6 to 10 and place them in the `Staff` role and `Sales` team.
-Next, we create users 11 to 20 and place them in the `Staff` role and `Sales` team.
-
-```json
-    "Users(6-10).OrganisationRole?name=Staff",
-    "Users(6-10).OrganisationDepartment?name=Sales",
-    "Users(10-20).OrganisationRole?name=Staff",
-    "Users(10-20).OrganisationDepartment?name=Marketing",
-```
-
-Basically, every time you ask for a record using the indexed notation `(record_number)` or `(start_record_number-end_record_number)`, Crudio will do its best to ensure that record exists.
-
-OK, so now you can see how easy it is to build very specific scenarios, which commonly occur in data models. Lots of apps deal with organisations, people, teams, roles etc. We can use the pre-defined data models in Crudio, or start and build our own data model from the ground up. There are lots of useful examples in demonstration files in the `repo` folder.
-
-# Generating Field values
-
-## Background
-Crudio started our as a way of creating random data objects which could be participants in surveys, and then random answers for those surveys. But the idea grew and we needed more and more ways to create data, which looked sensible.
-
-Put another way... If you rely on people to create test data, a few things generally happen:
-
-- They get bored, and you start to see text like this appearing in fields: "asjboijbfi aihioaghoiadhg lhfgshdfgdhf". Now if you get a bug in your system, and you try to debug it, and attempt to form an image of the data which is involved, it gets hard! Well, it just doesn't make sense that customer "saldlsfjj flsdhig" bought 10 "isgoihogihoh iudsfuhfiufdg" and then asked a question on the chat channel "sfsddsh1767221212".
-- People tend not to create "enough" test data. They create a few rows of data, and then say the system works. But to load test your system, you sometimes want thousands of records.
-- People don't test all of the possible scenarios, all of the time. When we first think of a way to break our system, we test very carefully. But months down the track, our attention moves to new problems, so we stop looking for regressions.
-- People are likely to play by the rules. We tend to avoid breaking things, which is not a good habbit as a tester. So we tend not to try typing "Apple" in to date fields. So we never know if our user interface can handle such instances.
-
-So the mission for Crudio started out with needing to create lots of data, that looked like people might have created it, but which included a good range of values, and lots and lots of rows where required.
-
-## Getting started
-
-Take a look in the `repo` folder at `base_generators.json`.
-
-it doesn't need much explaination:
-
-```json
-    "title": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady;Prof;",
-    "firstname": "Emma;Isabella;Emily;Madison;Ava;Olivia;Sophia;Abigail;Elizabeth;Chloe;Samantha;Addison;",
-    "lastname": "Smith;Johnson;Williams;Brown;Jones;",
-    "fullname": "[title] [firstname] [lastname]",
-```
-
-This is just a simple way of sayin, whenver we need the title, firstname and lastname of a person, we can selet from these lists of words.
-
-We can easily create a fullname, by taking a random word from the other generators and joining them all together in a string.
-
-## Generating Different Types of Data
-
-### Dates
-Here is a quick and easy way to create dates. 
-TODO: We actually need to improve date creation though.
-
-```json
-		"day": "1>28",
-		"month": "1>12",
-		"year": "1970>2021",
-```
-
-The generators above create a random day, month and year ranging from the low number to the high number, i.e. "low>high"
-This is great, but not awesome. We want to avoid creating a date for 31st of February, which is why our day generator is "1>28"
-
-### Technical Data
-
-See how the generators below all interconnect to create ranges of IP Addresses and MAX addresses.
-
-It all a simple question of how do you create a little snippet of information, that looks sensible, and then use snippets to build more complex types of data.
-
-```json
-    "positive_byte": "1>255",
-    "byte": "0>255",
-    "hex_digit": "0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F;",
-    "hex": "[hex_digit][hex_digit]",
-    "mac_address": "[hex]:[hex]:[hex]:[hex]:[hex]:[hex]",
-    "ipaddress": "[positive_byte].[byte].[byte].[byte]",
-    "ipv6address": "[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]",
-```
-
-### Using Lookup and Cleanup
-
-Consider the following generator
-```
-		"user_email": "[!~firstname].[!~lastname]@[!~Organisation.name].com",
-```
-
-Get the firstname field from the current record then make it lower case and remove any spaces `[!~firstname]`
-Same for lastname `[!~lastname]`
-
-Next, get the name field from the Organisation, which is connected to the current record, and remove spaces and make it lowercase `[!~Organisation.name]`
-
-This is really powerful, because now when we generate users, their emails can look like they below to the organisation which they are connected to. 
-
-All we have to do is use the `[user_email]` generator like this:
-
-```json
-    "User": {
-        "count": 0,
-        "inherits": "Person",
-        "email": {
-            "unique": true,
-            "generator": "[user_email]"
-        },
-        "relationships": [
-            {
-                "type": "one",
-                "to": "Organisation"
-            },
-            {
-                "type": "one",
-                "to": "OrganisationDepartment"
-            },
-            {
-                "type": "one",
-                "to": "OrganisationRole"
-            }
-        ]
-    }
-```
+In this example, we say that users 6 to 10 in the organisations list of users, will all be placed in the Sales department. Crudio creates the users, assigns their roles and departments, and connects them to the `Organisation`.

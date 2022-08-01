@@ -37,7 +37,9 @@ npx -y @qiksar/crudio@latest -v -p crudio_test
 cd crudio_test
 ```
 
-# Build the containers, but you may want to ensure the port numbers don't clash with any of your active containers
+# Build the containers
+
+**NOTE:** You may want to ensure the port numbers don't clash with any of your active containers
 ```
 docker-compose up -d
 ```
@@ -51,13 +53,7 @@ Browse to [Hasura Console](http://localhost:6789) (or whatever post you have use
 
 Read how to complete the next steps in Hasura, below. 
 
-# Where to find the code and NPM package
-
-Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
-
-Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
-
-# GraphQL Queries - Hasura Console
+# Example GraphQL Queries - Hasura Console
 
 Next, go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:
 
@@ -127,8 +123,6 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
   }
 }
 ```
-
-
 ## List the CEO and CFO for all organisations
 ```graphql
 {
@@ -161,10 +155,18 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 
 # Build a Rich Demo From Github
 
+## Where to find the code and NPM package
+
+Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
+
+Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
+
+## Step by Step Instructions
 These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
 
 Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
 
+## Execute the initialisation Script from Github
 ```
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
 ```
@@ -181,7 +183,7 @@ By setting up tracking in Hasura, you have instantly gained a data management AP
 
 You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
-# Remove the Crudio Demo environment
+# How to Remove the Crudio Demo environment
 
 Run the following command in the same folder as the `docker-compose.yml` file, and the demonstration Postgres and Hasura containers, and their images, will be removed.
 
@@ -211,6 +213,8 @@ wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | b
 
 ```
 CLI Options:
+
+-V                                Get version of CLI          
 
 -v, --verbose                     Enable verbose logging
   Default value: false
@@ -467,10 +471,6 @@ Folder: `repo`
 
 Under the `~/test/unit` folder are a collection of Jest test specifications to test the command line interface, data creation, and the (coming soon...) script execution engine.
 
-# Get the code
-
-Clone this project from: `https://github.com/Qiksar/crudio`
-
 ## NPM scripts
 
 - Open the project with Visual Studio code.
@@ -502,135 +502,36 @@ When the tests have run, open the [Hasura Console](http://localhost:6789), go to
 
 # The Crudio data repository structure
 
-*NOTE* Crudio is rapidly evolving, and it is best to refer to [Crudio Syntax reference](repo-syntax.md) and the `repo` folder for up to date information.
+**NOTE:** Crudio is rapidly evolving. 
 
-The main purpose of a repository (*repo*) is to act as a container for test data. The test data itself is a collection of data entities, like Person or Organisation.
+Refer to [Crudio Syntax reference](repo-syntax.md) and the `repo` folder for up to date information.
 
-Imagine you want 4000 people connected with one organisation, so you can load test your application. You don't want to type all of the data in. So you might be tempted to use randomly generated strings as people's first and last name, but then you also want an email address, and would that be any old random text, or should it be the person's first and last name joined to make an email address?
-
-Having random data that looks sensible is critical to help your test team reason about how well the application is working, and it helps when you're doing demonstrations that the data looks pretty sensible.
-
-Let's take a close look at the JSON structure of a repository...
-
-**repo.json**
-
-Here is the basic outline
-
-```
-{
-   include:[]
-   generators: {}
-   entities:{}
-   scripts:{}
-}
-```
-
-
-Let's tell Crudio that we want to include two files, like a standard set of random data generators, and our list of application specific data entities...
-```
-{
-  "include": ["repo/standard_generators.json", "repo/repo_entities.json"],
-  "generators": {
-    ...removed for brevity...
-  }
-}
-```
-
-Let's peek at the `standard_generators.json` file:
-
-```
-{
-  "generators": {
-    "PersonGenerator": {
-      "title": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady",
-      "firstname": "Bob;Robert;Rob;Jane;",
-      "lastname": "Smith;Brown;Jones;Robertson;",
-      "fullname": "[title] [firstname] [lastname]"
-    },
-
-    "PlaceGenerator": {
-      "address": "[house], [street] [streettype], [place], [state] [postcode]",
-      "state": "WA;SA;NSW;VIC;NT;TAS;ACT;QLD;",
-      "postcode": "1000;2000;3000;4000;5000;6000;7000;",
-      "street": "Strawberry;Juniper;Blackberry;Carlton;Tall;Short;",
-      "place": "Success;Hilarys;Carwoola;Kiara;Piara;Armidale;Coogee;",
-      "streettype": "Road;Street;Way;Close;Pass;Highway;Parade;Boulevard;Crescent;",
-      "house": "1;2;3;4;5;6;7;8;9;10;101;305;32a;32b;32c;"
-    }
-}
-```
-
-It's pretty easy to understand that in order to generate a person we need multiple data fields for their name. Then to generate an address for the person, we need a way to generate places.
-
-Meanwhile in `repo_entities.json` we see entities that are used in our data model, like `Organisation` using generators from `standard_generators.json`, which were included.
-
-```
-  "entities": {
-    "Entity": {
-      "abstract": true,
-      "id": {
-        "type": "uuid",
-        "name": "id",
-        "key": true,
-        "generator": "[uuid]"
-      },
-      "created": {
-        "type": "timestamp",
-        "name": "created",
-        "generator": "[timestamp]"
-      },
-      "deleted": { "type": "timestamp", "name": "deleted" }
-    },
-
-    "Organisation": {
-      "inherits": "Entity",
-      "name": {
-        "type": "string",
-        "name": "name",
-        "generator": "[organisation_name]"
-      },
-      "address": {
-        "type": "string",
-        "name": "address",
-        "generator": "[address]"
-      },
-      "email": {
-        "type": "string",
-        "name": "email",
-        "generator": "contact@[!name].org.au"
-      }
-    }
-}
-```
-
-In the above example we also say that an `Organisation` inherits some fields from `Entity`. This means we can have all of our database objects setup with a common set of fields, like an ID and date created or deleted.
-
-Do take time to read the example JSON files in the `repo` folder. These files are intended to help us automatically test Crudio, thoroughly, but are also intended to be a resource from which you can learn.
+Do take time to read the additional documentation and example JSON files in the `repo` folder. These files are intended to help us automatically test Crudio, thoroughly, but are also intended to be a resource from which you can learn.
 
 # Wrapping up
 
 Take some time to examine the full contents of the `repo` folder. You will quickly understand how you can break large data models into smaller parts that can be reused over and over. This approach gives you a very simple way to create consistent data for testing a multitude of applications.
 
-# Join Us - Crudio: Free Forever
+## Join Us - Crudio: Free Forever
 
 Please do join the effort to make Crudio even more awesome. Our mission is to expand Crudio to generate data for almost every scenario. We need your help, ideas, feedback and encouragement to achieve that.
 
 And by the way...Crudio is free forever. We don't intend to start launching "Enterprise Versions" and subscriptions etc. Crudio belongs to all of us, is free to use for all of us, forever. 
 
-# Roadmap
+## Roadmap
 
-## Scipting engine
+### Scipting engine
 There is a unit test just to see if we can stimulate discussion about a scripting engine. We are looking at `eval` which everyone says is evil, but Crudio is not designed as a production tool, so you won't be letting third parties write scripts that execute on your platform.
 
 But why would you need scripting? We are trying to answer many common out of the box use cases, like creating organisations, with teams, roles, and clients. When we consider modelling the kind of data that IoT or Health devices create, you might not want the data to be so random. If you don't care, you're already good to go, as our current demonstration model shows.
 
 We are envisioning a use case, like trying to make environmental monitoring data, where a timestamp appears to progress through a 24 hour period, and as it does, a daylight sensor increases in value, and as night approaches, the sensor value falls as it gets darker. This capability would create very convincing test data.
 
-## User interface
+### User interface
 
 Primarily, Crudio was envisioned essentially as a command line, and unit test tool. But as it progress, it seems to call for a web-app which would enable us to create our models in a more friendly, less code-like way.
 
-## Integrate QikTrak
+### Integrate QikTrak
 
 We will bring QikTrak under the Qiksar umbrella as it is the perfect compliment to Crudio.
 
@@ -653,4 +554,5 @@ Used to create a large list of first names: https://github.com/hadley/data-baby-
 
 ## JSON Schema
 https://json-schema.org
+
 https://www.liquid-technologies.com/online-json-to-schema-converter
