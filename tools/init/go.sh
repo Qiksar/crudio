@@ -3,6 +3,9 @@ echo "Warning: Please ensure that the default port (6789) is not already in use"
 
 docker-compose up -d
 
+echo "Wait for containers to stabilise (10 seconds)"
+sleep 10
+
 echo
 echo "Build the database and populate with data"
 
