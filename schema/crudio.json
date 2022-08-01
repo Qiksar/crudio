@@ -1,153 +1,132 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "type": "object",
-    "properties": {
-        "include": {
-            "type": [
-                "array"
-            ],
-            "items": [
-                {
-                    "type": "string"
-                }
-            ]
-        },
-        "generators": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "values": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "name",
-                    "values"
-                ]
-            }
-        },
-        "triggers": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "entity": {
-                        "type": "string"
-                    },
-                    "scripts": {
-                        "type": [
-                            "array"
-                        ],
-                        "items": [
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    }
-                },
-                "required": [
-                    "entity",
-                    "scripts"
-                ]
-            }
-        },
-        "entities": {
-            "type": "object",
-            "additionalProperties": {
-                "$ref": "#/$defs/options"
-            }
-        },
-        "snippets": {
-            "type": "object",
-            "additionalProperties": {
-                "$ref": "#/$defs/field"
-            }
-        },
-        "$defs": {
-            "options": {
-                "type": "object",
-                "properties": {
-                    "abstract": {
-                        "type": "boolean"
-                    },
-                    "count": {
-                        "type": [
-                            "string",
-                            "number"
-                        ]
-                    },
-                    "inherits": {
-                        "type": "string"
-                    },
-                    "snippets": {
-                        "type": "array",
-                        "items": [
-                            "string"
-                        ]
-                    },
-                    "relationships": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "one",
-                                        "many"
-                                    ]
-                                },
-                                "to": {
-                                    "type": "string"
-                                },
-                                "count": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "to",
-                                "type"
-                            ]
-                        }
-                    },
-                    "fields": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "$ref": "#/$defs/field"
-                        }
-                    }
-                }
-            },
-            "field": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "key": {
-                        "type": "boolean"
-                    },
-                    "required": {
-                        "type": "boolean"
-                    },
-                    "unique": {
-                        "type": "boolean"
-                    },
-                    "generator": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "string": "string"
-                    }
-                }
-            }
-        }
-    }
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"definitions": {
+		"options": {
+			"type": "object",
+			"properties": {
+				"abstract": {
+					"type": "boolean"
+				},
+				"count": {
+					"type": ["string", "number"]
+				},
+				"inherits": {
+					"type": "string"
+				},
+				"snippets": {
+					"type": "array",
+					"items": { "type": "string" }
+				},
+				"relationships": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"type": {
+								"type": "string",
+								"enum": ["one", "many"]
+							},
+							"to": {
+								"type": "string"
+							},
+							"count": {
+								"type": "string"
+							}
+						},
+						"required": ["to", "type"]
+					}
+				},
+				"fields": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/definitions/field"
+					}
+				}
+			}
+		},
+		"field": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"key": {
+					"type": "boolean"
+				},
+				"required": {
+					"type": "boolean"
+				},
+				"unique": {
+					"type": "boolean"
+				},
+				"generator": {
+					"type": "string"
+				},
+				"type": {
+					"string": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"include": {
+			"type": ["array"],
+			"items": [
+				{
+					"type": "string"
+				}
+			]
+		},
+		"generators": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"values": {
+						"type": "string"
+					}
+				},
+				"required": ["name", "values"]
+			}
+		},
+		"triggers": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"entity": {
+						"type": "string"
+					},
+					"scripts": {
+						"type": ["array"],
+						"items": [
+							{
+								"type": "string"
+							}
+						]
+					}
+				},
+				"required": ["entity", "scripts"]
+			}
+		},
+		"entities": {
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/options"
+			}
+		},
+		"snippets": {
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/field"
+			}
+		}
+	}
 }
