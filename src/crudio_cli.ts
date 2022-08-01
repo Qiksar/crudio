@@ -66,7 +66,7 @@ const Init = async (config: any): Promise<void> => {
 		const file: any = manifest[i];
 
 		if (config.verbose) {
-			console.log("Fetch: " + file);
+			console.log("Fetch: " + file.source);
 		}
 
 		await Fetch(file.source, file.location == "." ? config.project : config.project + "/" + file.location);
