@@ -87,7 +87,7 @@
 				"type": {
 					"description": "field type",
 					"string": "string",
-					"enum": ["string", "number", "date", "timestamp"]
+					"enum": ["string", "integer", "number", "date", "timestamp"]
 				}
 			}
 		}
