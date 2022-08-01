@@ -16,7 +16,6 @@ import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioRepository from "./CrudioRepository";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
-const docker_compose = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/docker-compose.yml";
 
 const Fetch = async (url: string, output_path: string): Promise<void> => {
 	var result: AxiosResponse;
@@ -52,29 +51,25 @@ const Init = async (config: any): Promise<void> => {
 		console.log("Created folder: " + config.project);
 	}
 
-	Fetch(docker_compose, config.project);
-
-	const manifest_path = config.project + "/repo";
-
 	if (config.verbose) {
 		console.log();
-		console.log("Created folder: " + manifest_path);
+		console.log("Created folder: " + config.project);
 		console.log("Fetch manifest");
 	}
 
-	fs.mkdirSync(manifest_path);
+	fs.mkdirSync(config.project + "/repo");
 
 	var result: AxiosResponse = await axios.get(manifest_file);
 	var manifest = result.data as string[];
 
 	for (var i = 0; i < manifest.length; i++) {
-		const file = manifest[i];
+		const file: any = manifest[i];
 
 		if (config.verbose) {
 			console.log("Fetch: " + file);
 		}
 
-		await Fetch(file, manifest_path);
+		await Fetch(file.source, file.location == "." ? config.project : config.project + "/" + file.location);
 	}
 
 	console.log();

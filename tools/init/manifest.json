@@ -1,7 +1,10 @@
 [
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_entity.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_generators.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_snippets.json",
-	"https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/repo.json"
+	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/docker-compose.yml" },
+	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/go.sh" },
+	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json" },
+	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json" },
+	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_entity.json" },
+	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_generators.json" },
+	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_snippets.json" },
+	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/repo.json" }
 ]
