@@ -543,7 +543,7 @@ QikTrak is super useful for setting up Hasura with more intuitive GraphQL names,
 
 Read more about [QikTrak](https://github.com/chrisnurse/qik-trak).
 
-When comes to workig with Hasura, QikTrak gives you super powers!
+When it comes to working with Hasura, QikTrak gives you even more super powers!
 
 # Credits
 
@@ -553,6 +553,6 @@ Thank you to the key repository owners below:
 Used to create a large list of first names: https://github.com/hadley/data-baby-names/blob/master/baby-names.csv
 
 ## JSON Schema
-https://json-schema.org
+[JSON Schema reference](https://json-schema.org)
 
-https://www.liquid-technologies.com/online-json-to-schema-converter
+
