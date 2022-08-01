@@ -1,4 +1,4 @@
-[HOME](../README.md)
+[HOME](../README.md) | [Crudio Syntax Reference](repo-syntax.md) | [How Crudio Works](how-crudio-works.md)
 
 # Crudio Syntax Introduction
 
@@ -60,7 +60,7 @@ First of all, the term `Entities` relates to a concept, it's like saying that th
 
 Then, the related term `Entity` refers to a specific type of data, like a person, organisation, or customer. 
 
-An Entity can either be a fully described piece of data, such as a `ThermometerReading`, which could have a temperature, date and time, or a `Person`, as seen in our example datamodel, which is `abstract`, meaning it is a building block used to create more specific entities. 
+An Entity can either be a fully described piece of data, such as a `ThermometerReading`, which could have a temperature, date and time, or a `Person`, as seen in our example data model, which is `abstract`, meaning it is a building block used to create more specific entities. 
 
 `Person` is `abstract`, so Crudio will not create such a table in the database. Instead, any other Entity that `inherits` `Person` will copy the fields from `Person`, and they will be populated by the same generators, so our data will be consistent.  
 
@@ -140,7 +140,7 @@ So to complete the story of our data model...
 
 `Person` is not actually going to be a table in our database. Rather, `User` will be a table in the database, and so will `Client`, and both of these Entities inherit (copy fields from) `Person`. 
 
-Any fields that a `Person` has, the `User` and `Client` will also have. So, using `inherit` reuses parts of our data model, increasing our speed of development and consistency within our datamodel.
+Any fields that a `Person` has, the `User` and `Client` will also have. So, using `inherit` reuses parts of our data model, increasing our speed of development and consistency within our data model.
 
 ```
 "User": {
@@ -465,7 +465,7 @@ So we specify a `count:20` which tells Crudio to automatically generate 20 `Orga
     }
 ```
 
-In the datamodel, The `triggers` node contains instructions about what to do each time an `Organisation` is created...
+In the data model, The `triggers` node contains instructions about what to do each time an `Organisation` is created...
 
 ```json
 "triggers": [

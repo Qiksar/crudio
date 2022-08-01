@@ -1,4 +1,4 @@
-[HOME](README.md)
+[HOME](README.md) | [Crudio Syntax Reference](documentation/repo-syntax.md) | [How Crudio Works](documentation/how-crudio-works.md)
 
 # Crudio
 
@@ -9,9 +9,8 @@ Why use it? You might be building a prototype app and want a database that is fi
 ## More Information
 
 When you are ready, and need more information about how to create your own data models and values, take a look here:
-- [Crudio Syntax reference](documentation/repo-syntax.md)
+- [Crudio Syntax Reference](documentation/repo-syntax.md)
 - [How Crudio Works](documentation/how-crudio-works.md)
-
 
 ## Where to find the code and NPM package
 
@@ -23,9 +22,11 @@ Click here to find the latest published package: [NPM](https://www.npmjs.com/pac
 
 There are two ways to explore crudio. But you need to be sure you have Docker running.
 
-The first is to use the `wget` command shown below. If you have Docker running, this simply command does everything to build a demo environment you can use to explore Crudio further.
+The first is to use the `wget` command shown below. If you have Docker running, this simple command does everything required to build a demo environment, which you can use to explore Crudio further.
 
-The second is to use the CLI, which is explained step by step below.
+The second is to use the CLI, which is explained step by step further down this document.
+
+Also, if you want to remove the demo environment, instructions on how to do so are also provided lower down.
 
 ## Execute the initialisation Script from Github
 
@@ -188,17 +189,17 @@ npx -y @qiksar/crudio@latest -v -w -r repo/repo.json
 
 Browse to [Hasura Console](http://localhost:6789) (or whatever port you have used), to see the new database through Hasura GraphQL.
 
-Read how to complete the next steps in Hasura, below. 
+Refer to the example GraphQL queries above for next steps.
 
 # Crudio CLI - Command Line Arguments
 
 You can run Crudio without having to install anything specfic. 
 
-You will just need `docker` and `docker-compose` in order to create the database and Hasura containers.
+You will just need `docker` and `docker-compose` in order to create the Postgres database and Hasura containers.
 
 Example:
 
-Build a database from the repo.json data model, and include all of the entities from the iot data model.
+Build a database from the `repo.json` data model, and include all of the entities from the iot data model.
 
 
 ```
