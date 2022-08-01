@@ -31,6 +31,7 @@
     "commander-ts": "^0.2.0",
     "flatted": "^3.2.6",
     "global": "^4.4.0",
+    "jsonschema": "^1.4.1",
     "luxon": "^1.19.3"
   },
   "keywords": [

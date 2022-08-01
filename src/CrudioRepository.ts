@@ -10,6 +10,7 @@ import CrudioField from "./CrudioField";
 import CrudioRelationship from "./CrudioRelationship";
 import CrudioTable from "./CrudioTable";
 import CrudioUtils from "./CrudioUtils";
+import { CrudioJson } from "./CrudioJson";
 
 /**
  * Concrete implementation of the data model description and state
@@ -214,7 +215,7 @@ export default class CrudioRepository {
 	 * @param {ICrudioSchemaDefinition} repo
 	 */
 	private Merge(filename: string, repo: ICrudioSchemaDefinition) {
-		const input: ICrudioSchemaDefinition = CrudioRepository.LoadJson(filename, this.filestack);
+		const input: ICrudioSchemaDefinition = CrudioJson.LoadJson(filename, this.filestack);
 
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
@@ -792,30 +793,8 @@ export default class CrudioRepository {
 	 * @returns {CrudioRepository}
 	 */
 	public static FromJson(filename: string, include: string = null): CrudioRepository {
-		const json_object = this.LoadJson(filename);
+		const json_object = CrudioJson.LoadJson(filename);
 		return new CrudioRepository(json_object, include);
-	}
-
-	/**
-	 * Load a JSON object from a file
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @public
-	 * @static
-	 * @param {string} filename
-	 * @returns {*}
-	 */
-	public static LoadJson(filename: string, filestack: string[] = []): any {
-		if (filestack.indexOf(filename) >= 0) {
-			throw new Error(`Error: Circular inclusion of files, reading ${filename}. Existing files ${filestack} `);
-		}
-
-		filestack.push(filename);
-
-		var input = fs.readFileSync(filename, "utf8");
-		const json_object = JSON.parse(input);
-
-		return json_object;
 	}
 
 	/**
