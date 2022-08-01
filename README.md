@@ -545,12 +545,9 @@ When it comes to working with Hasura, QikTrak gives you even more super powers!
 
 # Credits
 
-Thank you to the key repository owners below:
-
-## Data sources
-Used to create a large list of first names: https://github.com/hadley/data-baby-names/blob/master/baby-names.csv
-
-## JSON Schema
-[JSON Schema reference](https://json-schema.org)
-
-
+|Link| Description
+|----|------|
+| [JSON Schema reference](https://json-schema.org) | Validate the structure of a JSON file, which for Crudio is how the data model is described. At the heart of Crudio is your data model. It would not be possible to efficiently and reliably build the data model without the power of JSON Schema, which ensures your syntax is correct, and also helps tools like Visual Studio Code provide auto-complete. |
+| [Follow on Twitter](https://twitter.com/jsonschema) | Follow JSON schema announcements on line |
+| [JSONSchema.dev](https://jsonschema.dev/) | Experiment with JSON files and validate them using a schema  |
+| [Names of People](https://github.com/hadley/data-baby-names/blob/master/baby-names.csv)| Comma separated data used to populate data models |
