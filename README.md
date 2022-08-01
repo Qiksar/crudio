@@ -12,52 +12,52 @@ When you are ready, and need more information about how to create your own data 
 - [Crudio Syntax reference](documentation/repo-syntax.md)
 - [How Crudio Works](documentation/how-crudio-works.md)
 
-# CLI - Initialise New Project
 
-Further information appears below for the CLI. But here is how to quickly initialise a new project:
+## Where to find the code and NPM package
 
-Create a new folder called `crudio_test`, then create a `repo` folder which contains the sample data model for guidance...
+Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
 
-Install crudio on your machine (note the use of the new `--location` option):
+Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
+
+# Build a Rich Demo From Github
+
+There are two ways to explore crudio. But you need to be sure you have Docker running.
+
+The first is to use the `wget` command shown below. If you have Docker running, this simply command does everything to build a demo environment you can use to explore Crudio further.
+
+The second is to use the CLI, which is explained step by step below.
+
+## Execute the initialisation Script from Github
+
+These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
+
+Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
 
 ```
-npm install @qiksar/crudio --location=global
+wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
 ```
 
-NOTE: older versions of NPM use:
-```
-npm install @qiksar/crudio -g
-```
+- Fetches the initialisation script from Github and executes it
+- The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
+- Crudio then populates the database with awesome test data like organisations, departments, roles and users, IoT devices and their related data logs
 
-# Initialise the new Crudio folder
-```
-npx -y @qiksar/crudio@latest -v -p crudio_test
+Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
 
+In less than 2 minutes you have created a database filled with rich demonstration data that could be used by your new prototype application.
 
-cd crudio_test
-```
+By setting up tracking in Hasura, you have instantly gained a data management API to help you read and maintain the data.
 
-# Build the containers
-
-**NOTE:** You may want to ensure the port numbers don't clash with any of your active containers
-```
-docker-compose up -d
-```
-
-# Build and populate the data
-```
-npx -y @qiksar/crudio@latest -v -w -r repo/repo.json 
-```
-
-Browse to [Hasura Console](http://localhost:6789) (or whatever post you have used), to see the new database through Hasura GraphQL.
-
-Read how to complete the next steps in Hasura, below. 
+You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
 # Example GraphQL Queries - Hasura Console
 
-Next, go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:
+Once the Crudio demo environment is running in Docker, browse to [Hasura Console](http://localhost:6789) (or whatever port you have used), to see the new database through Hasura GraphQL.
 
-**`IMPORTANT NOTE:`** When you run the initialisation script, the database schema will be `crudio`, so the example queries below will work as is. But if you run the unit tests, the schema will be `crudio_test`, so you will have to prefix the tables like so... `crudio_test_Blogs` instead of `crudio_Blogs`
+Go to the `API` tab, and copy, paste and run the following GraphQL queries and you will see that Crudio has built a complete database filled with great looking data:
+
+**`IMPORTANT NOTE:`** When you run the initialisation script, the database schema will be `crudio`, so the example queries below will work as is. 
+
+But if you run the **unit tests**, the schema will be `crudio_test`, so you will have to prefix the tables like so... `crudio_test_Blogs` instead of `crudio_Blogs`
 
 ## Get a list of blog posts with their related tags
 ```graphql
@@ -123,6 +123,7 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
   }
 }
 ```
+
 ## List the CEO and CFO for all organisations
 ```graphql
 {
@@ -152,38 +153,9 @@ Next, go to the `API` tab, and copy, paste and run the following GraphQL queries
 }
 ```
 
-
-# Build a Rich Demo From Github
-
-## Where to find the code and NPM package
-
-Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
-
-Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
-
-## Step by Step Instructions
-These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
-
-Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
-
-## Execute the initialisation Script from Github
-```
-wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
-```
-
-- Fetches the initialisation script from Github and executes it
-- The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
-- Crudio then populates the database with awesome test data like organisations, departments, roles and users, IoT devices and their related data logs
-
-Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
-
-In less than 2 minutes you have created a database filled with rich demonstration data that could be used by your new prototype application.
-
-By setting up tracking in Hasura, you have instantly gained a data management API to help you read and maintain the data.
-
-You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
-
 # How to Remove the Crudio Demo environment
+
+If you want to remove and clean-up the demo environment, follow these simple steps.
 
 Run the following command in the same folder as the `docker-compose.yml` file, and the demonstration Postgres and Hasura containers, and their images, will be removed.
 
@@ -191,7 +163,32 @@ Run the following command in the same folder as the `docker-compose.yml` file, a
 docker-compose down --rmi all
 ```
 
-You can then delete all of the files that were fetched from the Github repository. You may need administrative rights to delete the dbscripts folder, which is created by Postgres.
+You can then delete all of the files that were fetched from the Github repository. You may need administrative rights to delete the `dbscripts` folder, which is created by Postgres.
+
+# Using the CLI - Initialise a New Project
+
+## Initialise a new Crudio Project Folder
+```
+npx -y @qiksar/crudio@latest -v -p crudio_test
+cd crudio_test
+```
+
+## Build the Docker Containers
+
+**NOTE:** You may want to ensure the port numbers specified in the docker-compose file don't clash with any of your active containers
+
+```
+docker-compose up -d
+```
+
+## Build and populate the data
+```
+npx -y @qiksar/crudio@latest -v -w -r repo/repo.json 
+```
+
+Browse to [Hasura Console](http://localhost:6789) (or whatever port you have used), to see the new database through Hasura GraphQL.
+
+Read how to complete the next steps in Hasura, below. 
 
 # Crudio CLI - Command Line Arguments
 
