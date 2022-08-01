@@ -1,23 +1,61 @@
 import { Validator, ValidatorResult } from "jsonschema";
 import * as fs from "fs";
 
+/**
+ * Wrap JSON capabilities
+ * @date 8/1/2022 - 2:13:09 PM
+ *
+ * @export
+ * @class CrudioJson
+ * @typedef {CrudioJson}
+ */
 export class CrudioJson {
-	private static validator = new Validator();
-	private static schema = {};
+	/**
+     * Underlying JSON validation package
+     * @date 8/1/2022 - 2:13:09 PM
+     *
+     * @private
+     * @static
+     * @type {*}
+     */
+    private static validator = new Validator();
+	/**
+     * Collection of JSON schema
+     * @date 8/1/2022 - 2:13:09 PM
+     *
+     * @private
+     * @static
+     * @type {{}}
+     */
+    private static schema = {};
 
-	public static AddSchema(schemaPath: string, schemaId: string): void {
-		const schema = CrudioJson.GetJsonObject(schemaPath);
+	/**
+     * Add schema to the collection
+     * @date 8/1/2022 - 2:13:09 PM
+     *
+     * @public
+     * @static
+     * @param {string} schemaPath
+     * @param {string} schemaId
+     */
+    public static AddSchema(schemaPath: string, schemaId: string): void {
+		const schema = CrudioJson.LoadJson(schemaPath);
 		CrudioJson.validator.addSchema(schema, schemaId);
 		CrudioJson.schema[schemaId] = schema;
 	}
 
-	public static Validate(jsonObject: Record<string, unknown>, schemaId: string): ValidatorResult {
+	/**
+     * Validate a JSON object against a specified schema
+     * @date 8/1/2022 - 2:13:09 PM
+     *
+     * @public
+     * @static
+     * @param {Record<string, unknown>} jsonObject
+     * @param {string} schemaId
+     * @returns {ValidatorResult}
+     */
+    public static Validate(jsonObject: Record<string, unknown>, schemaId: string): ValidatorResult {
 		return CrudioJson.validator.validate(jsonObject, CrudioJson.schema[schemaId]);
-	}
-
-	public static GetJsonObject(jsonPath): Record<string, unknown> {
-		const buffer = fs.readFileSync(jsonPath, "utf8");
-		return JSON.parse(buffer);
 	}
 
 	/**
