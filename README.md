@@ -168,7 +168,22 @@ You can then delete all of the files that were fetched from the Github repositor
 
 # Using the CLI - Initialise a New Project
 
-## Initialise a new Crudio Project Folder
+The steps below describe how to perform each step of the Crudio project setup. However, there is also now a more convenient way, which is:
+
+```
+npx -y @qiksar/crudio@latest -v -p crudio_test
+cd crudio_test
+chmod u+rwx *.sh
+./go.sh
+```
+
+...and to stop and remove the docker containers...
+
+```
+./stop.sh
+```
+
+## Using NPX - Initialise a new Crudio Project Folder
 ```
 npx -y @qiksar/crudio@latest -v -p crudio_test
 cd crudio_test
@@ -182,7 +197,7 @@ cd crudio_test
 docker-compose up -d
 ```
 
-## Build and populate the data
+## Using NPX - Build and populate the data
 ```
 npx -y @qiksar/crudio@latest -v -w -r repo/repo.json 
 ```
