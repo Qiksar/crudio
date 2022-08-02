@@ -1,14 +1,17 @@
-# Crudio
+<table>
+  <tr>
+    <td> <img src="https://user-images.githubusercontent.com/45703746/182263014-7a817506-4c50-4418-8d77-06ccb61a6438.png"></td>
+    <td> <h1>Crudio</h1> Prototype Faster</td>
+   </tr> 
+</table>
+
+# Welcome to Crudio!
 
 Using Crudio will enable you to rapidly build a database filled with data based upon a data model which you build with a simple JSON file. Your data model can leverage pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and users). 
 
 Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data.
 
 This page provides a quick introduction and how to get started. Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki)
-
-## More Information
-
-When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki)
 
 ## Where to find the code and NPM package
 
@@ -117,3 +120,7 @@ chmod u+rwx *.sh
 ```
 ./stop.sh
 ```
+
+## More Information
+
+When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki)
