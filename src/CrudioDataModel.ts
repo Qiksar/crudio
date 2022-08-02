@@ -1009,7 +1009,6 @@ export default class CrudioDataModel {
 	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
-		this.ProcessTriggersForEntity(entity);
 
 		return entity;
 	}
@@ -1199,8 +1198,7 @@ export default class CrudioDataModel {
 					// get field value from current context
 					if (entity) {
 						value = this.ProcessTokensInField(entity, fieldName, clean);
-					}
-					else {
+					} else {
 						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 					}
 				} else if (query) {
@@ -1375,6 +1373,10 @@ export default class CrudioDataModel {
 	 * @param {ICrudioTriggers} triggers
 	 */
 	private ProcessTriggersForEntity(entityInstance: CrudioEntityInstance): void {
+		
+		// We have to detokenise the entity as other entities which are connected to it through a trigger, may be using lookups
+		this.ProcessTokensInEntity(entityInstance);
+
 		// For each new entity, run the script
 		const triggers = this.triggers[entityInstance.EntityType.Name];
 
@@ -1485,7 +1487,9 @@ export default class CrudioDataModel {
 	 */
 	private ConnectChildWithRelatedEntity(parent_entity: CrudioEntityInstance, field_name: string, row_index: number, target_connection: CrudioEntityInstance) {
 		// The organisation may not yet have a field for Users
-		if (!parent_entity.DataValues[field_name]) parent_entity.DataValues[field_name] = [];
+		if (!parent_entity.DataValues[field_name]) {
+			parent_entity.DataValues[field_name] = [];
+		}
 
 		// get the Users list from the organisation
 		const parent_array = parent_entity.DataValues[field_name] as [];
