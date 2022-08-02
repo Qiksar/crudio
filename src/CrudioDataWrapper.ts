@@ -1,4 +1,4 @@
-import CrudioRepository from "./CrudioRepository";
+import CrudioDataModel from "./CrudioDataModel";
 import CrudioField from "./CrudioField";
 import CrudioGQL from "./CrudioGQL";
 import CrudioTable from "./CrudioTable";
@@ -79,9 +79,9 @@ export default class CrudioDataWrapper {
 	 * Schema definition
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
-	 * @type {CrudioRepository}
+	 * @type {CrudioDataModel}
 	 */
-	private repo: CrudioRepository;
+	private repo: CrudioDataModel;
 
 	/**
 	 * Creates an instance of CrudioDataWrapper.
@@ -89,9 +89,9 @@ export default class CrudioDataWrapper {
 	 *
 	 * @constructor
 	 * @param {ICrudioConfig} config
-	 * @param {CrudioRepository} repo
+	 * @param {CrudioDataModel} repo
 	 */
-	constructor(config: ICrudioConfig, repo: CrudioRepository) {
+	constructor(config: ICrudioConfig, repo: CrudioDataModel) {
 		this.config = { ...config };
 		if (repo.TargetDbSchema) this.config.schema = repo.TargetDbSchema;
 

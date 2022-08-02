@@ -5,7 +5,7 @@ import { stringify, parse } from "flatted";
 import * as fs from "fs";
 
 import { ICrudioConfig } from "../../src/CrudioTypes";
-import CrudioRepository from "../../src/CrudioRepository";
+import CrudioRepository from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
@@ -35,6 +35,17 @@ describe("Create fake data", () => {
 
 		const joe: any = parse(text);
 		expect(joe.firstName).not.toBeNull;
+	});
+
+	test("Find Arrow Corporation and William Tell", () => {
+		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const rows = repo.GetTable("Organisations").DataRows;
+		const arrow = rows[0];
+		const william = arrow.DataValues.Users[0].DataValues;
+
+		expect(arrow.DataValues.name).toEqual("Arrow Corporation");
+		expect(william.firstname).toEqual("William");
+		expect(william.lastname).toEqual("Tell");
 	});
 
 	test("Load repository definition from JSON file", () => {
@@ -68,8 +79,7 @@ describe("Create fake data", () => {
 		var count = 0;
 		blogs.DataRows.map(blog_post => {
 			const blog_tags = repo.ExecuteCrudioQuery(tags.EntityDefinition.Name, `Blog=${blog_post.DataValues.id}`);
-			if (blog_tags.length == 0)
-				count++;
+			if (blog_tags.length == 0) count++;
 		});
 
 		// How many blogs don't have tags?

@@ -45,11 +45,11 @@ export default class CrudioGQL {
 
 		let requestConfig: {} = {};
 
-		if (this.config. hasuraAdminSecret) {
+		if (this.config.hasuraAdminSecret) {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					"X-Hasura-Admin-Secret": this.config. hasuraAdminSecret,
+					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
 				},
 			};
 		}
@@ -90,11 +90,11 @@ export default class CrudioGQL {
 
 		let requestConfig: {} = {};
 
-		if (this.config. hasuraAdminSecret) {
+		if (this.config.hasuraAdminSecret) {
 			requestConfig = {
 				...requestConfig,
 				headers: {
-					"X-Hasura-Admin-Secret": this.config. hasuraAdminSecret,
+					"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
 				},
 			};
 		}
@@ -109,6 +109,7 @@ export default class CrudioGQL {
 		} catch (e: any) {
 			if (e.code === "ECONNREFUSED") {
 				console.error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
+				throw new Error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 			} else {
 				console.error("Error: Failed to execute SQL statement.");
 				console.error(e.response.data ?? e.response);

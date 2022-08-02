@@ -4,7 +4,7 @@ import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioRelationship from "./CrudioRelationship";
 import CrudioUtils from "./CrudioUtils";
-import CrudioRepository from "./CrudioRepository";
+import CrudioDataModel from "./CrudioDataModel";
 
 /**
  * Entity definition, the concrete form of an entity schema
@@ -170,7 +170,7 @@ export default class CrudioEntityDefinition {
 	 * @public
 	 * @type {number}
 	 */
-	private max_row_count: number | string = CrudioRepository.DefaultNumberOfRowsToGenerate;
+	private max_row_count: number | string = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 	public set MaxRowCount(value: string | number) {
 		this.max_row_count = value;
 	}

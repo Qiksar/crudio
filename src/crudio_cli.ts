@@ -13,7 +13,7 @@ import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
-import CrudioRepository from "./CrudioRepository";
+import CrudioDataModel from "./CrudioDataModel";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -101,7 +101,7 @@ setTimeout(async () => {
 	console.log(`Loading Crudio repository definition from: "${config.repo}"`);
 	console.log();
 
-	const repo = CrudioRepository.FromJson(config.repo);
+	const repo = CrudioDataModel.FromJson(config.repo);
 	console.log("Data repository definition loaded");
 
 	const db = new CrudioDataWrapper(config, repo);

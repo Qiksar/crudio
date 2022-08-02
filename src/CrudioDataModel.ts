@@ -1,5 +1,6 @@
-import { stringify, parse } from "flatted";
+import { AxiosResponse } from "axios";
 import * as fs from "fs";
+import { stringify, parse } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
@@ -18,10 +19,19 @@ import { CrudioJson } from "./CrudioJson";
  *
  * @export
  * @class CrudioRepository
- * @typedef {CrudioRepository}
+ * @typedef {CrudioDataModel}
  */
-export default class CrudioRepository {
+export default class CrudioDataModel {
 	//#region Properties
+
+	/**
+	 * List of hard coded value assignments
+	 * @date 8/2/2022 - 12:35:28 PM
+	 *
+	 * @private
+	 * @type {string[]}
+	 */
+	private assign: string[] = [];
 
 	/**
 	 * List of triggers to run when entities are created
@@ -132,8 +142,6 @@ export default class CrudioRepository {
 	 */
 	constructor(dataModel: ICrudioSchemaDefinition, include: string = null) {
 		this.PreProcessRepositoryDefinition(dataModel, include);
-		this.ExpandAllSnippets(dataModel);
-		this.LoadEntityDefinitions(dataModel);
 		this.FillDataTables();
 	}
 
@@ -145,14 +153,14 @@ export default class CrudioRepository {
 	 *
 	 * @private
 	 * @static
-	 * @param {CrudioRepository} schema
+	 * @param {CrudioDataModel} schema
 	 */
-	private static SetPrototypes(schema: CrudioRepository) {
+	private static SetPrototypes(schema: CrudioDataModel) {
 		if (!schema.entityDefinitions) schema.entityDefinitions = [];
 		if (!schema.generators) schema.generators = {};
 		if (!schema.relationships) schema.relationships = [];
 
-		Object.setPrototypeOf(schema, CrudioRepository.prototype);
+		Object.setPrototypeOf(schema, CrudioDataModel.prototype);
 
 		schema.entityDefinitions.map((e: any) => {
 			Object.setPrototypeOf(e, CrudioEntityDefinition.prototype);
@@ -173,66 +181,71 @@ export default class CrudioRepository {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {ICrudioSchemaDefinition} repo
+	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
-	private PreProcessRepositoryDefinition(repo: ICrudioSchemaDefinition, include: string = null): void {
-		if (!repo.generators) {
-			repo.generators = [];
+	private PreProcessRepositoryDefinition(dataModel: ICrudioSchemaDefinition, include: string = null): void {
+		if (!dataModel.include) {
+			dataModel.include = [];
 		}
 
-		if (!repo.triggers) {
-			repo.triggers = [];
+		if (!dataModel.generators) {
+			dataModel.generators = [];
 		}
 
-		if (!repo.snippets) {
-			repo.snippets = {};
+		if (!dataModel.triggers) {
+			dataModel.triggers = [];
 		}
 
-		if (!repo.include) {
-			repo.include = [];
+		if (!dataModel.assign) {
+			dataModel.assign = [];
 		}
 
 		if (include) {
-			repo.include = [include, ...repo.include];
+			dataModel.include = [include, ...dataModel.include];
 		}
 
-		repo.include.map((filename: any) => {
-			this.Merge(filename, repo);
+		dataModel.include.map((filename: any) => {
+			this.Merge(filename, dataModel);
 		});
 
-		this.LoadGenerators(repo.generators);
-		this.LoadTriggers(repo.triggers);
+		this.LoadGenerators(dataModel.generators);
+		this.LoadTriggers(dataModel.triggers);
+		this.ExpandAllSnippets(dataModel);
+		this.LoadEntityDefinitions(dataModel);
+		this.LoadAssignments(dataModel);
 	}
 
-	// Merge an external repository into the current one
-	// This works recursively so the repository being merged can also include (merge) other repositories
 	/**
 	 * Merge a specified JSON file into the nomintated schema definition
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
 	 * @param {string} filename
-	 * @param {ICrudioSchemaDefinition} repo
+	 * @param {ICrudioSchemaDefinition} datamodel
 	 */
-	private Merge(filename: string, repo: ICrudioSchemaDefinition) {
+	private Merge(filename: string, datamodel: ICrudioSchemaDefinition) {
 		const input: ICrudioSchemaDefinition = CrudioJson.LoadJson(filename, this.filestack);
 
 		if (input.include) this.PreProcessRepositoryDefinition(input);
 
 		if (input.generators) {
-			repo.generators = [...repo.generators, ...input.generators];
+			datamodel.generators = [...datamodel.generators, ...input.generators];
 		}
 
 		if (input.snippets) {
-			repo.snippets = { ...repo.snippets, ...input.snippets };
+			datamodel.snippets = { ...datamodel.snippets, ...input.snippets };
 		}
 
 		if (input.entities) {
-			repo.entities = { ...input.entities, ...repo.entities };
+			datamodel.entities = { ...input.entities, ...datamodel.entities };
 		}
 
 		if (input.triggers) {
-			repo.triggers = [...repo.triggers, ...input.triggers];
+			datamodel.triggers = [...datamodel.triggers, ...input.triggers];
+		}
+
+		if (input.assign) {
+			datamodel.assign = [...datamodel.assign, ...input.assign];
 		}
 	}
 
@@ -241,15 +254,15 @@ export default class CrudioRepository {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {ICrudioSchemaDefinition} repo
+	 * @param {ICrudioSchemaDefinition} datamodel
 	 */
-	private LoadEntityDefinitions(repo: ICrudioSchemaDefinition): void {
+	private LoadEntityDefinitions(datamodel: ICrudioSchemaDefinition): void {
 		this.entityDefinitions = [];
-		var entity_names: string[] = Object.keys(repo.entities);
+		var entity_names: string[] = Object.keys(datamodel.entities);
 
 		for (var index: number = 0; index < entity_names.length; index++) {
 			var entityname: string = entity_names[index];
-			var entitySchema: any = repo.entities[entityname];
+			var entitySchema: any = datamodel.entities[entityname];
 			this.CreateEntityDefinition(entitySchema, entityname);
 		}
 
@@ -310,16 +323,16 @@ export default class CrudioRepository {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {ICrudioSchemaDefinition} repo
+	 * @param {ICrudioSchemaDefinition} datamodel
 	 */
-	private ExpandAllSnippets(repo: ICrudioSchemaDefinition) {
-		Object.keys(repo.entities).map(e => {
-			const entity = repo.entities[e];
+	private ExpandAllSnippets(datamodel: ICrudioSchemaDefinition) {
+		Object.keys(datamodel.entities).map(e => {
+			const entity = datamodel.entities[e];
 			const entity_snippets = entity.snippets as string[];
 
 			if (entity_snippets) {
 				entity_snippets.map(s => {
-					entity.fields[s] = { ...repo.snippets[s] };
+					entity.fields[s] = { ...datamodel.snippets[s] };
 				});
 
 				// snippets can be deleted from the definition once they have been expanded
@@ -340,13 +353,12 @@ export default class CrudioRepository {
 		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname, entityDefinition.abstract, false);
 		entityType.MaxRowCount = entityDefinition.count;
 
-		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioRepository.DefaultNumberOfRowsToGenerate;
+		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 
 		if (entityDefinition.inherits) {
 			if (typeof entityDefinition.inherits === "string") {
 				this.InheritBaseFields(entityDefinition.inherits, entityType);
-			}
-			else if (Array.isArray(entityDefinition.inherits)) {
+			} else if (Array.isArray(entityDefinition.inherits)) {
 				(entityDefinition.inherits as []).map((i: string) => {
 					this.InheritBaseFields(i, entityType);
 				});
@@ -553,7 +565,7 @@ export default class CrudioRepository {
 		sourceTable.DataRows.map((sourceRow: CrudioEntityInstance) => {
 			// row_num is intended to ensure every entity on the "many" side gets at least one
 			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
-			const row_num = index > targetTable.DataRows.length - 1 ? CrudioRepository.GetRandomNumber(0, targetTable.DataRows.length) : index++;
+			const row_num = index > targetTable.DataRows.length - 1 ? CrudioDataModel.GetRandomNumber(0, targetTable.DataRows.length) : index++;
 			if (row_num < targetTable.DataRows.length) {
 				const targetRow = targetTable.DataRows[row_num];
 				this.ConnectRows(sourceRow, targetRow);
@@ -596,7 +608,7 @@ export default class CrudioRepository {
 
 			// add the required number of target objects, e.g. Tag
 			for (var i = 0; i < c; i++) {
-				const row_num = CrudioRepository.GetRandomNumber(0, options.length);
+				const row_num = CrudioDataModel.GetRandomNumber(0, options.length);
 				options.slice(row_num, 1);
 
 				const row = this.CreateEntityInstance(d);
@@ -790,11 +802,11 @@ export default class CrudioRepository {
 	 * @public
 	 * @static
 	 * @param {string} filename
-	 * @returns {CrudioRepository}
+	 * @returns {CrudioDataModel}
 	 */
-	public static FromJson(filename: string, include: string = null): CrudioRepository {
+	public static FromJson(filename: string, include: string = null): CrudioDataModel {
 		const json_object = CrudioJson.LoadJson(filename);
-		return new CrudioRepository(json_object, include);
+		return new CrudioDataModel(json_object, include);
 	}
 
 	/**
@@ -804,18 +816,18 @@ export default class CrudioRepository {
 	 * @public
 	 * @static
 	 * @param {string} input
-	 * @returns {CrudioRepository}
+	 * @returns {CrudioDataModel}
 	 */
-	public static FromString(input: string): CrudioRepository {
+	public static FromString(input: string): CrudioDataModel {
 		input = input.trim();
 
 		// wrap JSON in array
 		if (input[0] != "[") input = "[" + input + "]";
 
-		const repo: CrudioRepository = parse(input);
-		CrudioRepository.SetPrototypes(repo);
+		const datamodel: CrudioDataModel = parse(input);
+		CrudioDataModel.SetPrototypes(datamodel);
 
-		return repo;
+		return datamodel;
 	}
 
 	/**
@@ -836,7 +848,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 * Output the data model as a Mermaid diagram
 	 * @date 7/31/2022 - 9:31:00 AM
 	 *
 	 * @public
@@ -916,6 +928,9 @@ export default class CrudioRepository {
 		// This must be done after token processing, because that is the step in the process where all
 		// value generators have executed, which enables the lookups to complete
 		this.ConnectDefaultRelationships();
+
+		// Process hard coded assignment of values
+		this.ProcessAssignments();
 	}
 
 	/**
@@ -937,7 +952,7 @@ export default class CrudioRepository {
 		} else if (typeof table.EntityDefinition.MaxRowCount === "number") {
 			count = table.EntityDefinition.MaxRowCount;
 		} else {
-			count = CrudioRepository.DefaultNumberOfRowsToGenerate;
+			count = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 		}
 
 		for (var c = 0; c < count; c++) {
@@ -1018,6 +1033,19 @@ export default class CrudioRepository {
 	//#region Token Processing and value generation
 
 	/**
+	 * Load generator definitions
+	 * @date 8/2/2022 - 12:32:13 PM
+	 *
+	 * @private
+	 * @param {ICrudioGenerator[]} generators
+	 */
+	private LoadGenerators(generators: ICrudioGenerator[]): void {
+		generators.map(g => {
+			this.generators[g.name] = g.values;
+		});
+	}
+
+	/**
 	 * Process all tokens in entities for all tables
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
@@ -1030,7 +1058,7 @@ export default class CrudioRepository {
 	}
 
 	/**
-	 * Description placeholder
+	 Process all tokens in entities stored in a specified table
 	 * @date 7/31/2022 - 10:10:33 AM
 	 *
 	 * @private
@@ -1119,7 +1147,7 @@ export default class CrudioRepository {
 
 		if (!value) {
 			// we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
-			value = CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity);
+			value = CrudioDataModel.GetEntityFieldValueFromPath(fieldName, entity);
 		}
 
 		value = clean ? value.trim().replaceAll(" ", "").toLowerCase() : value;
@@ -1168,7 +1196,7 @@ export default class CrudioRepository {
 					if (entity) value = this.ProcessTokensInField(entity, fieldName, clean);
 					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 				} else if (query) {
-					if (entity) value = `[${CrudioRepository.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					if (entity) value = `[${CrudioDataModel.GetEntityFieldValueFromPath(fieldName, entity)}]`;
 					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 				} else {
 					// use a generator
@@ -1226,7 +1254,7 @@ export default class CrudioRepository {
 			value = this.GetRandomStringFromList(content);
 		} else if (content.includes(">")) {
 			var vals: string[] = content.split(">");
-			value = CrudioRepository.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
+			value = CrudioDataModel.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
 		} else {
 			value = content;
 		}
@@ -1289,8 +1317,7 @@ export default class CrudioRepository {
 		const source_field_name = path[path.length - 1];
 		const value = source.DataValues[source_field_name];
 
-		if (!value)
-			throw "whoops";
+		if (!value) throw "whoops";
 
 		return value;
 	}
@@ -1312,7 +1339,7 @@ export default class CrudioRepository {
 
 	//#endregion
 
-	//#region scripts
+	//#region Triggers
 
 	/**
 	 * Load triggers which get executed when a specific entity type is created
@@ -1323,12 +1350,6 @@ export default class CrudioRepository {
 	private LoadTriggers(triggers: ICrudioTrigger[]): void {
 		triggers.map(t => {
 			this.triggers[t.entity] = t.scripts;
-		});
-	}
-
-	private LoadGenerators(generators: ICrudioGenerator[]): void {
-		generators.map(g => {
-			this.generators[g.name] = g.values;
 		});
 	}
 
@@ -1348,7 +1369,7 @@ export default class CrudioRepository {
 		if (!triggers) return;
 
 		triggers.map((s: any) => {
-			this.ExecuteScript(entityInstance, s);
+			this.ExecuteTrigger(entityInstance, s);
 		});
 	}
 
@@ -1360,7 +1381,7 @@ export default class CrudioRepository {
 	 * @param {CrudioEntityInstance} parent_entity
 	 * @param {string} script
 	 */
-	private ExecuteScript(parent_entity: CrudioEntityInstance, script: string): void {
+	private ExecuteTrigger(parent_entity: CrudioEntityInstance, script: string): void {
 		script = this.ReplaceTokens(script);
 
 		const query_index = script.indexOf("?");
@@ -1499,5 +1520,103 @@ export default class CrudioRepository {
 			throw new Error(`Error: Failed to generate entity for index ${row_index} in ${parent_entity.EntityType}`);
 		}
 	}
+
+	//#endregion
+
+	//#region hard code value assignments
+
+	/**
+	 * Load hard coded assignments
+	 * @date 8/2/2022 - 12:57:37 PM
+	 *
+	 * @private
+	 * @param {*} datamodel
+	 */
+	private LoadAssignments(datamodel: ICrudioSchemaDefinition): void {
+		this.assign = datamodel.assign;
+	}
+
+	/**
+	 * Assign hard coded values to specified entity fields
+	 * @date 8/2/2022 - 12:32:13 PM
+	 *
+	 * @private
+	 */
+	private ProcessAssignments(): void {
+		this.assign.map(a => {
+			this.ProcessAssignment(a);
+		});
+	}
+
+	/**
+	 * Description placeholder
+	 * @date 8/2/2022 - 12:57:37 PM
+	 *
+	 * @private
+	 * @param {string} instruction
+	 */
+	private ProcessAssignment(instruction: string): void {
+		const parts = instruction.split("=");
+
+		if (parts.length < 2) {
+			throw new Error(`Error: invalid assignment syntax in '${instruction}'`);
+		}
+
+		const target = this.GetObjectFromPath(parts[0]);
+
+		if (!target.entityValues) {
+			throw new Error(`Error: can not retrieve the target object specified in '${instruction}'`);
+		}
+
+		if (!target.field) {
+			throw new Error(`Error: can not retrieve the target field specified in '${instruction}'`);
+		}
+
+		target.entityValues[target.field] = parts[1];
+	}
+
+	/**
+	 * Description placeholder
+	 * @date 8/2/2022 - 12:57:37 PM
+	 *
+	 * @private
+	 * @param {string} path
+	 * @returns {CrudioEntityInstance}
+	 */
+	private GetObjectFromPath(path: string): any {
+		const parts = path.split(".");
+
+		if (parts.length < 1) {
+			throw new Error(`Error: invalid assignment syntax in '${path}'`);
+		}
+
+		var obj = null;
+
+		for (var i = 0; i < parts.length - 1; i++) {
+			var p = parts[i];
+
+			var index = -1;
+			var start = p.indexOf("(") + 1;
+
+			if (start > 0) {
+				var end = p.indexOf(")");
+				var val = p.substring(start, end);
+				index = Number.parseInt(val);
+				p = p.substring(0, start - 1);
+
+				if (index === NaN) {
+					throw new Error(`Error: failed to find a numeric index for ${p} in '${path}'`);
+				}
+			}
+
+			obj = this.GetTable(p).DataRows;
+			if (index >= 0) {
+				obj = obj[index].DataValues;
+			}
+		}
+
+		return { entityValues: obj, field: parts[parts.length - 1] };
+	}
+
 	//#endregion
 }

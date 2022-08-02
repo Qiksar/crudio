@@ -77,6 +77,15 @@ export interface ICrudioConfig {
  * @typedef {ICrudioSchemaDefinition}
  */
 export interface ICrudioSchemaDefinition {
+	
+	/**
+	 * List of hard code assignments
+	 * @date 8/2/2022 - 12:11:48 PM
+	 *
+	 * @type {string[]}
+	 */
+	assign: string[];
+
 	/**
 	 * List of other files to include
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -513,12 +522,52 @@ interface ISingularNamedRelationship {
 	values: string;
 }
 
+/**
+ * Instructions to execute each time a specific entity type is created
+ * @date 8/2/2022 - 12:11:48 PM
+ *
+ * @export
+ * @interface ICrudioTrigger
+ * @typedef {ICrudioTrigger}
+ */
 export interface ICrudioTrigger {
+	/**
+	 * Name of the entity definition
+	 * @date 8/2/2022 - 12:11:48 PM
+	 *
+	 * @type {string}
+	 */
 	entity: string;
+	/**
+	 * Instructions to execute
+	 * @date 8/2/2022 - 12:11:48 PM
+	 *
+	 * @type {string[]}
+	 */
 	scripts: string[];
 }
 
+/**
+ * Definition of a data generator
+ * @date 8/2/2022 - 12:11:48 PM
+ *
+ * @export
+ * @interface ICrudioGenerator
+ * @typedef {ICrudioGenerator}
+ */
 export interface ICrudioGenerator {
+	/**
+	 * Name of the generator
+	 * @date 8/2/2022 - 12:11:48 PM
+	 *
+	 * @type {string}
+	 */
 	name: string;
+	/**
+	 * Configuration of how to build a data value
+	 * @date 8/2/2022 - 12:11:48 PM
+	 *
+	 * @type {string}
+	 */
 	values: string;
 }

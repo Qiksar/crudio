@@ -167,6 +167,11 @@
 			"additionalProperties": {
 				"$ref": "#/definitions/field"
 			}
+		},
+		"assign": {
+			"description": "assign hardcoded values to fields of entities",
+			"type": "array",
+			"items": { "type": "string" }
 		}
 	}
 }
