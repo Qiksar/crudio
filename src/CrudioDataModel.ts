@@ -684,7 +684,6 @@ export default class CrudioDataModel {
 				// connect the user from the organisation with the role
 				this.ConnectRows(sourceRow, targetRow);
 
-				// HAK - set a flag so we don't process the same row twice
 				sourceRow.skip = true;
 			});
 		});
@@ -1318,9 +1317,6 @@ export default class CrudioDataModel {
 		if (!source) {
 			throw "whoops";
 		}
-
-		// TODO HAK
-		//this.ProcessTokensInEntity(source);
 
 		const source_field_name = path[path.length - 1];
 		const value = source.DataValues[source_field_name];
