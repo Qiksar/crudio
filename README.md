@@ -11,7 +11,7 @@ Using Crudio will enable you to rapidly build a database filled with data based 
 
 Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data.
 
-This page provides a quick introduction and how to get started. Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki)
+This page provides a quick introduction and how to get started. Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
 
 ## Where to find the code and NPM package
 
@@ -123,4 +123,4 @@ chmod u+rwx *.sh
 
 ## More Information
 
-When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki)
+When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
