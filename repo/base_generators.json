@@ -142,8 +142,16 @@
 			"values": "hr;finance;it;exec;sales;purchasing"
 		},
 		{
+			"name": "company_type",
+			"values": "Minerals;Psychologists;Physio;Designers;Laboratories;Cloud;Services;Airways;Hosting;Corp;Biz;PLC;Limited;Industries;Resources;Association;Group;Institute;School;University;College;Tech;Health;Food;Partners;Consulting;"
+		},
+		{
+			"name": "company_name",
+			"values": "Mega;Medi;Mini;Global;Betta;Uba;West;Space;Picta;Woodlane;Treslah;Zoox;Toyo;Playtoon;Yoogo;Bleepstah;Gastex;Peopl;Stayz;Getitnow;Shopez;Help4free;AssistMe;HelpYou;Communitexpro;GroupsMeetNow;AllForFree;Upcyclaz;Recyclaz;JunkToCashNow;WorkFromYahHome;MediGeniuz;DoctahSmart;QikBild;QikShop;QikBuy;Autohomeztek;Sensaz;Smart;"
+		},
+		{
 			"name": "organisation_name",
-			"values": "Mega Corp;Global Acme Industries;BettaWorld;UbaCabz;WestBank;Spacebook;Pictagram;Woodlane;Treslah;Zoox;Toyo;Playtoon;Yoogothere;Bleepstah;Gastex;Peoplville;Staylocalz;Getitnow;Shopez;Help4free;AssistMe;HelpYou;Communitexpro;GroupsMeetNow;AllForFree;Upcyclaz;Recyclaz;JunkToCashNow;WorkFromYahHome;MediGeniuz;DoctahSmart;QikHelpOnlik;QikShopFromHome;Autohomeztek;SensazEverywhere;SmartSenz247;"
+			"values": "[company_name] [company_type]"
 		},
 		{
 			"name": "length",
