@@ -97,7 +97,7 @@
 					"generator": "[address]"
 				},
 				"email": {
-					"generator": "contact@[!name].org.au"
+					"generator": "contact@[!~name].org.au"
 				}
 			}
 		},
@@ -308,5 +308,11 @@
 				"Users(31-40).OrganisationDepartment?name=IT"
 			]
 		}
+	],
+	"assign": [
+		"Organisations(0).Users(0).firstname=William",
+		"Organisations(0).Users(0).lastname=Tell",
+		"Organisations(0).name=Arrow Corporation",
+		"Organisations(1).name=Bowing Services"
 	]
 }

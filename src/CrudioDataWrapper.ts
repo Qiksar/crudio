@@ -193,7 +193,7 @@ export default class CrudioDataWrapper {
 
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
-			instructions.table_column_definitions += `"${r.FromColumn}" uuid,`;
+			instructions.table_column_definitions += `"${r.FromColumn}" uuid,`; // TODO if required NOT NULL
 			instructions.table_field_list.push(r.FromColumn);
 		});
 
@@ -296,7 +296,7 @@ export default class CrudioDataWrapper {
 	 * @returns {string}
 	 */
 	private BuildCreateTableStatement(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): string {
-		const addKeySQL = `"${entity.KeyField.fieldName}" uuid DEFAULT gen_random_uuid() PRIMARY KEY,`;
+		const addKeySQL = `"${entity.KeyField.fieldName}" uuid PRIMARY KEY NOT NULL,`;
 		const sql = `
 		CREATE TABLE "${this.config.schema}"."${table.TableName}" 
 		(${addKeySQL} ${instructions.table_column_definitions});

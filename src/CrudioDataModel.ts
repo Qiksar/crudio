@@ -1147,7 +1147,7 @@ export default class CrudioDataModel {
 
 		if (!value) {
 			// we failed to get a value, but it's likely because we have a generator which is referencing a related entity, like organisation.name
-			value = CrudioDataModel.GetEntityFieldValueFromPath(fieldName, entity);
+			value = this.GetEntityFieldValueFromPath(fieldName, entity);
 		}
 
 		value = clean ? value.trim().replaceAll(" ", "").toLowerCase() : value;
@@ -1188,29 +1188,34 @@ export default class CrudioDataModel {
 				fieldName = fieldName.slice(params.length);
 
 				const lookup = params.indexOf("!") >= 0;
+
+				// ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
+				// We don't clean when deferred otherwise we will change the case of field names used in generators
 				const clean = params.indexOf("~") >= 0;
+
 				var query = params.indexOf("?") >= 0;
 
 				if (lookup) {
 					// get field value from current context
-					if (entity) value = this.ProcessTokensInField(entity, fieldName, clean);
-					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
+					if (entity) {
+						value = this.ProcessTokensInField(entity, fieldName, clean);
+					}
+					else {
+						throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
+					}
 				} else if (query) {
-					if (entity) value = `[${CrudioDataModel.GetEntityFieldValueFromPath(fieldName, entity)}]`;
+					if (entity) value = `[${this.GetEntityFieldValueFromPath(fieldName, entity)}]`;
 					else throw new Error(`Error: entity must be specified when using '!' to lookup: ${fieldValue}`);
 				} else {
 					// use a generator
 					value = this.GetGeneratedValue(fieldName);
+				}
 
-					// ~ option means remove all spaces and convert to lower case. Useful to create email and domain names
-					// We don't clean when deferred otherwise we will change the case of field names used in generators
-					if (value && clean) {
-						value = value.trim().replaceAll(" ", "").toLowerCase();
-					}
+				if (value && clean) {
+					value = value.trim().replaceAll(" ", "").toLowerCase();
 				}
 
 				fieldValue = fieldValue.replace(`[${token}]`, value);
-				token = fieldValue.replace(/\[|\]/g, "");
 			});
 
 			// repeat the process if there are still more tokens in the string
@@ -1303,7 +1308,7 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} entity
 	 * @returns {string}
 	 */
-	public static GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance): string {
+	public GetEntityFieldValueFromPath(fieldName: string, entity: CrudioEntityInstance): string {
 		const path = fieldName.split(".");
 		var source = entity;
 
@@ -1312,12 +1317,19 @@ export default class CrudioDataModel {
 			source = source.DataValues[child_entity_name];
 		}
 
-		if (!source) throw "whoops";
+		if (!source) {
+			throw "whoops";
+		}
+
+		// TODO HAK
+		//this.ProcessTokensInEntity(source);
 
 		const source_field_name = path[path.length - 1];
 		const value = source.DataValues[source_field_name];
 
-		if (!value) throw "whoops";
+		if (!value) {
+			throw "whoops";
+		}
 
 		return value;
 	}
@@ -1382,6 +1394,7 @@ export default class CrudioDataModel {
 	 * @param {string} script
 	 */
 	private ExecuteTrigger(parent_entity: CrudioEntityInstance, script: string): void {
+		this.ProcessTokensInEntity(parent_entity);
 		script = this.ReplaceTokens(script);
 
 		const query_index = script.indexOf("?");
@@ -1391,24 +1404,6 @@ export default class CrudioDataModel {
 		var field_name = parts[0];
 		var entity_type = parts[1];
 		var row_index = -1;
-
-		const rel = parent_entity.EntityType.ManyToManyRelationships.filter(m => m.RelationshipName === parts[0]);
-
-		if (rel.length > 0) {
-			const t = this.GetTableForEntityDefinition(rel[0].ToEntity);
-
-			const rows = this.ExecuteCrudioQuery(t.EntityDefinition.Name, query);
-			if (rows.length == 0) {
-				throw new Error(`Error: Failed to find ${t.EntityDefinition} matching query: ${query}`);
-			}
-
-			const te = rows[0];
-			const m = this.GetTable(field_name);
-
-			// TODO build the many to many entity joining the tag and blog
-			//m.DataRows.push(ee);
-			return;
-		}
 
 		const bracket = field_name.indexOf("(");
 		if (bracket > -1) {
