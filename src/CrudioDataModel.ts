@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import * as fs from "fs";
 import { stringify, parse } from "flatted";
 import { randomUUID } from "crypto";
