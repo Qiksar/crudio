@@ -347,7 +347,7 @@ export default class CrudioEntityDefinition {
 			throw new Error("'" + fieldName + "' is already defined on entity '" + this.Name + "'");
 		}
 
-		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "uuid", fieldName);
+		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "uuid");
 		keyField.fieldOptions.isKey = true;
 		keyField.fieldOptions.readonly = true;
 
@@ -361,12 +361,11 @@ export default class CrudioEntityDefinition {
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
 	 * @param {string} fieldName
-	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddString(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
-		this.AddField(fieldName, "string", caption, options);
+	AddString(fieldName: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
+		this.AddField(fieldName, "string", options);
 
 		return this;
 	}
@@ -376,12 +375,11 @@ export default class CrudioEntityDefinition {
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
 	 * @param {string} fieldName
-	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddNumber(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
-		this.AddField(fieldName, "number", caption, options);
+	AddNumber(fieldName: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
+		this.AddField(fieldName, "number", options);
 
 		return this;
 	}
@@ -391,12 +389,11 @@ export default class CrudioEntityDefinition {
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
 	 * @param {string} fieldName
-	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddBoolean(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
-		this.AddField(fieldName, "boolean", caption, options);
+	AddBoolean(fieldName: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
+		this.AddField(fieldName, "boolean", options);
 
 		return this;
 	}
@@ -406,12 +403,11 @@ export default class CrudioEntityDefinition {
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
 	 * @param {string} fieldName
-	 * @param {?string} [caption]
 	 * @param {?ICrudioFieldOptions} [options]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddDate(fieldName: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
-		this.AddField(fieldName, "date", caption, options);
+	AddDate(fieldName: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
+		this.AddField(fieldName, "date", options);
 
 		return this;
 	}
@@ -426,17 +422,16 @@ export default class CrudioEntityDefinition {
 	 * @param {?ICrudioFieldOptions} [options]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddField(fieldName: string, fieldType: string, caption?: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
+	AddField(fieldName: string, fieldType: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
 		var field = this.GetField(fieldName);
 
 		if (!field) {
 			// If the field does not exist, create it
-			field = new CrudioField(fieldName, fieldType, caption, options);
+			field = new CrudioField(fieldName, fieldType, options);
 			this.fields.push(field);
-		} else {
+		} else if (options) {
 			// Else allow a type which inherits fields from a base, to override the values of the inherited field
-			if (caption) field.caption = caption;
-			if (options) field.fieldOptions = options;
+			field.fieldOptions = options;
 		}
 
 		return this;

@@ -19,14 +19,6 @@ export default class CrudioField implements ICrudioField {
    */
   public fieldName: string;
   /**
-   * Caption to use in UI
-   * @date 7/18/2022 - 3:35:36 PM
-   *
-   * @public
-   * @type {?string}
-   */
-  public caption?: string;
-  /**
    * Type of field
    * @date 7/18/2022 - 3:35:36 PM
    *
@@ -64,10 +56,9 @@ export default class CrudioField implements ICrudioField {
   constructor(
     fieldName: string,
     fieldType: string,
-    caption?: string,
     options?: ICrudioFieldOptions
   ) {
-    if (!fieldType) 
+    if (!fieldType)
       throw new Error(`Field:${fieldName} - fieldType has not been specified.`);
 
     if (!options) {
@@ -76,47 +67,9 @@ export default class CrudioField implements ICrudioField {
 
     this.fieldName = fieldName;
     this.fieldType = fieldType;
-    this.caption = caption;
     this.fieldOptions = options;
   }
 
-  /**
-   * Get the caption for the field
-   * @date 7/18/2022 - 3:35:36 PM
-   *
-   * @returns {string}
-   */
-  GetCaption(): string {
-    var input: string = this.caption || this.fieldName || "";
-    input = input.charAt(0).toUpperCase() + input.slice(1);
-
-    var parts = input.split(/(?=[A-Z])/);
-
-    if (parts) {
-      input = "";
-      parts.map((t: string) => (input += t.length > 0 ? t + " " : ""));
-
-      var result: string = input
-        .toLowerCase()
-        .replace(/\-/g, " ")
-        .replace(/\_/g, " ");
-
-      var val: string = "";
-      result
-        .split(" ")
-        .map(
-          (t: string) => (val += t.charAt(0).toUpperCase() + t.slice(1) + " ")
-        );
-
-      this.caption = val.trim();
-    } else {
-      this.caption = input;
-    }
-
-    return this.caption;
-  }
-
-  
   /**
    * Get the database equivalent of the field's data type 
    * https://www.postgresql.org/docs/current/datatype.html

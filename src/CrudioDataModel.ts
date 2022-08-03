@@ -313,6 +313,19 @@ export default class CrudioDataModel {
 			const key = me.GetField("id");
 			key.fieldOptions.generator = "[uuid]";
 
+			// add any additional fields to the many to many join
+			if (r.Fields != undefined) {
+				Object.keys(r.Fields).map((f: string) => {
+					const field: any = r.Fields[f];
+					const opts: ICrudioFieldOptions = {};
+
+					if (field.generator) {
+						opts.generator = field.generator;
+					}
+					me.AddField(field.name ?? f, field.type, opts);
+				});
+			}
+
 			this.entityDefinitions.push(me);
 		});
 	}
@@ -379,7 +392,7 @@ export default class CrudioDataModel {
 				defaultValue: fieldSchema.default === undefined ? null : fieldSchema.default,
 			};
 
-			entityType.AddField(fieldname, fieldSchema.type ?? "string", fieldname, fieldOptions);
+			entityType.AddField(fieldname, fieldSchema.type ?? "string", fieldOptions);
 		}
 
 		if (entityDefinition.relationships) {
@@ -417,7 +430,7 @@ export default class CrudioDataModel {
 				}
 
 				// Duplicate the field from the base type onto the child entity
-				targetEntity.fields.push(new CrudioField(f.fieldName, f.fieldType, f.caption, f.fieldOptions));
+				targetEntity.fields.push(new CrudioField(f.fieldName, f.fieldType, f.fieldOptions));
 			}
 		});
 	}
@@ -1581,7 +1594,7 @@ export default class CrudioDataModel {
 
 		var obj = null;
 
-		for (var i = 0; i < parts.length ; i++) {
+		for (var i = 0; i < parts.length; i++) {
 			var p = parts[i];
 
 			var index = -1;

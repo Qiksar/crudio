@@ -40,6 +40,17 @@ export default class CrudioRelationship {
 	}
 
 	/**
+	 * Specifies additional fields for many to many join tables
+	 * @date 7/31/2022 - 8:51:52 AM
+	 *
+	 * @readonly
+	 * @type {Record<string, unknown>[]}
+	 */
+	get Fields(): Record<string, unknown>[] {
+		return this.relationship.fields;
+	}
+
+	/**
 	 * Indicates the foreign key column must have a value
 	 * @date 7/31/2022 - 8:51:52 AM
 	 *

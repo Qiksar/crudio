@@ -142,7 +142,7 @@ export interface ICrudioFieldOptions {
 	 *
 	 * @type {boolean}
 	 */
-	isKey: boolean;
+	isKey?: boolean;
 
 	/**
 	 * Indicates the field is readonly
@@ -298,13 +298,6 @@ export interface ICrudioField {
 	 */
 	fieldName: string;
 	/**
-	 * Caption to use
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @type {?string}
-	 */
-	caption?: string;
-	/**
 	 * Data type
 	 * @date 7/18/2022 - 1:47:30 PM
 	 *
@@ -325,13 +318,6 @@ export interface ICrudioField {
 	 * @type {ICrudioFieldOptions}
 	 */
 	fieldOptions?: ICrudioFieldOptions;
-	/**
-	 * Returns the field caption
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @returns {string}
-	 */
-	GetCaption(): string;
 }
 
 /**
@@ -491,6 +477,14 @@ export interface ISchemaRelationship {
 	 * @type {ISingularNamedRelationship}
 	 */
 	singular?: ISingularNamedRelationship;
+
+	/**
+	 * specify additional fields for many to many join table
+	 * @date 7/18/2022 - 1:47:30 PM
+	 *
+	 * @type {Record<string, unknown>[]}
+	 */
+	fields?: Record<string, unknown>[];
 }
 
 /**

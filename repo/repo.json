@@ -276,8 +276,11 @@
 					"fields": {
 						"published_date": {
 							"type": "timestamp",
-							"name": "valid_until",
 							"generator": "[timestamp]"
+						},
+						"priority": {
+							"type": "integer",
+							"generator": "[byte]"
 						}
 					}
 				},
