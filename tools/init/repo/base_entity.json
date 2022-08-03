@@ -26,7 +26,7 @@
 				"name": {
 					"required": true,
 					"type": "string",
-					"unique": "true"
+					"unique": true
 				},
 				"value": {
 					"type": "string"
