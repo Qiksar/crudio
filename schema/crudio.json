@@ -38,223 +38,198 @@
 					"description": "array of one to many or many to many relationships",
 					"type": "array",
 					"items": {
-						"oneOf": [
-							{
-								"type": "object",
-								"properties": {
-									"name": {
-										"description": "assigns a preferred name for the relationship and which is used in the database",
-										"type": "string"
-									},
-									"type": {
-										"description": "relationship type",
-										"type": "string",
-										"enum": [
-											"many"
-										]
-									},
-									"to": {
-										"description": "name of the other entity which is connected in the relationship",
-										"type": "string"
-									},
-									"count": {
-										"description": "only used in many to many relationships, and specifies the number of related entities to create",
-										"type": "integer"
-									},
-									"fields": {
-										"description": "specifies aditional fields for the join table",
-										"type": "object",
-										"additionalProperties": {
-											"$ref": "#/definitions/field"
-										}
-									}
-								},
-								"required": [
-									"to",
-									"type"
+						"type": "object",
+						"properties": {
+							"name": {
+								"description": "assigns a preferred name for the relationship and which is used in the database",
+								"type": "string"
+							},
+							"type": {
+								"enum": [
+									"many",
+									"one"
 								]
 							},
-							{
-								"type": "object",
-								"properties": {
-									"name": {
-										"description": "assigns a preferred name for the relationship and which is used in the database",
-										"type": "string"
-									},
-									"type": {
-										"description": "relationship type",
-										"type": "string",
-										"enum": [
-											"one"
-										]
-									},
-									"to": {
-										"description": "name of the other entity which is connected in the relationship",
-										"type": "string"
-									}
-								},
-								"required": [
-									"to",
-									"type"
-								]
+							"to": {
+								"description": "name of the other entity which is connected in the relationship",
+								"type": "string"
 							}
-						]
-					},
-					"fields": {
-						"description": "specifies fields for the entity",
-						"type": "object",
-						"additionalProperties": {
-							"$ref": "#/definitions/field"
-						}
-					}
-				}
-			},
-			"field": {
-				"description": "specifies an entity field",
-				"type": "object",
-				"properties": {
-					"name": {
-						"description": "preferred fieldname, defaults to the JSON key used for this field node",
-						"type": "string"
-					},
-					"key": {
-						"description": "if true, the field is the primary key of the entity",
-						"type": "boolean"
-					},
-					"required": {
-						"description": "if true, the field must have a value when saved to the database",
-						"type": "boolean"
-					},
-					"unique": {
-						"description": "if true, the field must have a unique value amongst all entities of the same type",
-						"type": "boolean"
-					},
-					"generator": {
-						"description": "specified the generator to use, and must be wrapped in [ ], e.g. [name]",
-						"type": "string"
-					},
-					"type": {
-						"description": "field type",
-						"string": "string",
-						"enum": [
-							"string",
-							"integer",
-							"number",
-							"date",
-							"timestamp",
-							"jsonb"
+						},
+						"if": {
+							"properties": {
+								"type": {
+									"const": "many"
+								}
+							}
+						},
+						"then": {
+							"properties": {
+								"count": {
+									"description": "specifies the number of entries to create per parent entity",
+									"type": "integer"
+								},
+								"fields": {
+									"description": "specifies aditional fields for the join table",
+									"type": "object",
+									"additionalProperties": {
+										"$ref": "#/definitions/field"
+									}
+								}
+							}
+						},
+						"required": [
+							"to",
+							"type"
 						]
 					}
 				}
 			}
 		},
-		"properties": {
-			"include": {
-				"description": "include other datamodels, which must be defined as JSON files and conform to the Crudio schema",
-				"type": "array",
-				"items": {
+		"field": {
+			"description": "specifies an entity field",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "preferred fieldname, defaults to the JSON key used for this field node",
 					"type": "string"
-				}
-			},
-			"generators": {
-				"description": "specifies data generators which create values for entity fields",
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"name": {
-							"description": "name of the generator",
-							"type": "string"
-						},
-						"values": {
-							"description": "description of the values",
-							"examples": [
-								"'[1>10]' creates a number from 1 to 10",
-								"'[word1;word2]' selects a random value from a semicolon separated list",
-								"'[!connect_entity.field]' adopts a value provided by a related entity, such as a company.name, which can be used in an employee email address",
-								"'[!~connect_entity.field]' adopt a value provided by a related entity, remove all spaces and convert to lower case",
-								"'my text written on [date] by [User.firstname] [User.lastname]' form text snippets and embed generated values",
-								"'[?fieldName]' choose a generator based on a field value, for example: '[?Device.DeviceType.name]'"
-							],
-							"type": "string"
-						}
-					},
-					"required": [
-						"name",
-						"values"
+				},
+				"key": {
+					"description": "if true, the field is the primary key of the entity",
+					"type": "boolean"
+				},
+				"required": {
+					"description": "if true, the field must have a value when saved to the database",
+					"type": "boolean"
+				},
+				"unique": {
+					"description": "if true, the field must have a unique value amongst all entities of the same type",
+					"type": "boolean"
+				},
+				"generator": {
+					"description": "specified the generator to use, and must be wrapped in [ ], e.g. [name]",
+					"type": "string"
+				},
+				"type": {
+					"description": "field type",
+					"string": "string",
+					"enum": [
+						"string",
+						"integer",
+						"number",
+						"date",
+						"timestamp",
+						"jsonb"
 					]
 				}
-			},
-			"triggers": {
-				"description": "instructions to execute when an entity is created",
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"entity": {
-							"description": "the entity for which instructions are to be executed",
-							"type": "string"
-						},
-						"scripts": {
-							"type": [
-								"array"
-							],
-							"items": [
-								{
-									"description": "instructions to execute",
-									"examples": [
-										"'ConnectedEntity(index).RelationshipName?field=value' creates the connected entity and places it in a list, then forms a relationship between the new entity and the RelationshipName by searching the related table for a field having a specified value",
-										"'User(0).Role?name=CEO'",
-										"'User(0).Department?name=Sales'"
-									],
-									"type": "string"
-								}
-							]
-						}
-					},
-					"required": [
-						"entity",
-						"scripts"
-					]
-				}
-			},
-			"entities": {
-				"description": "specify the entities in the datamodel",
+			}
+		}
+	},
+	"properties": {
+		"include": {
+			"description": "include other datamodels, which must be defined as JSON files and conform to the Crudio schema",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"generators": {
+			"description": "specifies data generators which create values for entity fields",
+			"type": "array",
+			"items": {
 				"type": "object",
-				"additionalProperties": {
-					"$ref": "#/definitions/entityProperties"
-				}
-			},
-			"snippets": {
-				"description": "specify pre-defined fields which can be used by any entity in the datamodel",
-				"type": "object",
-				"additionalProperties": {
-					"$ref": "#/definitions/field"
-				}
-			},
-			"assign": {
-				"description": "assign hardcoded values to entities which have been placed in data tables",
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"target": {
-							"description": "path to the target object which is to be assigned values from 'fields'",
-							"examples": [
-								"Organisation(0)",
-								"Organisation(10).Users(3)"
-							],
-							"type": "string"
-						},
-						"fields": {
-							"type": "object"
-						}
+				"properties": {
+					"name": {
+						"description": "name of the generator",
+						"type": "string"
 					},
-					"required": [
-						"target",
-						"fields"
-					]
-				}
+					"values": {
+						"description": "description of the values",
+						"examples": [
+							"'[1>10]' creates a number from 1 to 10",
+							"'[word1;word2]' selects a random value from a semicolon separated list",
+							"'[!connect_entity.field]' adopts a value provided by a related entity, such as a company.name, which can be used in an employee email address",
+							"'[!~connect_entity.field]' adopt a value provided by a related entity, remove all spaces and convert to lower case",
+							"'my text written on [date] by [User.firstname] [User.lastname]' form text snippets and embed generated values",
+							"'[?fieldName]' choose a generator based on a field value, for example: '[?Device.DeviceType.name]'"
+						],
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"values"
+				]
+			}
+		},
+		"triggers": {
+			"description": "instructions to execute when an entity is created",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"entity": {
+						"description": "the entity for which instructions are to be executed",
+						"type": "string"
+					},
+					"scripts": {
+						"type": [
+							"array"
+						],
+						"items": [
+							{
+								"description": "instructions to execute",
+								"examples": [
+									"'ConnectedEntity(index).RelationshipName?field=value' creates the connected entity and places it in a list, then forms a relationship between the new entity and the RelationshipName by searching the related table for a field having a specified value",
+									"'User(0).Role?name=CEO'",
+									"'User(0).Department?name=Sales'"
+								],
+								"type": "string"
+							}
+						]
+					}
+				},
+				"required": [
+					"entity",
+					"scripts"
+				]
+			}
+		},
+		"entities": {
+			"description": "specify the entities in the datamodel",
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/entityProperties"
+			}
+		},
+		"snippets": {
+			"description": "specify pre-defined fields which can be used by any entity in the datamodel",
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/field"
+			}
+		},
+		"assign": {
+			"description": "assign hardcoded values to entities which have been placed in data tables",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"target": {
+						"description": "path to the target object which is to be assigned values from 'fields'",
+						"examples": [
+							"Organisation(0)",
+							"Organisation(10).Users(3)"
+						],
+						"type": "string"
+					},
+					"fields": {
+						"type": "object"
+					}
+				},
+				"required": [
+					"target",
+					"fields"
+				]
 			}
 		}
 	}
