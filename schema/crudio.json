@@ -169,9 +169,22 @@
 			}
 		},
 		"assign": {
-			"description": "assign hardcoded values to fields of entities",
+			"description": "assign hardcoded values to entities which have been placed in data tables",
 			"type": "array",
-			"items": { "type": "string" }
+			"items": {
+				"type": "object",
+				"properties": {
+					"target": {
+						"description": "path to the target object which is to be assigned values from 'fields'",
+						"examples": ["Organisation(0)", "Organisation(10).Users(3)"],
+						"type": "string"
+					},
+					"fields": {
+						"type": "object"
+					}
+				},
+				"required": ["target", "fields"]
+			}
 		}
 	}
 }
