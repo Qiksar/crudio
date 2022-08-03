@@ -77,14 +77,13 @@ export interface ICrudioConfig {
  * @typedef {ICrudioSchemaDefinition}
  */
 export interface ICrudioSchemaDefinition {
-	
 	/**
 	 * List of hard code assignments
 	 * @date 8/2/2022 - 12:11:48 PM
 	 *
 	 * @type {string[]}
 	 */
-	assign: string[];
+	assign: ICrudioAssignment[];
 
 	/**
 	 * List of other files to include
@@ -123,6 +122,11 @@ export interface ICrudioSchemaDefinition {
 	triggers?: ICrudioTrigger[];
 }
 
+export interface ICrudioAssignment {
+	target: string;
+	fields: Record<string, unknown>;
+}
+
 /**
  * Options that are applied to entity fields
  * @date 7/18/2022 - 1:47:30 PM
@@ -147,7 +151,7 @@ export interface ICrudioFieldOptions {
 	 * @type {?boolean}
 	 */
 	readonly?: boolean;
-	
+
 	/**
 	 * Specifies the default value for the field
 	 * @date 7/18/2022 - 1:47:30 PM

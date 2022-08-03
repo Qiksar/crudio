@@ -3,7 +3,7 @@ import { stringify, parse } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioAssignment, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -30,7 +30,7 @@ export default class CrudioDataModel {
 	 * @private
 	 * @type {string[]}
 	 */
-	private assign: string[] = [];
+	private assign: ICrudioAssignment[] = [];
 
 	/**
 	 * List of triggers to run when entities are created
@@ -930,7 +930,6 @@ export default class CrudioDataModel {
 		// This must be done after token processing, because that is the step in the process where all
 		// value generators have executed, which enables the lookups to complete
 		this.ConnectDefaultRelationships();
-
 	}
 
 	/**
@@ -1370,7 +1369,6 @@ export default class CrudioDataModel {
 	 * @param {ICrudioTriggers} triggers
 	 */
 	private ProcessTriggersForEntity(entityInstance: CrudioEntityInstance): void {
-		
 		// We have to detokenise the entity as other entities which are connected to it through a trigger, may be using lookups
 		this.ProcessTokensInEntity(entityInstance);
 
@@ -1551,24 +1549,19 @@ export default class CrudioDataModel {
 	 * @private
 	 * @param {string} instruction
 	 */
-	private ProcessAssignment(instruction: string): void {
-		const parts = instruction.split("=");
+	private ProcessAssignment(assignment: ICrudioAssignment): void {
+		const target: CrudioEntityInstance = this.GetObjectFromPath(assignment.target);
 
-		if (parts.length < 2) {
-			throw new Error(`Error: invalid assignment syntax in '${instruction}'`);
+		if (!target) {
+			throw new Error(`Error: can not retrieve the target object specified in '${assignment.target}'`);
 		}
 
-		const target = this.GetObjectFromPath(parts[0]);
-
-		if (!target.entityValues) {
-			throw new Error(`Error: can not retrieve the target object specified in '${instruction}'`);
-		}
-
-		if (!target.field) {
-			throw new Error(`Error: can not retrieve the target field specified in '${instruction}'`);
-		}
-
-		target.entityValues[target.field] = parts[1];
+		Object.keys(assignment.fields).map(f => {
+			if (target[f] == undefined) {
+				throw new Error(`Error: Invalid assignment. Field ${f} does not exist on entity type ${target.EntityType.Name}.`);
+			}
+			target[f] = assignment.fields[f];
+		});
 	}
 
 	/**
@@ -1579,7 +1572,7 @@ export default class CrudioDataModel {
 	 * @param {string} path
 	 * @returns {CrudioEntityInstance}
 	 */
-	private GetObjectFromPath(path: string): any {
+	private GetObjectFromPath(path: string): CrudioEntityInstance {
 		const parts = path.split(".");
 
 		if (parts.length < 1) {
@@ -1588,7 +1581,7 @@ export default class CrudioDataModel {
 
 		var obj = null;
 
-		for (var i = 0; i < parts.length - 1; i++) {
+		for (var i = 0; i < parts.length ; i++) {
 			var p = parts[i];
 
 			var index = -1;
@@ -1611,7 +1604,7 @@ export default class CrudioDataModel {
 			}
 		}
 
-		return { entityValues: obj, field: parts[parts.length - 1] };
+		return obj;
 	}
 
 	//#endregion
