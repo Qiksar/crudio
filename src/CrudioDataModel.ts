@@ -914,6 +914,10 @@ export default class CrudioDataModel {
 		// connect entities with basic one to many relationships
 		this.ConnectOneToManyRelationships();
 
+		// Process hard coded assignment of values
+		// This will replace tokens in objects, allowing the user to place specific values in the object graph
+		this.ProcessAssignments();
+
 		// we have to connect relationships first so that token processing can use generators that
 		// lookup values in related objects
 		this.ProcessTokensInAllTables();
@@ -927,8 +931,6 @@ export default class CrudioDataModel {
 		// value generators have executed, which enables the lookups to complete
 		this.ConnectDefaultRelationships();
 
-		// Process hard coded assignment of values
-		this.ProcessAssignments();
 	}
 
 	/**
