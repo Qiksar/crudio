@@ -1263,7 +1263,7 @@ export default class CrudioDataModel {
 				return v;
 		}
 
-		var content: string = this.GetGenerator(generatorName);
+		var content: string = this.GetGenerator(generatorName) ?? generatorName;
 
 		if (content.includes(";")) {
 			value = this.GetRandomStringFromList(content);
@@ -1302,9 +1302,10 @@ export default class CrudioDataModel {
 	 * @returns {string}
 	 */
 	private GetGenerator(generatorName: string): string {
+		/*
 		if (!Object.keys(this.generators).includes(generatorName)) {
 			throw new Error(`Generator name is invalid '${generatorName}'`);
-		}
+		}*/
 
 		return this.generators[generatorName] as string;
 	}

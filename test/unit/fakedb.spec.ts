@@ -200,7 +200,7 @@ describe("Create fake data", () => {
 			await db.CreateDatabaseSchema();
 			await db.PopulateDatabaseTables();
 		} catch (e: any) {
-			fs.writeFileSync("test/unit/output/db.log", e.message + "\r\n" + e.stack);
+			fs.writeFileSync("test/unit/output/db.log.json", JSON.stringify(e) + "\r\n");
 			throw e;
 		}
 	});

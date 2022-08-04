@@ -111,11 +111,15 @@ export default class CrudioGQL {
 				console.error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 				throw new Error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 			} else {
-				console.error("Error: Failed to execute SQL statement.");
-				console.error(e.response.data ?? e.response);
+				throw {
+					status: e.response.status,
+					code: e.response.data.code,
+					error: e.response.data.error,
+					sql_error: e.response.data.internal.error.message,
+					sql_statement: e.response.data.internal.statement,
+					stack: e.stack
+				}
 			}
-
-			throw e;
 		}
 	}
 }

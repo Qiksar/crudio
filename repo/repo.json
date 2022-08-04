@@ -280,7 +280,7 @@
 						},
 						"priority": {
 							"type": "integer",
-							"generator": "[byte]"
+							"generator": "[1>10]"
 						}
 					}
 				},
