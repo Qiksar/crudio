@@ -116,7 +116,6 @@
 						"string",
 						"integer",
 						"number",
-						"date",
 						"timestamp",
 						"jsonb"
 					]

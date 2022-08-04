@@ -91,11 +91,15 @@
 		},
 		{
 			"name": "now",
-			"values": "[time]"
+			"values": "[timestamp]"
 		},
 		{
 			"name": "today",
-			"values": "[date]"
+			"values": "[timestamp]"
+		},
+		{
+			"name": "expiry_date",
+			"values": "[datetime {'years-+': 5}]"
 		},
 		{
 			"name": "uuid",

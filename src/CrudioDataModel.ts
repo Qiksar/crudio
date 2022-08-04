@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { stringify, parse } from "flatted";
 import { randomUUID } from "crypto";
-import { DateTime } from "luxon";
+import { DateTime, Duration, DurationInput } from "luxon";
 
 import { ICrudioAssignment, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
@@ -84,6 +84,20 @@ export default class CrudioDataModel {
 	 * @type {CrudioTable[]}
 	 */
 	private tables: CrudioTable[] = [];
+
+
+	/**
+	 * Date format to use
+	 * @date 7/26/2022 - 12:53:10 PM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {CrudioTable[]}
+	 */
+	private date_format = "yyyy-MM-dd HH:mm:ss";
+	public get DateFormat(): string {
+		return this.date_format;
+	}
 
 	/**
 	 * List of in memory datatables which hold the entity instances
@@ -577,7 +591,7 @@ export default class CrudioDataModel {
 		sourceTable.DataRows.map((sourceRow: CrudioEntityInstance) => {
 			// row_num is intended to ensure every entity on the "many" side gets at least one
 			// entity assigned. so 1 user to 1 organisation, is an organisation with many users (at least one)
-			const row_num = index > targetTable.DataRows.length - 1 ? CrudioDataModel.GetRandomNumber(0, targetTable.DataRows.length) : index++;
+			const row_num = index > targetTable.DataRows.length - 1 ? CrudioUtils.GetRandomNumber(0, targetTable.DataRows.length) : index++;
 			if (row_num < targetTable.DataRows.length) {
 				const targetRow = targetTable.DataRows[row_num];
 				this.ConnectRows(sourceRow, targetRow);
@@ -620,7 +634,7 @@ export default class CrudioDataModel {
 
 			// add the required number of target objects, e.g. Tag
 			for (var i = 0; i < c; i++) {
-				const row_num = CrudioDataModel.GetRandomNumber(0, options.length);
+				const row_num = CrudioUtils.GetRandomNumber(0, options.length);
 				options.slice(row_num, 1);
 
 				const row = this.CreateEntityInstance(d);
@@ -1240,36 +1254,59 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {string} generatorName
+	 * @param {string} generator
 	 * @returns {*}
 	 */
-	private GetGeneratedValue(generatorName: string): any {
-		if (!generatorName) throw new Error("generatorName must specify a standard or customer generator");
+	public GetGeneratedValue(generator: string): any {
+		if (!generator) throw new Error("generator must specify a standard or customer generator");
 
+		var content: string = this.GetGenerator(generator) ?? generator;
 		var value: any = "";
 
-		switch (generatorName.toLowerCase()) {
+		const g = content.split(" ")[0]
+			.toLowerCase()
+			.replaceAll("[", "")
+			.replaceAll("]", "");
+
+		const index = content.indexOf(" {");
+		var json = index < 0 ? null
+			: content
+				.slice(index + 1)
+				.replaceAll("[", "")
+				.replaceAll("]", "");
+
+		var args = null;
+
+		if (json) {
+
+			if (json.indexOf("[") > 0) {
+				const reprocess = `${g} ${json}`;
+				return reprocess;
+			}
+
+			args = JSON.parse(json.replaceAll("'", "\""));
+		}
+		else
+			args = {};
+
+		switch (g) {
 			case "uuid":
 				return randomUUID();
 
-			case "date":
-				return DateTime.utc().toFormat("dd-mm-yyyy");
-
-			case "time":
-				return DateTime.TIME_24_WITH_SECONDS;
+			case "datetime":
+				const a = CrudioUtils.DateDuration(args);
+				return DateTime.utc().plus(a).toFormat(this.date_format);
 
 			case "timestamp":
 				const v = new Date(Date.now()).toISOString().replace("Z", "");
 				return v;
 		}
 
-		var content: string = this.GetGenerator(generatorName) ?? generatorName;
-
 		if (content.includes(";")) {
-			value = this.GetRandomStringFromList(content);
+			value = CrudioUtils.GetRandomStringFromList(content);
 		} else if (content.includes(">")) {
 			var vals: string[] = content.split(">");
-			value = CrudioDataModel.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
+			value = CrudioUtils.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
 		} else {
 			value = content;
 		}
@@ -1277,21 +1314,6 @@ export default class CrudioDataModel {
 		return value;
 	}
 
-	/**
-	 * Randomly select a word from a separated list
-	 * @date 7/28/2022 - 1:30:00 PM
-	 *
-	 * @private
-	 * @param {string} content
-	 * @returns {*}
-	 */
-	private GetRandomStringFromList(content: string, seperator = ";") {
-		const words: string[] = content.replace(/(^;)|(;$)/g, "").split(seperator);
-		const rndWord: number = Math.random();
-		const index: number = Math.floor(words.length * rndWord);
-		const value = words[index];
-		return value;
-	}
 
 	/**
 	 * Get a data generator by name
@@ -1340,21 +1362,6 @@ export default class CrudioDataModel {
 		}
 
 		return value;
-	}
-
-	/**
-	 * Get a random number >= min and <= max
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @public
-	 * @static
-	 * @param {number} min
-	 * @param {number} max
-	 * @returns {number}
-	 */
-	public static GetRandomNumber(min: number, max: number): number {
-		var rndValue: number = Math.random();
-		return Math.floor((max - min) * rndValue) + min;
 	}
 
 	//#endregion

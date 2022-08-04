@@ -5,6 +5,10 @@
 	],
 	"generators": [
 		{
+			 "name": "accreditation_expiry_date",
+			 "values":"datetime {'years_lo': -10, 'years_hi': 10}" 
+		},
+		{
 			"name": "cohort_title",
 			"values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
 		},
@@ -88,6 +92,10 @@
 				"Entity"
 			],
 			"fields": {
+				"accreditation_expiry": {
+					"type": "timestamp",
+					"generator": "[accreditation_expiry_date]"
+				},
 				"name": {
 					"required": true,
 					"unique": true,
@@ -134,7 +142,7 @@
 			],
 			"fields": {
 				"dob": {
-					"type": "date",
+					"type": "timestamp",
 					"name": "dob",
 					"generator": "[dob]"
 				},
@@ -157,6 +165,10 @@
 				"email": {
 					"unique": true,
 					"generator": "[user_email]"
+				},
+				"license_expiry": {
+					"type": "timestamp",
+					"generator": "[expiry_date]"
 				}
 			},
 			"relationships": [

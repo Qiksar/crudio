@@ -125,9 +125,9 @@
 			"snippets": ["firstname", "lastname", "address", "email"],
 			"fields": {
 				"dob": {
-					"type": "date",
+					"type": "timestamp",
 					"name": "dob",
-					"generator": "[dob]"
+					"generator": "[datetime { 'years': -30}]"
 				},
 				"height": {
 					"type": "integer",
