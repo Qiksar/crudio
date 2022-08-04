@@ -1,7 +1,13 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
-	"include": ["repo/base.json"],
+	"include": [
+		"repo/base.json"
+	],
 	"generators": [
+		{
+			"name": "accreditation_expiry_date",
+			"values": "datetime {'years_lo': -10, 'years_hi': 10}"
+		},
 		{
 			"name": "cohort_title",
 			"values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
@@ -82,8 +88,14 @@
 	"entities": {
 		"Organisation": {
 			"count": 10,
-			"inherits": ["Entity"],
+			"inherits": [
+				"Entity"
+			],
 			"fields": {
+				"accreditation_expiry": {
+					"type": "timestamp",
+					"generator": "[accreditation_expiry_date]"
+				},
 				"name": {
 					"required": true,
 					"unique": true,
@@ -122,12 +134,17 @@
 		"Person": {
 			"abstract": true,
 			"inherits": "Entity",
-			"snippets": ["firstname", "lastname", "address", "email"],
+			"snippets": [
+				"firstname",
+				"lastname",
+				"address",
+				"email"
+			],
 			"fields": {
 				"dob": {
 					"type": "timestamp",
 					"name": "dob",
-					"generator": "[datetime { 'years': -30}]"
+					"generator": "[dob]"
 				},
 				"height": {
 					"type": "integer",
@@ -148,6 +165,10 @@
 				"email": {
 					"unique": true,
 					"generator": "[user_email]"
+				},
+				"license_expiry": {
+					"type": "timestamp",
+					"generator": "[expiry_date]"
 				}
 			},
 			"relationships": [
@@ -263,7 +284,17 @@
 				{
 					"to": "Tag",
 					"type": "many",
-					"count": 2
+					"count": 2,
+					"fields": {
+						"published_date": {
+							"type": "timestamp",
+							"generator": "[timestamp]"
+						},
+						"priority": {
+							"type": "integer",
+							"generator": "[1>10]"
+						}
+					}
 				},
 				{
 					"to": "User",
@@ -301,8 +332,24 @@
 		}
 	],
 	"assign": [
-		{ "target": "Organisations(0).Users(0)", "fields": { "firstname": "William", "lastname": "Tell" } },
-		{ "target": "Organisations(0)", "fields": { "name": "Arrow Corporation" } },
-		{ "target": "Organisations(1)", "fields": { "name": "Bowing Services" } }
+		{
+			"target": "Organisations(0).Users(0)",
+			"fields": {
+				"firstname": "William",
+				"lastname": "Tell"
+			}
+		},
+		{
+			"target": "Organisations(0)",
+			"fields": {
+				"name": "Arrow Corporation"
+			}
+		},
+		{
+			"target": "Organisations(1)",
+			"fields": {
+				"name": "Bowing Services"
+			}
+		}
 	]
 }
