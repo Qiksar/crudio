@@ -7,43 +7,47 @@
 
 # Welcome to Crudio!
 
-Using Crudio will enable you to rapidly build a database filled with data based upon a data model which you build with a simple JSON file. Your data model can leverage pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and users). 
+Using Crudio will enable you to rapidly build a database auto-populated with test data. A data model is described by a simple JSON file which contains descriptions of the types of entities and data you required for your prototype.
 
-Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data.
+Your data model can leverage pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and users). 
 
-This page provides a quick introduction and how to get started. Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
+Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data. Also, your project might ultimately work with sensitive data, and you don't want any sensitive data in a prototype or test context. Or perhaps you just don't have any data yet, because your app isn't live, so where else are you going to get test data?
 
-## Where to find the code and NPM package
+Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
 
-Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
+# Quickly Build a Rich Demo
 
-Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
+## Pre-requisites
 
-# Build a Rich Demo From Github
+**Important** You need to have the following already installed, before you can run the demo script described below:
 
-There are two ways to explore crudio. But you need to be sure you have Docker running.
+- `docker` supports the database and Hasura containers
+- `node` as we use npx in the demo script
+- `npx` executes the Crudio CLI 
 
-The first is to use the `wget` command shown below. If you have Docker running, this simple command does everything required to build a demo environment, which you can use to explore Crudio further.
-
-The second is to use the CLI, which is explained step by step further down this document.
-
-Also, if you want to remove the demo environment, instructions on how to do so are also provided lower down.
+## How to Install npx
+```
+npm install -g npx
+```
 
 ## Execute the initialisation Script from Github
 
-These instructions will help you to build a completely functional demo, with quite a complex data model, so you can explore specific things that Crudio does in terms of creating and connecting database rows in relationships.
+Build a completely functional demo in just a few minutes with one command.
 
-Ensure `docker` is installed, and then run this command to run a complete demonstration environment which includes, Postgres and Hasura GraphQL, where the database is populated with great looking data, and Hasura is ready, with two simple clicks (track tables and track relationships). There are even some example GraphQL queries below:
+The command below creates a complete demonstration environment which includes, Postgres and Hasura GraphQL running in docker containers, with a fully populated database:
 
 ```
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
 ```
 
+This command:
 - Fetches the initialisation script from Github and executes it
 - The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
 - Crudio then populates the database with awesome test data like organisations, departments, roles and users, IoT devices and their related data logs
 
-Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and then, track all relationships.
+Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and track all relationships.
+
+There are example GraphQL queries below, and more on the [WIKI](https://github.com/Qiksar/crudio/wiki/05.-Example-GraphQL-Queries)
 
 In less than 2 minutes you have created a database filled with rich demonstration data that could be used by your new prototype application.
 
@@ -121,6 +125,12 @@ chmod u+rwx *.sh
 ./stop.sh
 ```
 
-## More Information
+# Where to find the code and NPM package
+
+Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
+
+Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
+
+# More Information
 
 When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
