@@ -4,12 +4,12 @@ echo "Warning: Please ensure that the default port (6789) is not already in use"
 docker-compose up -d
 
 echo "Wait for containers to stabilise (10 seconds)"
-sleep 10
+sleep 5
 
 echo
 echo "Build the database and populate with data"
 
-npx -y @qiksar/crudio@latest -v -w -r repo/repo.json -i repo/iot.json
+npx -y @qiksar/crudio@latest -v -w -r repo/repo.json 
 
 echo "Browse to http://localhost:6789 to view the Hasura GraphQL console"
 echo
