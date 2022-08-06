@@ -8,5 +8,5 @@ wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/repo/repo.json -P r
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/docker-compose.yml
 
 docker-compose up -d
-
+sleep 5
 npx -y @qiksar/crudio@latest -v -w -r repo/repo.json -i repo/iot.json
