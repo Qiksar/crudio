@@ -1,44 +1,17 @@
 // tslint:disable: max-line-length
 // tslint:disable: no-unused-expression
 
-import { stringify, parse } from "flatted";
-import * as fs from "fs";
 
-import { ICrudioConfig } from "../../src/CrudioTypes";
-import CrudioRepository from "../../src/CrudioDataModel";
+import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
 import CrudioDataWrapper from "../../src/CrudioDataWrapper";
 
-const config: ICrudioConfig = {
-	hasuraEndpoint: "http://localhost:6789",
-	hasuraAdminSecret: "crudio",
-	idField: "id",
-	readonlyFields: [],
-	schema: "crudio_test",
-	wipe: true,
-	repo: "repo/repo.json",
-	include: "repo/include.json",
-};
-
 describe("Create fake data", () => {
 	jest.setTimeout(120000);
 
-	test("Test flatted", () => {
-		const input = {
-			firstName: "Joe",
-			lastName: "Bloggs",
-		};
-
-		const text = stringify(input);
-		expect(text).toContain("Bloggs");
-
-		const joe: any = parse(text);
-		expect(joe.firstName).not.toBeNull;
-	});
-
 	test("Find Arrow Corporation and William Tell", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 		const rows = repo.GetTable("Organisations").DataRows;
 		const arrow = rows[0];
 		const william = arrow.DataValues.Users[0].DataValues;
@@ -49,7 +22,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Load repository definition from JSON file", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -64,14 +37,8 @@ describe("Create fake data", () => {
 		expect(users.length).toBeGreaterThan(0);
 	});
 
-	test("Create mermaid diagram", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
-		const diagram = repo.ToMermaid();
-		fs.writeFileSync("test/unit/output/repo.md", diagram);
-	});
-
 	test("All Blogs have at least one tag", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 
 		const blogs = repo.GetTable("Blogs");
 		const tags = repo.GetTable("BlogTags");
@@ -87,7 +54,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Load repository with include file", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json", true, "repo/iot.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json", true, "repo/iot.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -100,7 +67,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Check for unique email addresses", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -122,7 +89,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Check for unique tag names", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -144,10 +111,10 @@ describe("Create fake data", () => {
 	});
 
 	test("Save and load database using flatted form", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("repo/repo.json");
 		repo.Save("test/unit/output/fake.flat.json");
 
-		const db = CrudioRepository.FromString(repo.ToString());
+		const db = CrudioDataModel.FromString(repo.ToString());
 		expect(db).not.toBeNull();
 
 		const users: CrudioEntityInstance[] = db.GetTable("Users").DataRows;
@@ -189,19 +156,4 @@ describe("Create fake data", () => {
 		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
 	});
 
-	// NOTE: This test method will occasionally fail. There is some kind of race condition in the unit test context
-	// The issues does not seem to be reproducable through the CLI
-	test("Populate database", async () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json", true, "repo/iot.json");
-		const db = new CrudioDataWrapper(config, repo);
-		expect(db).not.toBeNull;
-
-		try {
-			await db.CreateDatabaseSchema();
-			await db.PopulateDatabaseTables();
-		} catch (e: any) {
-			fs.writeFileSync("test/unit/output/db.log.json", JSON.stringify(e) + "\r\n");
-			throw e;
-		}
-	});
 });
