@@ -12,17 +12,11 @@
 				},
 				"count": {
 					"description": "integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
-					"type": [
-						"string",
-						"integer"
-					]
+					"type": ["string", "integer"]
 				},
 				"inherits": {
 					"description": "a string containing the name of an entity, or an array of strings specifying multiple entities from which to inherit fields",
-					"type": [
-						"string",
-						"array"
-					],
+					"type": ["string", "array"],
 					"items": {
 						"type": "string"
 					}
@@ -32,6 +26,13 @@
 					"type": "array",
 					"items": {
 						"type": "string"
+					}
+				},
+				"fields": {
+					"description": "specifies aditional fields for the join table",
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/definitions/field"
 					}
 				},
 				"relationships": {
@@ -45,10 +46,7 @@
 								"type": "string"
 							},
 							"type": {
-								"enum": [
-									"many",
-									"one"
-								]
+								"enum": ["many", "one"]
 							},
 							"to": {
 								"description": "name of the other entity which is connected in the relationship",
@@ -77,10 +75,7 @@
 								}
 							}
 						},
-						"required": [
-							"to",
-							"type"
-						]
+						"required": ["to", "type"]
 					}
 				}
 			}
@@ -112,13 +107,7 @@
 				"type": {
 					"description": "field type",
 					"string": "string",
-					"enum": [
-						"string",
-						"integer",
-						"number",
-						"timestamp",
-						"jsonb"
-					]
+					"enum": ["string", "integer", "number", "timestamp", "jsonb"]
 				}
 			}
 		}
@@ -154,10 +143,7 @@
 						"type": "string"
 					}
 				},
-				"required": [
-					"name",
-					"values"
-				]
+				"required": ["name", "values"]
 			}
 		},
 		"triggers": {
@@ -171,9 +157,7 @@
 						"type": "string"
 					},
 					"scripts": {
-						"type": [
-							"array"
-						],
+						"type": ["array"],
 						"items": [
 							{
 								"description": "instructions to execute",
@@ -187,10 +171,7 @@
 						]
 					}
 				},
-				"required": [
-					"entity",
-					"scripts"
-				]
+				"required": ["entity", "scripts"]
 			}
 		},
 		"entities": {
@@ -215,20 +196,14 @@
 				"properties": {
 					"target": {
 						"description": "path to the target object which is to be assigned values from 'fields'",
-						"examples": [
-							"Organisation(0)",
-							"Organisation(10).Users(3)"
-						],
+						"examples": ["Organisation(0)", "Organisation(10).Users(3)"],
 						"type": "string"
 					},
 					"fields": {
 						"type": "object"
 					}
 				},
-				"required": [
-					"target",
-					"fields"
-				]
+				"required": ["target", "fields"]
 			}
 		}
 	}
