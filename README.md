@@ -115,7 +115,7 @@ The CLI is very easy to use. It will create a Crudio project folder, fetch a dem
 A few utility scripts are included which are `go.sh` and `stop.sh` which will build and remove the Crudio containers.
 
 ```
-npx -y @qiksar/crudio@latest -v -p crudio_test
+npx @qiksar/crudio@latest -v -p crudio_test
 cd crudio_test
 chmod u+rwx *.sh
 ./go.sh
