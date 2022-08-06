@@ -110,7 +110,9 @@ You can then delete all of the files that were fetched from the Github repositor
 
 # Using the CLI - Initialise a New Project
 
-The steps below describe how to perform each step of the Crudio project setup. However, there is also now a more convenient way, which is:
+The CLI is very easy to use. It will create a Crudio project folder, fetch a demonstration data model and then build the docker containers.
+
+A few utility scripts are included which are `go.sh` and `stop.sh` which will build and remove the Crudio containers.
 
 ```
 npx -y @qiksar/crudio@latest -v -p crudio_test
