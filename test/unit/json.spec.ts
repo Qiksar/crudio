@@ -1,4 +1,4 @@
-import { CrudioJson } from "./../../src/CrudioJson";
+import { CrudioJson } from "../../src/CrudioJson";
 
 describe("JSON schema validation", () => {
 	test("Valid datamodel should comply with schema", () => {
