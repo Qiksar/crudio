@@ -103,7 +103,7 @@ If you want to remove and clean-up the demo environment, follow these simple ste
 Run the following command in the same folder as the `docker-compose.yml` file, and the demonstration Postgres and Hasura containers, and their images, will be removed.
 
 ```
-docker-compose down --rmi all
+docker-compose down --rmi local
 ```
 
 You can then delete all of the files that were fetched from the Github repository. You may need administrative rights to delete the `dbscripts` folder, which is created by Postgres.
