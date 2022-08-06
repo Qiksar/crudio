@@ -21,7 +21,7 @@ describe("Create fake data", () => {
 		expect(william.lastname).toEqual("Tell");
 	});
 
-	test("Load repository definition from JSON file", () => {
+	test("Load data model definition from JSON file", () => {
 		const repo = CrudioDataModel.FromJson("repo/repo.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
@@ -53,7 +53,7 @@ describe("Create fake data", () => {
 		expect(count).toEqual(0);
 	});
 
-	test("Load repository with include file", () => {
+	test("Load data model and include file", () => {
 		const repo = CrudioDataModel.FromJson("repo/repo.json", true, "repo/iot.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();

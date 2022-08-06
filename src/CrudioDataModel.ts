@@ -17,7 +17,7 @@ import { CrudioJson } from "./CrudioJson";
  * @date 7/18/2022 - 3:39:38 PM
  *
  * @export
- * @class CrudioRepository
+ * @class CrudioDataModel
  * @typedef {CrudioDataModel}
  */
 export default class CrudioDataModel {
@@ -147,21 +147,21 @@ export default class CrudioDataModel {
 	//#endregion
 
 	/**
-	 * Creates an instance of CrudioRepository.
+	 * Initialise an instance of CrudioDataModel.
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @constructor
 	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
 	constructor(dataModel: ICrudioSchemaDefinition, autoPopulate = true, include: string = null) {
-		this.PreProcessRepositoryDefinition(dataModel, include);
+		this.PreProcessDataModelDefinition(dataModel, include);
 
 		if (autoPopulate) {
 			this.FillDataTables();
 		}
 	}
 
-	//#region Initialise repository, entities and relationships
+	//#region Initialise data model, entities and relationships
 
 	/**
 	 * When deserialising, ensure the correct prototypes are applied and initialise other default data values
@@ -199,7 +199,7 @@ export default class CrudioDataModel {
 	 * @private
 	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
-	private PreProcessRepositoryDefinition(dataModel: ICrudioSchemaDefinition, include: string = null): void {
+	private PreProcessDataModelDefinition(dataModel: ICrudioSchemaDefinition, include: string = null): void {
 		if (!dataModel.include) {
 			dataModel.include = [];
 		}
@@ -242,7 +242,7 @@ export default class CrudioDataModel {
 	private Merge(filename: string, datamodel: ICrudioSchemaDefinition) {
 		const input: ICrudioSchemaDefinition = CrudioJson.LoadJson(filename, this.filestack);
 
-		if (input.include) this.PreProcessRepositoryDefinition(input);
+		if (input.include) this.PreProcessDataModelDefinition(input);
 
 		if (input.generators) {
 			datamodel.generators = [...datamodel.generators, ...input.generators];

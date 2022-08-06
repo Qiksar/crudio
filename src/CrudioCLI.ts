@@ -49,8 +49,8 @@ export default class CrudioCLI {
             .option("-k, --idField <idfield>", "Default name for primary key column", "id")
 			.option("-w, --wipe", "Drop all tables in the schema if they already exist", true)
 			.option("-s, --schema <schema>", "Place tables in the nominated schema", "crudio")
-			.option("-r, --repo <repo_file>", "Repository definition file (JSON)")
-			.option("-i, --include <include_file>", "Merge an additional repository definition")
+			.option("-r, --repo <repo_file>", "Data model definition file (JSON)")
+			.option("-i, --include <include_file>", "Merge an additional data model definition")
 			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
 
 		this.config = this.command_line.parse(args).opts();

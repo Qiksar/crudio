@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-// Crudio CLI
-//
-//  Usage: crudio repo_path.json [target_schema]
-//
-//        repo_path.json : the path to the repository definition, which is a JSON file.
-//        target_schema  : Optional schema name - default value is 'crudio'
-//
-
 import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
 
@@ -94,18 +86,18 @@ setTimeout(async () => {
 	}
 
 	if (config.repo === undefined) {
-		console.error("Error: repository not specified. Use the -r or --repo option to specify a repository definition file (e.g. repo.json). Use -h to view options.");
+		console.error("Error: data model not specified. Use the -r or --repo option to specify a definition file (e.g. repo.json). Use -h to view options.");
 		return;
 	}
 
-	console.log(`Loading Crudio repository definition from: "${config.repo}"`);
+	console.log(`Loading Crudio data model definition from: "${config.repo}"`);
 	console.log();
 
 	const repo = CrudioDataModel.FromJson(config.repo);
-	console.log("Data repository definition loaded");
+	console.log("Data model definition loaded");
 
 	const db = new CrudioDataWrapper(config, repo);
-	console.log("Data repository populated");
+	console.log("Data model populated");
 
 	if (config.diagram) {
 		console.log(`Output diagram to ${config.diagram}`);
