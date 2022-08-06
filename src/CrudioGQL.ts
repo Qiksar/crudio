@@ -107,7 +107,7 @@ export default class CrudioGQL {
 
 			return results.data.result;
 		} catch (e: any) {
-			if (e.code === "ECONNREFUSED") {
+			if (e.code && e.code === "ECONNREFUSED") {
 				console.error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 				throw new Error("Error whilst executing SQL statement: CONNECTION REFUSED. Are the database and graphql containers running?");
 			} else {
