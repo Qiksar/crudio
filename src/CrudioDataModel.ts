@@ -153,9 +153,12 @@ export default class CrudioDataModel {
 	 * @constructor
 	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
-	constructor(dataModel: ICrudioSchemaDefinition, include: string = null) {
+	constructor(dataModel: ICrudioSchemaDefinition, autoPopulate = true, include: string = null) {
 		this.PreProcessRepositoryDefinition(dataModel, include);
-		this.FillDataTables();
+
+		if (autoPopulate) {
+			this.FillDataTables();
+		}
 	}
 
 	//#region Initialise repository, entities and relationships
@@ -829,9 +832,9 @@ export default class CrudioDataModel {
 	 * @param {string} filename
 	 * @returns {CrudioDataModel}
 	 */
-	public static FromJson(filename: string, include: string = null): CrudioDataModel {
+	public static FromJson(filename: string, autoPopulate = true, include: string = null): CrudioDataModel {
 		const json_object = CrudioJson.LoadJson(filename);
-		return new CrudioDataModel(json_object, include);
+		return new CrudioDataModel(json_object, autoPopulate, include);
 	}
 
 	/**
@@ -924,9 +927,9 @@ export default class CrudioDataModel {
 	 * Fill in-memory datatables with entity instances whose fields are populated with generated data
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
-	 * @private
+	 * @public
 	 */
-	private FillDataTables(): void {
+	public FillDataTables(): void {
 		this.ClearAllInMemoryTables();
 		this.CreateInMemoryDataTables();
 
@@ -964,8 +967,10 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @param {CrudioTable} table
+	 * 
+	 * @private
 	 */
-	FillTable(table: CrudioTable): void {
+	private FillTable(table: CrudioTable): void {
 		var records: CrudioEntityInstance[] = [];
 		var count = 0;
 
@@ -1091,18 +1096,7 @@ export default class CrudioDataModel {
 	 */
 	private ProcessAllTokensInTable(table: CrudioTable) {
 		table.DataRows.map(entityInstance => {
-			var ok = false;
-			var maxtries = 1000;
-
-			while (!ok && maxtries-- > 0) {
-				if (maxtries == 0) {
-					throw new Error(
-						`Error: Failed to create unique value for ${table.TableName} with ${table.DataRows.length} rows. Table contains ${table.DataRows.length} entities. Try to define a generator that will create more random values. Adding a random number component can help.`
-					);
-				}
-
-				ok = this.ProcessTokensInEntity(entityInstance);
-			}
+			this.ProcessTokensInEntity(entityInstance);
 		});
 	}
 
@@ -1114,47 +1108,62 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} entityInstance
 	 * @returns {boolean}
 	 */
-	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): boolean {
-		// as we generate the entity a field may require unique values, like a
-		// unique database constraint on a field.
+	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): void {
+		// Entites may require fields to have unique values, and therefore 
+		// can not violate the unique database constraint for the field.
 		//
-		// field values can be based on the values of other fields in the entity, like email:first.last@email.com
-		// if the email value created is not unique, the entire entity is rejected so a new first and last name can be created, to form a new unique email
-		// so, for that reason we have to create a duplicate entity, and only overwrite the input entity on complete successful generation of the correct field values
+		// Because generators may not create a unique value, we will have to try again, and to try again we need to retain
+		// the original entity with it's tokens ([generator]) intact. This is why we have a temporary entity below.
+		//
+		// The temporary entity gets the generated value, and if any unique contraints are violated, it is discarded.
 
+		const temporary_entity = new CrudioEntityInstance(entityInstance.EntityType);
 		const keys = Object.keys(entityInstance.DataValues);
-		const new_instance = new CrudioEntityInstance(entityInstance.EntityType);
-		new_instance.DataValues = { ...entityInstance.DataValues };
 
-		for (var i = 0; i < keys.length; i++) {
-			const field_name = keys[i];
-			const field_value: string = new_instance.DataValues[field_name];
+		var maxtries = 1000;
 
-			if (typeof field_value === "string" && field_value.indexOf("[") >= 0) {
-				const detokenised_value = this.ReplaceTokens(field_value, new_instance);
-				new_instance.DataValues[field_name] = detokenised_value;
+		while (maxtries-- > 0) {
+			var ok = true;
+			temporary_entity.DataValues = { ...entityInstance.DataValues };
 
-				if (detokenised_value.indexOf("[") >= 0) {
-					throw new Error(`Error: Detokenisation failed in Entity:${new_instance.EntityType.Name} - ${field_name}`);
-				}
-				const entity_field = new_instance.EntityType.GetField(field_name);
+			for (var i = 0; i < keys.length; i++) {
+				const field_name = keys[i];
+				const field_value: string = temporary_entity.DataValues[field_name];
 
-				// keep track of unique field values
-				if (entity_field && entity_field.fieldOptions.isUnique) {
-					if (entityInstance.EntityType.HasUniqueValue(field_name, detokenised_value.toLowerCase().trim())) {
-						return false;
+				if (typeof field_value === "string" && field_value.indexOf("[") >= 0) {
+					const detokenised_value = this.ReplaceTokens(field_value, temporary_entity);
+					temporary_entity.DataValues[field_name] = detokenised_value;
+
+					if (detokenised_value.indexOf("[") >= 0) {
+						throw new Error(`Error: Detokenisation failed in Entity:${temporary_entity.EntityType.Name} - ${field_name}`);
 					}
+					const entity_field = temporary_entity.EntityType.GetField(field_name);
 
-					entityInstance.EntityType.AddUniqueValue(field_name, detokenised_value.toLowerCase().trim());
+					// keep track of unique field values
+					if (entity_field && entity_field.fieldOptions.isUnique) {
+						if (entityInstance.EntityType.HasUniqueValue(field_name, detokenised_value)) {
+							if (maxtries == 0) {
+								throw new Error(
+									`Error: Failed to create unique value for ${entityInstance.EntityType.Name}.${entity_field.fieldName}. Try to define a generator that will create more random values. Adding a random number component may help.`
+								);
+							}
+
+							ok = false;
+							break;
+						}
+
+						entityInstance.EntityType.AddUniqueValue(field_name, detokenised_value);
+					}
+				} else {
+					// it's ok that the field is defined but there is no default value or generated value specified
 				}
-			} else {
-				// it's ok that the field is defined but there is no default value or generated value specified
 			}
+
+			if (ok) { break; }
 		}
 
-		entityInstance.DataValues = new_instance.DataValues;
+		entityInstance.DataValues = temporary_entity.DataValues;
 
-		return true;
 	}
 
 	/**

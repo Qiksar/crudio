@@ -87,7 +87,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Load repository with include file", () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
+		const repo = CrudioRepository.FromJson("repo/repo.json", true, "repo/iot.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -192,7 +192,7 @@ describe("Create fake data", () => {
 	// NOTE: This test method will occasionally fail. There is some kind of race condition in the unit test context
 	// The issues does not seem to be reproducable through the CLI
 	test("Populate database", async () => {
-		const repo = CrudioRepository.FromJson("repo/repo.json", "repo/iot.json");
+		const repo = CrudioRepository.FromJson("repo/repo.json", true, "repo/iot.json");
 		const db = new CrudioDataWrapper(config, repo);
 		expect(db).not.toBeNull;
 

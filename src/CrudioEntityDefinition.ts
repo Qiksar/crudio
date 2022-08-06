@@ -280,6 +280,7 @@ export default class CrudioEntityDefinition {
 	 * @returns {boolean}
 	 */
 	HasUniqueValue(field_name: string, value: string): boolean {
+		value = value.toLowerCase().trim()
 		return this.unique_keys_values[field_name].indexOf(value) >= 0;
 	}
 
@@ -291,6 +292,7 @@ export default class CrudioEntityDefinition {
 	 * @param {string} value
 	 */
 	AddUniqueValue(field_name: string, value: string) {
+		value = value.toLowerCase().trim();
 		this.unique_keys_values[field_name].push(value);
 	}
 

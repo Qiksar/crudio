@@ -81,7 +81,7 @@ setTimeout(async () => {
 	const config = cli.Config;
 
 	if (config.verbose) {
-		console.log("verbose option enabled");
+		console.log("Verbose option enabled");
 		console.log();
 		console.log("Configuration:");
 		console.log(config);
