@@ -1,0 +1,22 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+    "description":"Supplier entity, example building block to be used in other data models",
+	"entities": {
+		"Supplier": {
+			"count": 10,
+			"inherits": "Entity",
+			"fields": {
+				"name": { "required": true, "unique": true, "generator": "[organisation_name]" },
+				"address": { "generator": "[address]" },
+				"email": { "generator": "contact@[!~name].org.au" }
+			},
+			"relationships": [
+				{
+					"to": "Organisation",
+					"type": "many",
+					"count": 5
+				}
+			]
+		}
+	}
+}
