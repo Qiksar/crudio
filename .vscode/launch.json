@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/lib/crudio_cli.js",
-            "args": ["-v","-r","repo/repo.json"],
+            "args": ["-v","-m","datamodel/datamodel.json"],
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

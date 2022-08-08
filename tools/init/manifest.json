@@ -2,10 +2,10 @@
 	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/docker-compose.yml" },
 	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/go.sh" },
 	{ "location": ".", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/stop.sh" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base.json" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_entity.json" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_generators.json" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/base_snippets.json" },
-	{ "location": "repo", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/repo/repo.json" }
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/base.json" },
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/base.json" },
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/base_entity.json" },
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/base_generators.json" },
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/base_snippets.json" },
+	{ "location": "datamodel", "source": "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/datamodel/datamodel.json" }
 ]

@@ -1,12 +1,12 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
 	"include": [
-		"repo/base.json"
+		"datamodel/base.json"
 	],
 	"generators": [
 		{
-			 "name": "accreditation_expiry_date",
-			 "values":"datetime {'years_lo': -10, 'years_hi': 10}" 
+			"name": "accreditation_expiry_date",
+			"values": "datetime {'years_lo': -10, 'years_hi': 10}"
 		},
 		{
 			"name": "cohort_title",

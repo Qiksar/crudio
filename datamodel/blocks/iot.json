@@ -77,7 +77,7 @@
 		},
 		"Device": {
 			"inherits": "Entity",
-			"count": 200,
+			"count": 10,
 			"relationships": [
 				{
 					"type": "one",

@@ -7,7 +7,7 @@ const config: ICrudioConfig = {
     readonlyFields: [],
     schema: "crudio_test",
     wipe: true,
-    repo: "repo/repo.json",
+    datamodel: "datamodel/datamodel.json",
     include: "repo/include.json",
 };
 

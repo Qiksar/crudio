@@ -5,16 +5,15 @@
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
-import CrudioDataWrapper from "../../src/CrudioDataWrapper";
 
-describe("Create fake data", () => {
+describe("Create datamodel", () => {
 	jest.setTimeout(120000);
 
 	test("Find Arrow Corporation and William Tell", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 		const rows = repo.GetTable("Organisations").DataRows;
 		const arrow = rows[0];
-		const william = arrow.DataValues.Users[0].DataValues;
+		const william = arrow.DataValues.Employees[0].DataValues;
 
 		expect(arrow.DataValues.name).toEqual("Arrow Corporation");
 		expect(william.firstname).toEqual("William");
@@ -22,7 +21,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Load data model definition from JSON file", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -38,7 +37,7 @@ describe("Create fake data", () => {
 	});
 
 	test("All Blogs have at least one tag", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 
 		const blogs = repo.GetTable("Blogs");
 		const tags = repo.GetTable("BlogTags");
@@ -54,20 +53,26 @@ describe("Create fake data", () => {
 	});
 
 	test("Load data model and include file", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json", true, "repo/iot.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json", true, "datamodel/blocks/iot.json");
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
 		const devicetype: CrudioTable = repo.GetTable("DeviceTypes");
 		const device: CrudioTable = repo.GetTable("Devices");
 		const site: CrudioTable = repo.GetTable("DeviceSites");
+		const readings: CrudioTable = repo.GetTable("DeviceReadings");
+
 		expect(devicetype).not.toBeNull();
 		expect(device).not.toBeNull();
 		expect(site).not.toBeNull();
+		expect(readings).not.toBeNull();
+		expect(readings.DataRows[0].DataValues.Device).not.toBeNull();
+		expect(readings.DataRows[0].DataValues.Device.DeviceType).not.toBeNull();
+		expect(readings.DataRows[0].DataValues.Device.DeviceSite).not.toBeNull();
 	});
 
 	test("Check for unique email addresses", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -89,7 +94,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Check for unique tag names", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -111,7 +116,7 @@ describe("Create fake data", () => {
 	});
 
 	test("Save and load database using flatted form", () => {
-		const repo = CrudioDataModel.FromJson("repo/repo.json");
+		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 		repo.Save("test/unit/output/fake.flat.json");
 
 		const db = CrudioDataModel.FromString(repo.ToString());
@@ -155,5 +160,4 @@ describe("Create fake data", () => {
 		const cohort: any = cohorts[0] as any;
 		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
 	});
-
 });

@@ -42,20 +42,10 @@ export default class CrudioEntityInstance {
 	 *
 	 * @constructor
 	 * @param {CrudioEntityDefinition} entityType
-	 * @param {{}} [source={}]
-	 * @param {boolean} [strict=false]
 	 */
-	constructor(entityType: CrudioEntityDefinition, source: {} = {}, strict: boolean = false) {
+	constructor(entityType: CrudioEntityDefinition) {
 		this.entityType = entityType;
-		this.dataValues = source;
-
-		if (strict) {
-			Object.keys(this.DataValues).map(k => {
-				if (!entityType.GetField(k)) {
-					throw new Error("CrudioEntityInstance.constructor '" + k + "' is not a valid field on entity '" + this.EntityType.Name + "'");
-				}
-			});
-		}
+		this.dataValues = {};
 	}
 
 	/**

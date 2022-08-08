@@ -640,15 +640,24 @@ export default class CrudioDataModel {
 				const row_num = CrudioUtils.GetRandomNumber(0, options.length);
 				options.slice(row_num, 1);
 
-				const row = this.CreateEntityInstance(d);
-				this.SetupEntityGenerators(row);
-				this.ProcessTokensInEntity(row);
-				row.DataValues[d.SourceRelationship.FromEntity] = source_id;
-				row.DataValues[d.SourceRelationship.ToEntity] = options[row_num];
-
-				joinTable.DataRows.push(row);
+				const many_to_many_row = this.CreateEntityInstance(d);
+				this.SetupEntityGenerators(many_to_many_row);
+				this.ProcessTokensInEntity(many_to_many_row);
+				this.CreateManyToManyRow(many_to_many_row, source_id, options[row_num], joinTable);
 			}
 		});
+	}
+
+	/**
+	 * Create a new entry in a many to many join table
+	 * @date 8/8/2022 - 3:39:38 PM
+	 *
+	 * @private
+	 */
+	private CreateManyToManyRow(row: CrudioEntityInstance, source_id: string, target_id: string, joinTable: CrudioTable) {
+		row.DataValues[row.EntityType.SourceRelationship.FromEntity] = source_id;
+		row.DataValues[row.EntityType.SourceRelationship.ToEntity] = target_id;
+		joinTable.DataRows.push(row);
 	}
 
 	/**
@@ -788,37 +797,15 @@ export default class CrudioDataModel {
 	 * @param {string} name
 	 * @returns {CrudioTable}
 	 */
-	public GetTableForEntityDefinition(name: string, autoPopulate = false): CrudioTable {
+	public GetTableForEntityDefinition(name: string): CrudioTable {
 		var matches: CrudioTable[] = this.Tables.filter((t: CrudioTable) => t.EntityDefinition.Name === name);
 
 		if (matches.length === 0) {
 			throw new Error(`Table for entity '${name}' not found`);
 		}
 
-		const table = matches[0];
-
-		// If a table is requested during the construction of the object graph, then we have to try and fill it with data
-		// So that referencing entities will have target rows to connect to
-		if (autoPopulate && table.DataRows.length == 0) {
-			this.PopulateAndProcessTableTokens(table);
-		}
-
-		return table;
+		return matches[0];
 	}
-
-	/**
-	 * When table data is requested we have to fill the data with entity instances, which by default will have generators assigned as its field values
-	 * This method creates the entity instances for a table, then executes all the generators to create the entity field values
-	 * @date 7/31/2022 - 10:10:33 AM
-	 *
-	 * @private
-	 * @param {CrudioTable} table
-	 */
-	private PopulateAndProcessTableTokens(table: CrudioTable) {
-		this.FillTable(table);
-		this.ProcessAllTokensInTable(table);
-	}
-
 	//#endregion
 
 	//#region Serialisation
@@ -973,11 +960,14 @@ export default class CrudioDataModel {
 	private FillTable(table: CrudioTable): void {
 		var records: CrudioEntityInstance[] = [];
 		var count = 0;
+		var values: string[] = [];
+		const generator: string = table.EntityDefinition.MaxRowCount as string;
 
 		if (typeof table.EntityDefinition.MaxRowCount === "string") {
-			const g = table.EntityDefinition.MaxRowCount.replace(/\[|\]/g, "");
+			const g = generator.replace(/\[|\]/g, "");
 			const v = this.GetGenerator(g);
-			count = v.split(";").length - 1;
+			values = v.split(";").filter(f => f && f.length > 0);
+			count = values.length;
 
 			if (count == 0) throw new Error(`Error: Unable to determine entity count for ${table.TableName} using "${v}" `);
 		} else if (typeof table.EntityDefinition.MaxRowCount === "number") {
@@ -986,8 +976,17 @@ export default class CrudioDataModel {
 			count = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 		}
 
+		const field = table.EntityDefinition.fields.filter(f => f.fieldOptions.generator === generator)[0];
+
 		for (var c = 0; c < count; c++) {
-			records.push(this.CreateEntityInstance(table.EntityDefinition));
+			const entity = this.CreateEntityInstance(table.EntityDefinition);
+
+			if (field) {
+				entity.DataValues[field.fieldName] = values[c];
+			}
+
+			records.push(entity);
+			this.ProcessTriggersForEntity(entity);
 		}
 
 		table.DataRows = records;
@@ -1040,7 +1039,6 @@ export default class CrudioDataModel {
 	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
-
 		return entity;
 	}
 
@@ -1357,6 +1355,9 @@ export default class CrudioDataModel {
 		for (var i = 0; i < path.length - 1; i++) {
 			const child_entity_name = path[i];
 			source = source.DataValues[child_entity_name];
+
+			if (!source)
+				throw new Error(`Field '${child_entity_name}' did not resolve from entity type '${entity.EntityType.Name}'`);
 		}
 
 		if (!source) {
@@ -1400,12 +1401,12 @@ export default class CrudioDataModel {
 	 */
 	private ProcessTriggersForEntity(entityInstance: CrudioEntityInstance): void {
 		// We have to detokenise the entity as other entities which are connected to it through a trigger, may be using lookups
-		this.ProcessTokensInEntity(entityInstance);
 
 		// For each new entity, run the script
 		const triggers = this.triggers[entityInstance.EntityType.Name];
-
 		if (!triggers) return;
+
+		this.ProcessTokensInEntity(entityInstance);
 
 		triggers.map((s: any) => {
 			this.ExecuteTrigger(entityInstance, s);
@@ -1426,7 +1427,6 @@ export default class CrudioDataModel {
 
 		const query_index = script.indexOf("?");
 		const query = script.slice(query_index + 1);
-
 		const parts = script.slice(0, query_index).split(".");
 		var field_name = parts[0];
 		var entity_type = parts[1];
@@ -1441,12 +1441,15 @@ export default class CrudioDataModel {
 			const index_text = field_name.slice(bracket + 1, field_name.indexOf(")", bracket + 1));
 			const row_parts = index_text.split("-");
 			var row_start = Number(row_parts[0]);
-			var row_end;
+			var row_end: number;
 
-			if (row_parts.length == 2) row_end = Number(row_parts[1]);
-			else row_end = row_start;
+			row_end = row_parts.length == 2
+				? Number(row_parts[1])
+				: row_end = row_start;
 
-			if (row_start === NaN || row_end === NaN) throw new Error(`Error: Syntax error - invalid row index in ${script}`);
+			if (row_start === NaN || row_end === NaN) {
+				throw new Error(`Error: Syntax error - invalid row index in ${script}`);
+			}
 
 			row_index = row_start;
 
@@ -1456,10 +1459,9 @@ export default class CrudioDataModel {
 		// When we get the entity by index below, it will be connected to this target entity
 		var rows = this.ExecuteCrudioQuery(entity_type, query);
 		if (rows.length == 0) {
-			rows = this.ExecuteCrudioQuery(entity_type, query);
-
 			throw new Error(`Error: Failed to find ${entity_type} matching query: ${query}`);
 		}
+
 		const target_connection = rows[0];
 
 		for (var ri = row_start; ri <= row_end; ri++) {
@@ -1477,7 +1479,15 @@ export default class CrudioDataModel {
 	 * @returns {CrudioEntityInstance}
 	 */
 	public ExecuteCrudioQuery(entityDefinition: string, query: string | null): CrudioEntityInstance[] {
-		const table = this.GetTableForEntityDefinition(entityDefinition, true);
+		const table = this.GetTableForEntityDefinition(entityDefinition);
+
+		// If a table is requested during the construction of the object graph, then we have to try and fill it with data
+		// So that referencing entities will have target rows to connect to
+		if (table.DataRows.length == 0) {
+			this.FillTable(table);
+			this.ProcessAllTokensInTable(table);
+		}
+
 		const rows = table.DataRows;
 
 		if (rows.length == 0) {
@@ -1532,6 +1542,12 @@ export default class CrudioDataModel {
 
 				this.ConnectRows(new_entity, parent_entity);
 				this.ConnectRows(new_entity, target_connection);
+
+				if (false && new_entity.EntityType.HasManyToManyRelationship(target_connection.EntityType)) {
+					var a = 1;
+				}
+				else {
+				}
 
 				// process tokens in the new User entity, like expanding the email address which contains the organisation name
 				this.ProcessTokensInEntity(new_entity);

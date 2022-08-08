@@ -58,7 +58,7 @@ export interface ICrudioConfig {
 	 *
 	 * @type {string}
 	 */
-	repo: string;
+	datamodel: string;
 	/**
 	 * Name of a further JSON file to include with the main data model
 	 * @date 7/21/2022 - 1:47:19 PM

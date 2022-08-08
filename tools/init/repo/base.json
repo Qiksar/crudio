@@ -1,4 +1,0 @@
-{
-	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
-	"include": ["repo/base_snippets.json", "repo/base_entity.json", "repo/base_generators.json"]
-}

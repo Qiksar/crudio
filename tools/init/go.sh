@@ -10,7 +10,7 @@ sleep 5
 echo
 echo "Build the database and populate with data"
 
-npx @qiksar/crudio@latest -v -w -r repo/repo.json 
+npx @qiksar/crudio@latest -v -w -m datamodel/datamodel.json 
 
 echo "Browse to http://localhost:6789 to view the Hasura GraphQL console"
 echo

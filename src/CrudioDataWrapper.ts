@@ -61,6 +61,7 @@ class SqlInstructionList {
  * @typedef {CrudioDataWrapper}
  */
 export default class CrudioDataWrapper {
+	//#region Properties
 	/**
 	 * GraphQL interface
 	 * @date 7/18/2022 - 1:46:23 PM
@@ -81,22 +82,22 @@ export default class CrudioDataWrapper {
 	 *
 	 * @type {CrudioDataModel}
 	 */
-	private repo: CrudioDataModel;
-
+	private datamodel: CrudioDataModel;
+	//#endregion
 	/**
 	 * Creates an instance of CrudioDataWrapper.
 	 * @date 7/18/2022 - 1:46:23 PM
 	 *
 	 * @constructor
 	 * @param {ICrudioConfig} config
-	 * @param {CrudioDataModel} repo
+	 * @param {CrudioDataModel} datamodel
 	 */
-	constructor(config: ICrudioConfig, repo: CrudioDataModel) {
+	constructor(config: ICrudioConfig, datamodel: CrudioDataModel) {
 		this.config = { ...config };
-		if (repo.TargetDbSchema) this.config.schema = repo.TargetDbSchema;
+		if (datamodel.TargetDbSchema) this.config.schema = datamodel.TargetDbSchema;
 
 		this.gql = new CrudioGQL(this.config);
-		this.repo = repo;
+		this.datamodel = datamodel;
 	}
 
 	/**
@@ -122,23 +123,25 @@ export default class CrudioDataWrapper {
 	public async PopulateDatabaseTables(): Promise<void> {
 		var instructions = new SqlInstructionList();
 
-		for (var index = 0; index < this.repo.Tables.length; index++) {
-			const table: CrudioTable = this.repo.Tables[index];
+		for (var index = 0; index < this.datamodel.Tables.length; index++) {
+			const table: CrudioTable = this.datamodel.Tables[index];
 
 			this.BuildSqlColumnsForTable(table.EntityDefinition, instructions);
 			this.BuildSqlForOneToManyKeys(table.EntityDefinition, table, instructions);
 
 			// -------------- Create the data table
 
-			const sql_create_tables = this.BuildCreateTableStatement(table.EntityDefinition, table, instructions);
+			const sql_create_table = this.BuildCreateTableStatement(table.EntityDefinition, table, instructions);
 			if (this.config.wipe) {
-				await this.gql.ExecuteSQL(sql_create_tables);
+				await this.gql.ExecuteSQL(sql_create_table);
 			}
 
 			// -------------- Build and insert rows
 
-			this.BuildInsertData(table, instructions);
-			await this.gql.ExecuteSQL(instructions.insert_table_rows);
+			if (table.DataRows.length > 0) {
+				this.BuildInsertData(table, instructions);
+				await this.gql.ExecuteSQL(instructions.insert_table_rows);
+			}
 		}
 
 		await this.CreateForeignKeys(instructions);
@@ -219,7 +222,7 @@ export default class CrudioDataWrapper {
 	 */
 	private BuildSqlForOneToManyKeys(entity: CrudioEntityDefinition, table: CrudioTable, instructions: SqlInstructionList): void {
 		entity.OneToManyRelationships.map(r => {
-			const target = this.repo.Tables.filter(t => t.EntityDefinition.Name === r.ToEntity)[0];
+			const target = this.datamodel.Tables.filter(t => t.EntityDefinition.Name === r.ToEntity)[0];
 
 			if (!target) {
 				throw new Error(`Unable to find a table for ${JSON.stringify(r)} using name ${r.ToEntity}. Ensure entity names are singular, like Article, not Articles.`);

@@ -220,6 +220,11 @@ export default class CrudioEntityDefinition {
 	public get ManyToManyRelationships(): CrudioRelationship[] {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
 	}
+
+	public HasManyToManyRelationship(entityDefinition: CrudioEntityDefinition): boolean {
+		return this.ManyToManyRelationships.filter(r => r.ToEntity == entityDefinition.name).length > 0;
+	}
+
 	//#endregion
 
 	/**
@@ -460,6 +465,6 @@ export default class CrudioEntityDefinition {
 	 * @returns {CrudioEntityInstance}
 	 */
 	CreateInstance(): CrudioEntityInstance {
-		return new CrudioEntityInstance(this, {});
+		return new CrudioEntityInstance(this);
 	}
 }

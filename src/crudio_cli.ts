@@ -49,7 +49,7 @@ const Init = async (config: any): Promise<void> => {
 		console.log("Fetch manifest");
 	}
 
-	fs.mkdirSync(config.project + "/repo");
+	fs.mkdirSync(config.project + "/datamodel");
 
 	var result: AxiosResponse = await axios.get(manifest_file);
 	var manifest = result.data as string[];
@@ -85,24 +85,24 @@ setTimeout(async () => {
 		return;
 	}
 
-	if (config.repo === undefined) {
-		console.error("Error: data model not specified. Use the -r or --repo option to specify a definition file (e.g. repo.json). Use -h to view options.");
+	if (config.datamodel === undefined) {
+		console.error("Error: data model not specified. Use the -m or --datamodel option to specify a definition file (e.g. datamodel.json). Use -h to view options.");
 		return;
 	}
 
-	console.log(`Loading Crudio data model definition from: "${config.repo}"`);
+	console.log(`Loading Crudio data model definition from: "${config.datamodel}"`);
 	console.log();
 
-	const repo = CrudioDataModel.FromJson(config.repo);
+	const datamodel = CrudioDataModel.FromJson(config.datamodel);
 	console.log("Data model definition loaded");
 
-	const db = new CrudioDataWrapper(config, repo);
+	const db = new CrudioDataWrapper(config, datamodel);
 	console.log("Data model populated");
 
 	if (config.diagram) {
 		console.log(`Output diagram to ${config.diagram}`);
 
-		const diagram = repo.ToMermaid();
+		const diagram = datamodel.ToMermaid();
 
 		fs.writeFileSync(config.diagram, diagram);
 	}
