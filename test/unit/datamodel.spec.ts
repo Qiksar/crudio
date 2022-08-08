@@ -18,6 +18,9 @@ describe("Create datamodel", () => {
 		expect(arrow.DataValues.name).toEqual("Arrow Corporation");
 		expect(william.firstname).toEqual("William");
 		expect(william.lastname).toEqual("Tell");
+
+		const roles = william.OrganisationRole;
+
 	});
 
 	test("Load data model definition from JSON file", () => {

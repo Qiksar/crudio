@@ -95,7 +95,6 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
 }
 ```
 
-
 # How to Remove the Crudio Demo environment
 
 If you want to remove and clean-up the demo environment, follow these simple steps.

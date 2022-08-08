@@ -17,7 +17,7 @@ export default class CrudioEntityInstance {
 	 * @type {CrudioEntityDefinition}
 	 */
 	private entityType: CrudioEntityDefinition;
-	public get EntityType(): CrudioEntityDefinition {
+	public get EntityDefinition(): CrudioEntityDefinition {
 		return this.entityType;
 	}
 

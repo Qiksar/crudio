@@ -185,7 +185,7 @@
 					"to": "OrganisationDepartment"
 				},
 				{
-					"type": "one",
+					"type": "many",
 					"to": "OrganisationRole"
 				}
 			]
@@ -323,6 +323,7 @@
 			"entity": "Organisation",
 			"scripts": [
 				"Employees(0).OrganisationRole?name=CEO",
+				"Employees(0).OrganisationRole?name=Staff",
 				"Employees(0).OrganisationDepartment?name=Board",
 				"Employees(1).OrganisationRole?name=CFO",
 				"Employees(1).OrganisationDepartment?name=Board",

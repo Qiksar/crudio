@@ -640,10 +640,7 @@ export default class CrudioDataModel {
 				const row_num = CrudioUtils.GetRandomNumber(0, options.length);
 				options.slice(row_num, 1);
 
-				const many_to_many_row = this.CreateEntityInstance(d);
-				this.SetupEntityGenerators(many_to_many_row);
-				this.ProcessTokensInEntity(many_to_many_row);
-				this.CreateManyToManyRow(many_to_many_row, source_id, options[row_num], joinTable);
+				this.CreateManyToManyRow(joinTable, source_id, options[row_num]);
 			}
 		});
 	}
@@ -654,10 +651,14 @@ export default class CrudioDataModel {
 	 *
 	 * @private
 	 */
-	private CreateManyToManyRow(row: CrudioEntityInstance, source_id: string, target_id: string, joinTable: CrudioTable) {
-		row.DataValues[row.EntityType.SourceRelationship.FromEntity] = source_id;
-		row.DataValues[row.EntityType.SourceRelationship.ToEntity] = target_id;
+	private CreateManyToManyRow(joinTable: CrudioTable, source_id: string, target_id: string): void {
+		const row = this.CreateEntityInstance(joinTable.EntityDefinition);
+		row.DataValues[row.EntityDefinition.SourceRelationship.FromEntity] = source_id;
+		row.DataValues[row.EntityDefinition.SourceRelationship.ToEntity] = target_id;
 		joinTable.DataRows.push(row);
+
+		this.SetupEntityGenerators(row);
+		this.ProcessTokensInEntity(row);
 	}
 
 	/**
@@ -756,8 +757,8 @@ export default class CrudioDataModel {
 
 		if (!targetRow) throw "Error: targetRow must be specified";
 
-		const sourceTable = this.GetTableForEntityDefinition(sourceRow.EntityType.Name);
-		const targetTable = this.GetTableForEntityDefinition(targetRow.EntityType.Name);
+		const sourceTable = this.GetTableForEntityDefinition(sourceRow.EntityDefinition.Name);
+		const targetTable = this.GetTableForEntityDefinition(targetRow.EntityDefinition.Name);
 
 		// the source points to a single target record... user 1 -> 1 organisation
 		sourceRow.DataValues[targetTable.EntityDefinition.Name] = targetRow;
@@ -1039,6 +1040,8 @@ export default class CrudioDataModel {
 	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
+		entity.DataValues.id = randomUUID();
+
 		return entity;
 	}
 
@@ -1050,7 +1053,7 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} entity
 	 */
 	private SetupEntityGenerators(entity: CrudioEntityInstance) {
-		entity.EntityType.fields.map(field => {
+		entity.EntityDefinition.fields.map(field => {
 			var generator: string | undefined = field.fieldOptions.generator;
 			entity.DataValues[field.fieldName] = generator;
 		});
@@ -1115,7 +1118,7 @@ export default class CrudioDataModel {
 		//
 		// The temporary entity gets the generated value, and if any unique contraints are violated, it is discarded.
 
-		const temporary_entity = new CrudioEntityInstance(entityInstance.EntityType);
+		const temporary_entity = new CrudioEntityInstance(entityInstance.EntityDefinition);
 		const keys = Object.keys(entityInstance.DataValues);
 
 		var maxtries = 1000;
@@ -1133,16 +1136,16 @@ export default class CrudioDataModel {
 					temporary_entity.DataValues[field_name] = detokenised_value;
 
 					if (detokenised_value.indexOf("[") >= 0) {
-						throw new Error(`Error: Detokenisation failed in Entity:${temporary_entity.EntityType.Name} - ${field_name}`);
+						throw new Error(`Error: Detokenisation failed in Entity:${temporary_entity.EntityDefinition.Name} - ${field_name}`);
 					}
-					const entity_field = temporary_entity.EntityType.GetField(field_name);
+					const entity_field = temporary_entity.EntityDefinition.GetField(field_name);
 
 					// keep track of unique field values
 					if (entity_field && entity_field.fieldOptions.isUnique) {
-						if (entityInstance.EntityType.HasUniqueValue(field_name, detokenised_value)) {
+						if (entityInstance.EntityDefinition.HasUniqueValue(field_name, detokenised_value)) {
 							if (maxtries == 0) {
 								throw new Error(
-									`Error: Failed to create unique value for ${entityInstance.EntityType.Name}.${entity_field.fieldName}. Try to define a generator that will create more random values. Adding a random number component may help.`
+									`Error: Failed to create unique value for ${entityInstance.EntityDefinition.Name}.${entity_field.fieldName}. Try to define a generator that will create more random values. Adding a random number component may help.`
 								);
 							}
 
@@ -1150,7 +1153,7 @@ export default class CrudioDataModel {
 							break;
 						}
 
-						entityInstance.EntityType.AddUniqueValue(field_name, detokenised_value);
+						entityInstance.EntityDefinition.AddUniqueValue(field_name, detokenised_value);
 					}
 				} else {
 					// it's ok that the field is defined but there is no default value or generated value specified
@@ -1357,7 +1360,7 @@ export default class CrudioDataModel {
 			source = source.DataValues[child_entity_name];
 
 			if (!source)
-				throw new Error(`Field '${child_entity_name}' did not resolve from entity type '${entity.EntityType.Name}'`);
+				throw new Error(`Field '${child_entity_name}' did not resolve from entity type '${entity.EntityDefinition.Name}'`);
 		}
 
 		if (!source) {
@@ -1403,7 +1406,7 @@ export default class CrudioDataModel {
 		// We have to detokenise the entity as other entities which are connected to it through a trigger, may be using lookups
 
 		// For each new entity, run the script
-		const triggers = this.triggers[entityInstance.EntityType.Name];
+		const triggers = this.triggers[entityInstance.EntityDefinition.Name];
 		if (!triggers) return;
 
 		this.ProcessTokensInEntity(entityInstance);
@@ -1527,7 +1530,7 @@ export default class CrudioDataModel {
 		}
 
 		// get the Users list from the organisation
-		const parent_array = parent_entity.DataValues[field_name] as [];
+		const parent_array: CrudioEntityInstance[] = parent_entity.DataValues[field_name];
 		const entity_definition = this.GetEntityDefinitionFromTableName(field_name);
 
 		// if we are, for example, requesting User[3] then we need to ensure the Users array for the Organisation has
@@ -1541,12 +1544,13 @@ export default class CrudioDataModel {
 				global_table.DataRows.push(new_entity);
 
 				this.ConnectRows(new_entity, parent_entity);
-				this.ConnectRows(new_entity, target_connection);
 
-				if (false && new_entity.EntityType.HasManyToManyRelationship(target_connection.EntityType)) {
-					var a = 1;
+				if (new_entity.EntityDefinition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
+					const joinTable = this.GetManyToManyTable(new_entity.EntityDefinition, target_connection.EntityDefinition);
+					this.CreateManyToManyRow(joinTable, new_entity.DataValues["id"], target_connection.DataValues["id"]);
 				}
 				else {
+					this.ConnectRows(new_entity, target_connection);
 				}
 
 				// process tokens in the new User entity, like expanding the email address which contains the organisation name
@@ -1554,11 +1558,28 @@ export default class CrudioDataModel {
 			}
 		} else {
 			this.ConnectRows(parent_array[row_index], target_connection);
+
+			if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
+				const source = parent_array[row_index];
+				const joinTable = this.GetManyToManyTable(entity_definition, target_connection.EntityDefinition);
+				this.CreateManyToManyRow(joinTable, source.DataValues["id"], target_connection.DataValues["id"]);
+			}
+
 		}
 
 		if (row_index > parent_array.length) {
-			throw new Error(`Error: Failed to generate entity for index ${row_index} in ${parent_entity.EntityType}`);
+			throw new Error(`Error: Failed to generate entity for index ${row_index} in ${parent_entity.EntityDefinition}`);
 		}
+	}
+
+	private GetManyToManyTable(source: CrudioEntityDefinition, target: CrudioEntityDefinition): CrudioTable {
+		const table = this.Tables.filter(t =>
+			t.EntityDefinition.SourceRelationship &&
+			t.EntityDefinition.SourceRelationship.FromEntity === source.Name &&
+			t.EntityDefinition.SourceRelationship.ToEntity === target.Name
+		);
+
+		return table[0];
 	}
 
 	//#endregion
@@ -1604,7 +1625,7 @@ export default class CrudioDataModel {
 
 		Object.keys(assignment.fields).map(f => {
 			if (target[f] == undefined) {
-				throw new Error(`Error: Invalid assignment. Field ${f} does not exist on entity type ${target.EntityType.Name}.`);
+				throw new Error(`Error: Invalid assignment. Field ${f} does not exist on entity type ${target.EntityDefinition.Name}.`);
 			}
 			target[f] = assignment.fields[f];
 		});
