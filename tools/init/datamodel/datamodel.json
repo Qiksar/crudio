@@ -164,7 +164,7 @@
 			"fields": {
 				"email": {
 					"unique": true,
-					"generator": "[user_email]"
+					"generator": "[email]"
 				},
 				"license_expiry": {
 					"type": "timestamp",

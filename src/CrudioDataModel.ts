@@ -1549,9 +1549,6 @@ export default class CrudioDataModel {
 				else {
 					this.ConnectRows(new_entity, target_connection);
 				}
-
-				// process tokens in the new User entity, like expanding the email address which contains the organisation name
-				this.ProcessTokensInEntity(new_entity);
 			}
 		} else {
 			this.ConnectRows(parent_array[row_index], target_connection);

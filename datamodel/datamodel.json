@@ -77,7 +77,7 @@
 			"values": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]"
 		},
 		{
-			"name": "user_email",
+			"name": "employee_email",
 			"values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
 		},
 		{
@@ -168,7 +168,7 @@
 			"fields": {
 				"email": {
 					"unique": true,
-					"generator": "[user_email]"
+					"generator": "[employee_email]"
 				},
 				"license_expiry": {
 					"type": "timestamp",
