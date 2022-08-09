@@ -871,8 +871,7 @@ export default class CrudioDataModel {
 	 * @returns {string}
 	 */
 	public ToMermaid(): string {
-		var output = "# Class Diagram\r";
-		output += "```mermaid\rerDiagram\r";
+		var output = "erDiagram\r";
 
 		this.entityDefinitions.map(e => {
 			output += `${e.Name} {\r`;
@@ -890,8 +889,6 @@ export default class CrudioDataModel {
 					output += `${r.FromEntity} ${rel} ${r.ToEntity} : "has"\r`;
 				});
 		});
-
-		output += "```\r";
 
 		return output;
 	}
