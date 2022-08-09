@@ -85,7 +85,6 @@ export default class CrudioDataModel {
 	 */
 	private tables: CrudioTable[] = [];
 
-
 	/**
 	 * Date format to use
 	 * @date 7/26/2022 - 12:53:10 PM
@@ -952,7 +951,7 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @param {CrudioTable} table
-	 * 
+	 *
 	 * @private
 	 */
 	private FillTable(table: CrudioTable): void {
@@ -1107,7 +1106,7 @@ export default class CrudioDataModel {
 	 * @returns {boolean}
 	 */
 	private ProcessTokensInEntity(entityInstance: CrudioEntityInstance): void {
-		// Entites may require fields to have unique values, and therefore 
+		// Entites may require fields to have unique values, and therefore
 		// can not violate the unique database constraint for the field.
 		//
 		// Because generators may not create a unique value, we will have to try again, and to try again we need to retain
@@ -1157,11 +1156,12 @@ export default class CrudioDataModel {
 				}
 			}
 
-			if (ok) { break; }
+			if (ok) {
+				break;
+			}
 		}
 
 		entityInstance.DataValues = temporary_entity.DataValues;
-
 	}
 
 	/**
@@ -1270,31 +1270,27 @@ export default class CrudioDataModel {
 		var content: string = this.GetGenerator(generator) ?? generator;
 		var value: any = "";
 
-		const g = content.split(" ")[0]
-			.toLowerCase()
-			.replaceAll("[", "")
-			.replaceAll("]", "");
+		const g = content.split(" ")[0].toLowerCase().replaceAll("[", "").replaceAll("]", "");
 
 		const index = content.indexOf(" {");
-		var json = index < 0 ? null
-			: content
-				.slice(index + 1)
-				.replaceAll("[", "")
-				.replaceAll("]", "");
+		var json =
+			index < 0
+				? null
+				: content
+						.slice(index + 1)
+						.replaceAll("[", "")
+						.replaceAll("]", "");
 
 		var args = null;
 
 		if (json) {
-
 			if (json.indexOf("[") > 0) {
 				const reprocess = `${g} ${json}`;
 				return reprocess;
 			}
 
-			args = JSON.parse(json.replaceAll("'", "\""));
-		}
-		else
-			args = {};
+			args = JSON.parse(json.replaceAll("'", '"'));
+		} else args = {};
 
 		switch (g) {
 			case "uuid":
@@ -1320,7 +1316,6 @@ export default class CrudioDataModel {
 
 		return value;
 	}
-
 
 	/**
 	 * Get a data generator by name
@@ -1356,8 +1351,7 @@ export default class CrudioDataModel {
 			const child_entity_name = path[i];
 			source = source.DataValues[child_entity_name];
 
-			if (!source)
-				throw new Error(`Field '${child_entity_name}' did not resolve from entity type '${entity.EntityDefinition.Name}'`);
+			if (!source) throw new Error(`Field '${child_entity_name}' did not resolve from entity type '${entity.EntityDefinition.Name}'`);
 		}
 
 		if (!source) {
@@ -1406,8 +1400,6 @@ export default class CrudioDataModel {
 		const triggers = this.triggers[entityInstance.EntityDefinition.Name];
 		if (!triggers) return;
 
-		this.ProcessTokensInEntity(entityInstance);
-
 		triggers.map((s: any) => {
 			this.ExecuteTrigger(entityInstance, s);
 		});
@@ -1422,9 +1414,6 @@ export default class CrudioDataModel {
 	 * @param {string} script
 	 */
 	private ExecuteTrigger(parent_entity: CrudioEntityInstance, script: string): void {
-		this.ProcessTokensInEntity(parent_entity);
-		script = this.ReplaceTokens(script);
-
 		const query_index = script.indexOf("?");
 		const query = script.slice(query_index + 1);
 		const parts = script.slice(0, query_index).split(".");
@@ -1443,9 +1432,7 @@ export default class CrudioDataModel {
 			var row_start = Number(row_parts[0]);
 			var row_end: number;
 
-			row_end = row_parts.length == 2
-				? Number(row_parts[1])
-				: row_end = row_start;
+			row_end = row_parts.length == 2 ? Number(row_parts[1]) : (row_end = row_start);
 
 			if (row_start === NaN || row_end === NaN) {
 				throw new Error(`Error: Syntax error - invalid row index in ${script}`);
@@ -1545,20 +1532,14 @@ export default class CrudioDataModel {
 				if (new_entity.EntityDefinition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
 					const joinTable = this.GetManyToManyTable(new_entity.EntityDefinition, target_connection.EntityDefinition);
 					this.CreateManyToManyRow(joinTable, new_entity.DataValues["id"], target_connection.DataValues["id"]);
-				}
-				else {
+				} else {
 					this.ConnectRows(new_entity, target_connection);
 				}
 			}
-		} else {
-			this.ConnectRows(parent_array[row_index], target_connection);
-
-			if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
-				const source = parent_array[row_index];
-				const joinTable = this.GetManyToManyTable(entity_definition, target_connection.EntityDefinition);
-				this.CreateManyToManyRow(joinTable, source.DataValues["id"], target_connection.DataValues["id"]);
-			}
-
+		} else if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
+			const source = parent_array[row_index];
+			const joinTable = this.GetManyToManyTable(entity_definition, target_connection.EntityDefinition);
+			this.CreateManyToManyRow(joinTable, source.DataValues["id"], target_connection.DataValues["id"]);
 		}
 
 		if (row_index > parent_array.length) {
@@ -1567,11 +1548,7 @@ export default class CrudioDataModel {
 	}
 
 	private GetManyToManyTable(source: CrudioEntityDefinition, target: CrudioEntityDefinition): CrudioTable {
-		const table = this.Tables.filter(t =>
-			t.EntityDefinition.SourceRelationship &&
-			t.EntityDefinition.SourceRelationship.FromEntity === source.Name &&
-			t.EntityDefinition.SourceRelationship.ToEntity === target.Name
-		);
+		const table = this.Tables.filter(t => t.EntityDefinition.SourceRelationship && t.EntityDefinition.SourceRelationship.FromEntity === source.Name && t.EntityDefinition.SourceRelationship.ToEntity === target.Name);
 
 		return table[0];
 	}

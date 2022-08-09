@@ -8,7 +8,7 @@
 			"fields": {
 				"name": { "required": true, "unique": true, "generator": "[organisation_name]" },
 				"address": { "generator": "[address]" },
-				"email": { "generator": "contact@[!~name].org.au" }
+				"email": { "generator": "contact@[!~name].com" }
 			},
 			"relationships": [
 				{

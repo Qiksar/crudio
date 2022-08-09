@@ -1,7 +1,7 @@
 // tslint:disable: max-line-length
 // tslint:disable: no-unused-expression
 
-
+import { workerData } from "worker_threads";
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
@@ -9,18 +9,30 @@ import CrudioTable from "../../src/CrudioTable";
 describe("Create datamodel", () => {
 	jest.setTimeout(120000);
 
-	test("Find Arrow Corporation and William Tell", () => {
+	test("Find Arrow Corporation and William Tell then check assigned roles", () => {
 		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
 		const rows = repo.GetTable("Organisations").DataRows;
-		const arrow = rows[0];
-		const william = arrow.DataValues.Employees[0].DataValues;
 
-		expect(arrow.DataValues.name).toEqual("Arrow Corporation");
+		const arrow = rows[0].DataValues;
+		expect(arrow.name).toEqual("Arrow Corporation");
+		expect(arrow.email).toEqual("contact@arrowcorporation.com");
+
+		const william = arrow.Employees[0].DataValues;
+
 		expect(william.firstname).toEqual("William");
 		expect(william.lastname).toEqual("Tell");
 
-		const roles = william.OrganisationRole;
+		expect(william.firstname).toEqual("William");
+		expect(william.email).toEqual("william.tell@arrowcorporation.com");
 
+		const orgroles = repo.GetTable("OrganisationRoles").DataRows;
+		const roles = repo.GetTable("EmployeeOrganisationRoles").DataRows;
+		const willroles = roles.filter(r => r.DataValues.Employee === william.id);
+
+		const r1 = orgroles.filter(or => or.DataValues.id == willroles[0].DataValues.OrganisationRole)[0];
+		expect(r1.DataValues.name).toEqual("CEO");
+		const r2 = orgroles.filter(or => or.DataValues.id == willroles[1].DataValues.OrganisationRole)[0];
+		expect(r2.DataValues.name).toEqual("Staff");
 	});
 
 	test("Load data model definition from JSON file", () => {

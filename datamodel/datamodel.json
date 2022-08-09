@@ -109,7 +109,7 @@
 					"generator": "[address]"
 				},
 				"email": {
-					"generator": "contact@[!~name].org.au"
+					"generator": "contact@[!~name].com"
 				}
 			}
 		},
