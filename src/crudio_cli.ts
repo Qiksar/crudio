@@ -25,6 +25,11 @@ const Fetch = async (url: string, output_path: string): Promise<void> => {
 	const outFile: string = output_path + "/" + filename;
 
 	fs.writeFileSync(outFile, text);
+	if (outFile.toLowerCase().endsWith("sh")) {
+		await fs.chmod(outFile, 0o777, e => {
+			if (e) throw e;
+		});
+	}
 };
 
 const Init = async (config: any): Promise<void> => {
