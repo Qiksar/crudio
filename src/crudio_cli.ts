@@ -98,7 +98,7 @@ setTimeout(async () => {
 	console.log(`Loading Crudio data model definition from: "${config.datamodel}"`);
 	console.log();
 
-	const datamodel = CrudioDataModel.FromJson(config.datamodel);
+	const datamodel = CrudioDataModel.FromJson(config.datamodel, true, config.include);
 	console.log("Data model definition loaded");
 
 	const db = new CrudioDataWrapper(config, datamodel);
