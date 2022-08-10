@@ -27,11 +27,11 @@ describe("Create datamodel", () => {
 
 		const orgroles = repo.GetTable("OrganisationRoles").DataRows;
 		const roles = repo.GetTable("EmployeeOrganisationRoles").DataRows;
-		const willroles = roles.filter(r => r.DataValues.Employee === william.id);
+		const willroles = roles.filter(r => r.DataValues.EmployeeId === william.id);
 
-		const r1 = orgroles.filter(or => or.DataValues.id == willroles[0].DataValues.OrganisationRole)[0];
+		const r1 = orgroles.filter(or => or.DataValues.id == willroles[0].DataValues.OrganisationRoleId)[0];
 		expect(r1.DataValues.name).toEqual("CEO");
-		const r2 = orgroles.filter(or => or.DataValues.id == willroles[1].DataValues.OrganisationRole)[0];
+		const r2 = orgroles.filter(or => or.DataValues.id == willroles[1].DataValues.OrganisationRoleId)[0];
 		expect(r2.DataValues.name).toEqual("Staff");
 	});
 
@@ -59,7 +59,7 @@ describe("Create datamodel", () => {
 
 		var count = 0;
 		blogs.DataRows.map(blog_post => {
-			const blog_tags = repo.ExecuteCrudioQuery(tags.EntityDefinition.Name, `Blog=${blog_post.DataValues.id}`);
+			const blog_tags = repo.ExecuteCrudioQuery(tags.EntityDefinition.Name, `BlogId=${blog_post.DataValues.id}`);
 			if (blog_tags.length == 0) count++;
 		});
 

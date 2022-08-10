@@ -6,6 +6,7 @@ import axios, { AxiosResponse } from "axios";
 import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioDataModel from "./CrudioDataModel";
+import QikTrack from "./QikTrak";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -119,5 +120,13 @@ setTimeout(async () => {
 	console.log("Populating tables with data...");
 	console.log();
 	console.log("Database has been loaded.");
-	console.log("Use Hasura console to setup tracking.");
+	console.log();
+	console.log("Setup Hasura tracking...");
+
+	const tracker = new QikTrack(config.hasuraEndpoint, config.hasuraAdminSecret, config.schema);
+	await tracker.AutoTrack();
+
+	console.log();
+	console.log("Crudio complete!");
+
 }, 100);

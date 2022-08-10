@@ -296,19 +296,19 @@ export default class CrudioDataModel {
 		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
 
 		m2m.map(r => {
-			const me = new CrudioEntityDefinition(r.FromEntity + r.ToEntity, false, true);
+			const many_entity = new CrudioEntityDefinition(r.FromEntity + r.ToEntity, false, true);
 
 			// many to many join tables need to trace back to the relationship they were spawned from
 			// to assist with data generation
-			me.SourceRelationship = r;
+			many_entity.SourceRelationship = r;
 
-			me.AddKey("id", "uuid")
+			many_entity.AddKey("id", "uuid")
 				.AddRelation(
 					new CrudioRelationship({
 						type: "one",
 						name: r.FromEntity,
-						from: me.Name,
-						from_column: r.FromEntity,
+						from: many_entity.Name,
+						from_column: r.FromEntity + "Id",
 						to: r.FromEntity,
 						to_column: "id",
 						required: true,
@@ -318,15 +318,15 @@ export default class CrudioDataModel {
 					new CrudioRelationship({
 						type: "one",
 						name: r.ToEntity,
-						from: me.Name,
-						from_column: r.ToEntity,
+						from: many_entity.Name,
+						from_column: r.ToEntity + "Id",
 						to: r.ToEntity,
 						to_column: "id",
 						required: true,
 					})
 				);
 
-			const key = me.GetField("id");
+			const key = many_entity.GetField("id");
 			key.fieldOptions.generator = "[uuid]";
 
 			// add any additional fields to the many to many join
@@ -338,11 +338,11 @@ export default class CrudioDataModel {
 					if (field.generator) {
 						opts.generator = field.generator;
 					}
-					me.AddField(field.name ?? f, field.type, opts);
+					many_entity.AddField(field.name ?? f, field.type, opts);
 				});
 			}
 
-			this.entityDefinitions.push(me);
+			this.entityDefinitions.push(many_entity);
 		});
 	}
 
@@ -652,8 +652,8 @@ export default class CrudioDataModel {
 	 */
 	private CreateManyToManyRow(joinTable: CrudioTable, source_id: string, target_id: string): void {
 		const row = this.CreateEntityInstance(joinTable.EntityDefinition);
-		row.DataValues[row.EntityDefinition.SourceRelationship.FromEntity] = source_id;
-		row.DataValues[row.EntityDefinition.SourceRelationship.ToEntity] = target_id;
+		row.DataValues[row.EntityDefinition.SourceRelationship.FromEntity + "Id"] = source_id;
+		row.DataValues[row.EntityDefinition.SourceRelationship.ToEntity + "Id"] = target_id;
 		joinTable.DataRows.push(row);
 
 		this.SetupEntityGenerators(row);
@@ -1277,9 +1277,9 @@ export default class CrudioDataModel {
 			index < 0
 				? null
 				: content
-						.slice(index + 1)
-						.replaceAll("[", "")
-						.replaceAll("]", "");
+					.slice(index + 1)
+					.replaceAll("[", "")
+					.replaceAll("]", "");
 
 		var args = null;
 
