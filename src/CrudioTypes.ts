@@ -29,7 +29,7 @@ export interface ICrudioConfig {
 	 *
 	 * @type {?string}
 	 */
-	schema?: string;
+	schema: string;
 	/**
 	 * Default name to use for ID fields
 	 * @date 7/18/2022 - 1:47:30 PM

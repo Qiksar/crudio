@@ -196,8 +196,9 @@ export default class CrudioDataWrapper {
 
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
-			instructions.table_column_definitions += `"${r.FromColumn}" uuid,`; // TODO if required NOT NULL
-			instructions.table_field_list.push(r.FromColumn);
+			var column = this.IdColumn(r.FromColumn);
+			instructions.table_column_definitions += `"${column}" uuid,`; // TODO if required NOT NULL
+			instructions.table_field_list.push(column);
 		});
 
 		instructions.table_field_list.map(f => {
@@ -209,6 +210,17 @@ export default class CrudioDataWrapper {
 
 		instructions.table_column_definitions = instructions.table_column_definitions.trim();
 		instructions.table_column_definitions = instructions.table_column_definitions.slice(0, instructions.table_column_definitions.length - 1);
+	}
+
+	private IdColumn(column: string): string {
+		// ensure columns involved in foreign keys have Id appended
+		// as this avoids a duplicate name when GraphQL introduces the object and array
+		// relationships
+		if (!column.endsWith("Id")) {
+			column += "Id";
+		}
+
+		return column;
 	}
 
 	/**
@@ -231,7 +243,7 @@ export default class CrudioDataWrapper {
 			instructions.create_foreign_keys += `
 			ALTER TABLE "${this.config.schema}"."${table.TableName}"
 			ADD CONSTRAINT FK_${r.RelationshipName}
-			FOREIGN KEY("${r.FromColumn}") 
+			FOREIGN KEY("${this.IdColumn(r.FromColumn)}") 
 			REFERENCES "${this.config.schema}"."${target.TableName}"("${r.ToColumn}");
 			`;
 		});
@@ -259,6 +271,15 @@ export default class CrudioDataWrapper {
 
 			instructions.table_field_list.map(i => {
 				var v: any = entity.DataValues[i];
+
+				if (!v) {
+					if (i.endsWith("Id")) {
+						// Field was renamed to ...Id, so remove it to get the
+						// orginal name in order to retrieve the field value
+						const col = i.slice(0, i.length - 2);
+						v = entity.DataValues[col];
+					}
+				}
 
 				// Save foreign key values
 				// Check if the value is an object which has an id field

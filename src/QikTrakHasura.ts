@@ -1,173 +1,203 @@
-import axios from 'axios';
+import axios from "axios";
 
 export default class QikTrakHasura {
+	table_sql: string;
+	foreignKey_sql: string;
 
-    constructor(private endpoint: string, private secret: string, private schema: string) {
-    }
+	constructor(private endpoint: string, private secret: string, private schema: string) {
+		// --------------------------------------------------------------------------------------------------------------------------
+		// SQL to acquire metadata
 
-    public async CreateRelationships(relationship: any): Promise<void> {
-        const array_rel_spec: any = {
-            type: 'pg_create_array_relationship',
+		this.table_sql = `
+        SELECT table_name FROM information_schema.tables WHERE table_schema = '${schema}'
+        UNION
+        SELECT table_name FROM information_schema.views WHERE table_schema = '${schema}'
+        ORDER BY table_name;
+        `;
 
-            args: {
-                name: this.getArrayRelationshipName(relationship),
+		this.foreignKey_sql = `
+        SELECT tc.table_name, kcu.column_name, ccu.table_name AS foreign_table_name, ccu.column_name AS foreign_column_name 
+        FROM information_schema.table_constraints AS tc 
+        JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name AND kcu.constraint_schema = '${schema}'
+        JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = '${schema}'
+        WHERE constraint_type = 'FOREIGN KEY' 
+        AND tc.table_schema = '${schema}'
+        ;`;
+	}
 
-                table: {
-                    schema: this.schema,
-                    name: relationship.referenced_table,
-                },
+	public async Track() {
+		const results = await this.RunSQL_Query(this.table_sql);
+		var tables = results.map((t: any) => t[0]).splice(1);
 
-                using: {
-                    manual_configuration: {
-                        remote_table: {
-                            schema: this.schema,
-                            name: relationship.referencing_table,
-                        },
-                        column_mapping: {},
-                    },
-                },
-            },
-        };
+		for (var i = 0; i < tables.length; i++) {
+			const table_name = tables[i];
 
-        array_rel_spec.args.using.manual_configuration.column_mapping[relationship.referenced_key] = relationship.referencing_key;
-        await this.CreateRelationship(array_rel_spec);
+			var query = {
+				type: "pg_track_table",
+				args: {
+					schema: this.schema,
+					name: table_name,
+					configuration: {
+						custom_name: this.TrackedTableName(this.schema, table_name),
+					},
+				},
+			};
 
-        const obj_rel_spec: any = {
-            type: 'pg_create_object_relationship',
+			await this.RunGraphQL_Query("/v1/metadata", query);
+			console.log(`Tracked ${this.schema}.${table_name}`);
+		}
 
-            args: {
-                name: this.getObjectRelationshipName(relationship),
+		await this.trackRelationships();
+	}
 
-                table: {
-                    schema: this.schema,
-                    name: relationship.referencing_table,
-                },
-                using: {
-                    manual_configuration: {
-                        remote_table: {
-                            schema: this.schema,
-                            name: relationship.referenced_table,
-                        },
-                        column_mapping: {},
-                    },
-                },
-            },
-        };
+	private async trackRelationships() {
+		const results = await this.RunSQL_Query(this.foreignKey_sql);
+		var relationships = results.splice(1).map((fk: any) => {
+			return {
+				referencing_table: fk[0],
+				referencing_key: fk[1],
+				referenced_table: fk[2],
+				referenced_key: fk[3],
+			};
+		});
 
-        obj_rel_spec.args.using.manual_configuration.column_mapping[relationship.referencing_key] = relationship.referenced_key;
-        await this.CreateRelationship(obj_rel_spec);
-    }
+		for (var i = 0; i < relationships.length; i++) {
+			const r = relationships[i];
+			await this.CreateRelationships(r);
 
-    // --------------------------------------------------------------------------------------------------------------------------
-    // Create the specified relationship
-    public async CreateRelationship(relSpec: any): Promise<void> {
-        await this.RunGraphQL_Query('/v1/metadata', relSpec).catch(e => {
-            console.error(e.response.data.error);
-            //throw new Error(e.response.data.error);
-        });
-    }
+			console.log(`Tracked ${r.referencing_table}.${r.referencing_key} -> ${r.referenced_table}.${r.referenced_key}`);
+		}
+	}
 
-    //--------------------------------------------------------------------------------------------------------------------------
-    // Execute a Postgres SQL query via the Hasura API
-    public async RunSQL_Query(sql_statement: string): Promise<any> {
-        if (!sql_statement) throw 'sql_statement is required';
+	private async CreateRelationships(relationship: any): Promise<void> {
+		const array_rel_spec: any = {
+			type: "pg_create_array_relationship",
 
-        var sqlQuery = {
-            type: 'run_sql',
-            args: {
-                sql: sql_statement,
-            },
-        };
+			args: {
+				name: this.getArrayRelationshipName(relationship),
 
-        return await this.RunGraphQL_Query('/v2/query', sqlQuery)
-            .then((results) => {
-                return results.data.result;
-            })
-            .catch((e) => {
-                console.error('QIKTRAK: ERROR');
-                console.error('SQL QUERY FAILED TO EXECUTE: ');
+				table: {
+					schema: this.schema,
+					name: this.TrackedTableName(this.schema, relationship.referenced_table),
+				},
 
-                if (!e.response) console.error('Error Message : ' + e);
-                else console.error('Error Message : ' + JSON.stringify(e.response.data));
+				using: {
+					manual_configuration: {
+						remote_table: {
+							schema: this.schema,
+							name: this.TrackedTableName(this.schema, relationship.referencing_table),
+						},
+						column_mapping: {},
+					},
+				},
+			},
+		};
 
-                console.error('SQL Statement:');
-                console.error(sql_statement);
+		array_rel_spec.args.using.manual_configuration.column_mapping[relationship.referenced_key] = relationship.referencing_key;
+		await this.CreateRelationship(array_rel_spec);
 
-                throw e;
-            });
-    }
+		const obj_rel_spec: any = {
+			type: "pg_create_object_relationship",
 
-    //--------------------------------------------------------------------------------------------------------------------------
-    // Execute a GraphQL query via the Hasura API
-    public async RunGraphQL_Query(endpoint: string, query: any): Promise<any> {
-        if (!endpoint) throw 'endpoint is required';
-        if (!query) throw 'query is required';
+			args: {
+				name: this.getObjectRelationshipName(relationship),
 
-        const requestConfig = {
-            headers: {
-                'X-Hasura-Admin-Secret': this.secret,
-            },
-        };
+				table: {
+					schema: this.schema,
+					name: this.TrackedTableName(this.schema, relationship.referencing_table),
+				},
+				using: {
+					manual_configuration: {
+						remote_table: {
+							schema: this.schema,
+							name: this.TrackedTableName(this.schema, relationship.referenced_table),
+						},
+						column_mapping: {},
+					},
+				},
+			},
+		};
 
-        return await axios.post(this.endpoint + endpoint, query, requestConfig);
-    }
+		obj_rel_spec.args.using.manual_configuration.column_mapping[relationship.referencing_key] = relationship.referenced_key;
+		await this.CreateRelationship(obj_rel_spec);
+	}
 
-    //#region Name Handling
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Create the specified relationship
+	private async CreateRelationship(relSpec: any): Promise<void> {
+		await this.RunGraphQL_Query("/v1/metadata", relSpec).catch(e => {
+			console.error(e.response.data.error);
+			//throw new Error(e.response.data.error);
+		});
+	}
 
-    //---------------------------------------------------------------------------------------------------------------------------
-    // convert foreign_key_names into foreignKeyName
-    getCamelCaseName(inputString: string) {
-        if (!inputString) throw 'inputString is required';
+	//--------------------------------------------------------------------------------------------------------------------------
+	// Execute a Postgres SQL query via the Hasura API
+	public async RunSQL_Query(sql_statement: string): Promise<any> {
+		if (!sql_statement) throw "sql_statement is required";
 
-        var text = inputString
-            .toLowerCase()
-            .replace(/[_-]/g, ' ') // Break up the words in my_foreign_key_name to be like my foreign key name
-            .replace(/\s[a-z]/g, (s) => s.toUpperCase()) // capitalise each word
-            .replace(' ', '') // remove the space to join the words back together
-            .replace(/^[A-Z]/, (s) => s.toLowerCase()); // ensure the first word is lowercased
-        return text;
-    }
+		var sqlQuery = {
+			type: "run_sql",
+			args: {
+				sql: sql_statement,
+			},
+		};
 
-    //---------------------------------------------------------------------------------------------------------------------------
-    // handle plural words which can easily be singularised
-    getSingularName(inputString: string, singular: string) {
-        if (!inputString) throw 'inputString is required';
+		return await this.RunGraphQL_Query("/v2/query", sqlQuery)
+			.then(results => {
+				return results.data.result;
+			})
+			.catch(e => {
+				console.error("QIKTRAK: ERROR");
+				console.error("SQL QUERY FAILED TO EXECUTE: ");
 
-        var text = inputString;
+				if (!e.response) console.error("Error Message : " + e);
+				else console.error("Error Message : " + JSON.stringify(e.response.data));
 
-        // If the singular form of the name is required then use some simple logic to get the singular form
-        // If the logic doesn't work, just return whatever text was created above
-        if (singular) {
-            if (['ies'].indexOf(text.slice(text.length - 3)) >= 0) {
-                text = text.slice(0, text.length - 3) + 'y';
-            } else if (['us', 'ss'].indexOf(text.slice(text.length - 2)) < 0) {
-                if (text.slice(text.length - 1) == 's') {
-                    text = text.slice(0, text.length - 1);
-                }
-            }
-        }
+				console.error("SQL Statement:");
+				console.error(sql_statement);
 
-        return text;
-    }
+				throw e;
+			});
+	}
 
-    //---------------------------------------------------------------------------------------------------------------------------
-    // Default relationship name builder
-    getArrayRelationshipName(relationship: any) {
-        const name = relationship.referencing_table;
-        return name;
-    }
+	//--------------------------------------------------------------------------------------------------------------------------
+	// Execute a GraphQL query via the Hasura API
+	public async RunGraphQL_Query(endpoint: string, query: any): Promise<any> {
+		if (!endpoint) throw "endpoint is required";
+		if (!query) throw "query is required";
 
-    //---------------------------------------------------------------------------------------------------------------------------
-    // Default relationship name builder
-    getObjectRelationshipName(relationship: any) {
-        var key: string = relationship.referencing_key;
-        if (key.endsWith("Id"))
-            key = key.substring(0, key.length - 2);
-        else
-            key = `_${key}`;
+		const requestConfig = {
+			headers: {
+				"X-Hasura-Admin-Secret": this.secret,
+			},
+		};
 
-        return key;
-    }
+		return await axios.post(this.endpoint + endpoint, query, requestConfig);
+	}
 
-    //#endregion
+	//#region Name Handling
+
+	private TrackedTableName(schema: string, table: string): string {
+		const t = `${schema}_${table}`;
+		return table;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
+	// Default relationship name builder
+	private getArrayRelationshipName(relationship: any) {
+		const name = relationship.referencing_table;
+		return name;
+	}
+
+	//---------------------------------------------------------------------------------------------------------------------------
+	// Default relationship name builder
+	private getObjectRelationshipName(relationship: any) {
+		var key: string = relationship.referencing_key;
+		if (key.endsWith("Id")) key = key.substring(0, key.length - 2);
+
+		return key;
+	}
+
+	//#endregion
 }
