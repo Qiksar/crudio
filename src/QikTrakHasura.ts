@@ -1,91 +1,65 @@
 import axios from "axios";
+import CrudioDataModel from "./CrudioDataModel";
+import CrudioRelationship from "./CrudioRelationship";
+import { ICrudioConfig } from "./CrudioTypes";
 
 export default class QikTrakHasura {
-	table_sql: string;
-	foreignKey_sql: string;
-
-	constructor(private endpoint: string, private secret: string, private schema: string) {
-		// --------------------------------------------------------------------------------------------------------------------------
-		// SQL to acquire metadata
-
-		this.table_sql = `
-        SELECT table_name FROM information_schema.tables WHERE table_schema = '${schema}'
-        UNION
-        SELECT table_name FROM information_schema.views WHERE table_schema = '${schema}'
-        ORDER BY table_name;
-        `;
-
-		this.foreignKey_sql = `
-        SELECT tc.table_name, kcu.column_name, ccu.table_name AS foreign_table_name, ccu.column_name AS foreign_column_name 
-        FROM information_schema.table_constraints AS tc 
-        JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name AND kcu.constraint_schema = '${schema}'
-        JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = '${schema}'
-        WHERE constraint_type = 'FOREIGN KEY' 
-        AND tc.table_schema = '${schema}'
-        ;`;
-	}
+	constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {}
 
 	public async Track() {
-		const results = await this.RunSQL_Query(this.table_sql);
-		var tables = results.map((t: any) => t[0]).splice(1);
+		await this.trackTables();
+		await this.trackRelationships();
+	}
+
+	private async trackTables() {
+		var tables = this.datamodel.Tables.map(t => t.TableName);
 
 		for (var i = 0; i < tables.length; i++) {
 			const table_name = tables[i];
 
+			console.log(`Tracking table... ${this.config.schema}.${table_name}`);
+
 			var query = {
 				type: "pg_track_table",
 				args: {
-					schema: this.schema,
 					name: table_name,
+					schema: this.config.schema,
 					configuration: {
-						custom_name: this.TrackedTableName(this.schema, table_name),
+						custom_name: table_name,
 					},
 				},
 			};
 
 			await this.RunGraphQL_Query("/v1/metadata", query);
-			console.log(`Tracked ${this.schema}.${table_name}`);
 		}
-
-		await this.trackRelationships();
 	}
 
 	private async trackRelationships() {
-		const results = await this.RunSQL_Query(this.foreignKey_sql);
-		var relationships = results.splice(1).map((fk: any) => {
-			return {
-				referencing_table: fk[0],
-				referencing_key: fk[1],
-				referenced_table: fk[2],
-				referenced_key: fk[3],
-			};
-		});
+		const relationships: CrudioRelationship[] = [];
+		this.datamodel.EntityDefinitions.map(e => e.OneToManyRelationships.map(r => relationships.push(r)));
 
 		for (var i = 0; i < relationships.length; i++) {
-			const r = relationships[i];
-			await this.CreateRelationships(r);
-
-			console.log(`Tracked ${r.referencing_table}.${r.referencing_key} -> ${r.referenced_table}.${r.referenced_key}`);
+			await this.CreateRelationships(relationships[i]);
 		}
 	}
 
-	private async CreateRelationships(relationship: any): Promise<void> {
+	private async CreateRelationships(r: CrudioRelationship): Promise<void> {
 		const array_rel_spec: any = {
 			type: "pg_create_array_relationship",
 
 			args: {
-				name: this.getArrayRelationshipName(relationship),
-
+				name: this.datamodel.GetTableForEntityName(r.FromEntity).TableName,
+				
 				table: {
-					schema: this.schema,
-					name: this.TrackedTableName(this.schema, relationship.referenced_table),
+					schema: this.config.schema,
+					name: this.datamodel.GetTableForEntityName(r.ToEntity).TableName,
 				},
 
 				using: {
 					manual_configuration: {
 						remote_table: {
-							schema: this.schema,
-							name: this.TrackedTableName(this.schema, relationship.referencing_table),
+							schema: this.config.schema,
+							name: this.datamodel.GetTableForEntityName(r.FromEntity).TableName,
 						},
 						column_mapping: {},
 					},
@@ -93,24 +67,26 @@ export default class QikTrakHasura {
 			},
 		};
 
-		array_rel_spec.args.using.manual_configuration.column_mapping[relationship.referenced_key] = relationship.referencing_key;
+		const col_id1 = this.ToColumnId(r.ToColumn);
+		array_rel_spec.args.using.manual_configuration.column_mapping[col_id1] = this.ToColumnId(r.FromColumn);
 		await this.CreateRelationship(array_rel_spec);
 
 		const obj_rel_spec: any = {
 			type: "pg_create_object_relationship",
 
 			args: {
-				name: this.getObjectRelationshipName(relationship),
-
+				name: r.ToEntity,
+				
 				table: {
-					schema: this.schema,
-					name: this.TrackedTableName(this.schema, relationship.referencing_table),
+					schema: this.config.schema,
+					name: this.datamodel.GetTableForEntityName(r.FromEntity).TableName,
 				},
+
 				using: {
 					manual_configuration: {
 						remote_table: {
-							schema: this.schema,
-							name: this.TrackedTableName(this.schema, relationship.referenced_table),
+							schema: this.config.schema,
+							name: this.datamodel.GetTableForEntityName(r.ToEntity).TableName,
 						},
 						column_mapping: {},
 					},
@@ -118,7 +94,8 @@ export default class QikTrakHasura {
 			},
 		};
 
-		obj_rel_spec.args.using.manual_configuration.column_mapping[relationship.referencing_key] = relationship.referenced_key;
+		const col_id = this.ToColumnId(r.FromColumn);
+		obj_rel_spec.args.using.manual_configuration.column_mapping[col_id] = r.ToColumn;
 		await this.CreateRelationship(obj_rel_spec);
 	}
 
@@ -126,8 +103,7 @@ export default class QikTrakHasura {
 	// Create the specified relationship
 	private async CreateRelationship(relSpec: any): Promise<void> {
 		await this.RunGraphQL_Query("/v1/metadata", relSpec).catch(e => {
-			console.error(e.response.data.error);
-			//throw new Error(e.response.data.error);
+			throw new Error(e.response.data.error);
 		});
 	}
 
@@ -169,34 +145,22 @@ export default class QikTrakHasura {
 
 		const requestConfig = {
 			headers: {
-				"X-Hasura-Admin-Secret": this.secret,
+				"X-Hasura-Admin-Secret": this.config.hasuraAdminSecret,
 			},
 		};
 
-		return await axios.post(this.endpoint + endpoint, query, requestConfig);
+		return await axios.post(this.config.hasuraEndpoint + endpoint, query, requestConfig);
 	}
 
 	//#region Name Handling
 
+	private ToColumnId(name: string): string{
+		return name.toLowerCase().endsWith("id") ? name : name + "Id";
+	}
+
 	private TrackedTableName(schema: string, table: string): string {
 		const t = `${schema}_${table}`;
 		return table;
-	}
-
-	//---------------------------------------------------------------------------------------------------------------------------
-	// Default relationship name builder
-	private getArrayRelationshipName(relationship: any) {
-		const name = relationship.referencing_table;
-		return name;
-	}
-
-	//---------------------------------------------------------------------------------------------------------------------------
-	// Default relationship name builder
-	private getObjectRelationshipName(relationship: any) {
-		var key: string = relationship.referencing_key;
-		if (key.endsWith("Id")) key = key.substring(0, key.length - 2);
-
-		return key;
 	}
 
 	//#endregion

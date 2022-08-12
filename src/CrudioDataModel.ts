@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { stringify, parse } from "flatted";
 import { randomUUID } from "crypto";
-import { DateTime, Duration, DurationInput } from "luxon";
+import { DateTime } from "luxon";
 
 import { ICrudioAssignment, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
@@ -109,6 +109,9 @@ export default class CrudioDataModel {
 	public get Tables(): CrudioTable[] {
 		return this.tables;
 	}
+
+	private entityDefinitions: CrudioEntityDefinition[] = [];
+
 	/**
 	 * List of entity type definitions (entity schema)
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -116,7 +119,10 @@ export default class CrudioDataModel {
 	 * @public
 	 * @type {CrudioEntityDefinition[]}
 	 */
-	private entityDefinitions: CrudioEntityDefinition[] = [];
+	 get EntityDefinitions(): CrudioEntityDefinition[] {
+		return this.entityDefinitions;
+	}
+
 	/**
 	 * List of relationships
 	 * @date 7/18/2022 - 3:39:38 PM
@@ -302,7 +308,8 @@ export default class CrudioDataModel {
 			// to assist with data generation
 			many_entity.SourceRelationship = r;
 
-			many_entity.AddKey("id", "uuid")
+			many_entity
+				.AddKey("id", "uuid")
 				.AddRelation(
 					new CrudioRelationship({
 						type: "one",
@@ -1277,9 +1284,9 @@ export default class CrudioDataModel {
 			index < 0
 				? null
 				: content
-					.slice(index + 1)
-					.replaceAll("[", "")
-					.replaceAll("]", "");
+						.slice(index + 1)
+						.replaceAll("[", "")
+						.replaceAll("]", "");
 
 		var args = null;
 
