@@ -123,7 +123,7 @@ setTimeout(async () => {
 	console.log();
 	console.log("Setup Hasura tracking...");
 
-	const tracker = new QikTrakHasura(config.hasuraEndpoint, config.hasuraAdminSecret, config.schema);
+	const tracker = new QikTrakHasura(config, datamodel);
 	await tracker.Track();
 
 	console.log();
