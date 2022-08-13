@@ -126,7 +126,6 @@ export default class CrudioHasura {
 				return results.data.result;
 			})
 			.catch(e => {
-				console.error("QIKTRAK: ERROR");
 				console.error("SQL QUERY FAILED TO EXECUTE: ");
 
 				if (!e.response) console.error("Error Message : " + e);
