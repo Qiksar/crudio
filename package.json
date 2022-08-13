@@ -12,7 +12,7 @@
     "test": "jest --env=node --colors --coverage test --silent=false",
     "build": "tsc -p tsconfig.json",
     "start_cli": "node lib/crudio_cli.js -v -w -m datamodel/datamodel.json -i datamodel/blocks/iot.json -d test/unit/output/datamodel.mermaid.md",
-    "cli_init": "node lib/crudio_cli.js -v -p test/unit/output/test_cli_folder",
+    "cli_init": "rm -rf test/unit/output/test_cli_folder && node lib/crudio_cli.js -v -p test/unit/output/test_cli_folder",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
     "remove": "docker-compose down --rmi local"
