@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 
-const package_version = "0.10.7";
+const package_version = "0.10.8";
 
 /**
  * Command Line (CLI) Entry Point
