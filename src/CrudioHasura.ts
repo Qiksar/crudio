@@ -22,15 +22,17 @@ export default class CrudioHasura {
 			var query = {
 				type: "pg_track_table",
 				args: {
-					name: table_name,
-					schema: this.config.schema,
-					configuration: {
-						custom_name: table_name,
+					table: {
+						name: table_name,
+						schema: this.config.schema,
 					},
-				},
+					configuration: {
+						custom_name: this.TrackedTableName(table_name),
+					}
+				}
 			};
 
-			await this.RunGraphQL_Query("/v1/metadata", query);
+			await this.ExecuteGraphqlCommand("/v1/metadata", query);
 		}
 	}
 
@@ -102,14 +104,14 @@ export default class CrudioHasura {
 	// --------------------------------------------------------------------------------------------------------------------------
 	// Create the specified relationship
 	private async CreateRelationship(relSpec: any): Promise<void> {
-		await this.RunGraphQL_Query("/v1/metadata", relSpec).catch(e => {
+		await this.ExecuteGraphqlCommand("/v1/metadata", relSpec).catch(e => {
 			throw new Error(e.response.data.error);
 		});
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------
 	// Execute a Postgres SQL query via the Hasura API
-	public async RunSQL_Query(sql_statement: string): Promise<any> {
+	public async ExecuteSqlCommand(sql_statement: string): Promise<any> {
 		if (!sql_statement) throw "sql_statement is required";
 
 		var sqlQuery = {
@@ -119,7 +121,7 @@ export default class CrudioHasura {
 			},
 		};
 
-		return await this.RunGraphQL_Query("/v2/query", sqlQuery)
+		return await this.ExecuteGraphqlCommand("/v2/query", sqlQuery)
 			.then(results => {
 				return results.data.result;
 			})
@@ -139,7 +141,7 @@ export default class CrudioHasura {
 
 	//--------------------------------------------------------------------------------------------------------------------------
 	// Execute a GraphQL query via the Hasura API
-	public async RunGraphQL_Query(endpoint: string, query: any): Promise<any> {
+	public async ExecuteGraphqlCommand(endpoint: string, query: any): Promise<any> {
 		if (!endpoint) throw "endpoint is required";
 		if (!query) throw "query is required";
 
@@ -158,9 +160,9 @@ export default class CrudioHasura {
 		return name.toLowerCase().endsWith("id") ? name : name + "Id";
 	}
 
-	private TrackedTableName(schema: string, table: string): string {
-		const t = `${schema}_${table}`;
-		return table;
+	private TrackedTableName(table: string): string {
+		const t = `${this.config.schema}_${table}`;
+		return t;
 	}
 
 	//#endregion

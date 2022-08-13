@@ -109,7 +109,7 @@ export default class CrudioDataWrapper {
 	 * @returns {*}
 	 */
 	public async CreateDatabaseSchema(): Promise<void> {
-		await this.gql.RunSQL_Query(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
+		await this.gql.ExecuteSqlCommand(`DROP SCHEMA IF EXISTS "${this.config.schema}" CASCADE; CREATE SCHEMA "${this.config.schema}"`);
 	}
 
 	/**
@@ -133,14 +133,14 @@ export default class CrudioDataWrapper {
 
 			const sql_create_table = this.BuildCreateTableStatement(table.EntityDefinition, table, instructions);
 			if (this.config.wipe) {
-				await this.gql.RunSQL_Query(sql_create_table);
+				await this.gql.ExecuteSqlCommand(sql_create_table);
 			}
 
 			// -------------- Build and insert rows
 
 			if (table.DataRows.length > 0) {
 				this.BuildInsertData(table, instructions);
-				await this.gql.RunSQL_Query(instructions.insert_table_rows);
+				await this.gql.ExecuteSqlCommand(instructions.insert_table_rows);
 			}
 		}
 
@@ -159,7 +159,7 @@ export default class CrudioDataWrapper {
 	private async CreateForeignKeys(instructions: SqlInstructionList): Promise<void> {
 		// -------------- Add foreign keys to tables
 		if (this.config.wipe) {
-			await this.gql.RunSQL_Query(instructions.create_foreign_keys);
+			await this.gql.ExecuteSqlCommand(instructions.create_foreign_keys);
 		}
 	}
 

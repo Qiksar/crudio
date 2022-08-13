@@ -5,7 +5,7 @@ const config: ICrudioConfig = {
     hasuraAdminSecret: "crudio",
     idField: "id",
     readonlyFields: [],
-    schema: "crudio_test",
+    schema: "test",
     wipe: true,
     datamodel: "datamodel/datamodel.json",
     include: "repo/include.json",
