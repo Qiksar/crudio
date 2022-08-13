@@ -35,7 +35,8 @@
 		},
 		{
 			"name": "bp",
-			"values": "{\"diastolic\":\"[bp_sys]\",\"systolic\":\"[bp_dia]\"}"
+			"isJson": true,
+			"values": "{'systolic':'[bp_sys]','diastolic':'[bp_dia]'}"
 		},
 		{
 			"name": "bpm",

@@ -119,7 +119,7 @@ export default class CrudioDataModel {
 	 * @public
 	 * @type {CrudioEntityDefinition[]}
 	 */
-	 get EntityDefinitions(): CrudioEntityDefinition[] {
+	get EntityDefinitions(): CrudioEntityDefinition[] {
 		return this.entityDefinitions;
 	}
 
@@ -1075,7 +1075,10 @@ export default class CrudioDataModel {
 	 */
 	private LoadGenerators(generators: ICrudioGenerator[]): void {
 		generators.map(g => {
-			this.generators[g.name] = g.values;
+			if (g.isJson)
+				this.generators[g.name] = g.values.replaceAll("'", "\"");
+			else
+				this.generators[g.name] = g.values;
 		});
 	}
 
@@ -1284,9 +1287,9 @@ export default class CrudioDataModel {
 			index < 0
 				? null
 				: content
-						.slice(index + 1)
-						.replaceAll("[", "")
-						.replaceAll("]", "");
+					.slice(index + 1)
+					.replaceAll("[", "")
+					.replaceAll("]", "");
 
 		var args = null;
 
