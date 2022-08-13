@@ -3,8 +3,8 @@ import CrudioDataModel from "./CrudioDataModel";
 import CrudioRelationship from "./CrudioRelationship";
 import { ICrudioConfig } from "./CrudioTypes";
 
-export default class QikTrakHasura {
-	constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {}
+export default class CrudioHasura {
+	constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) { }
 
 	public async Track() {
 		await this.trackTables();
@@ -49,7 +49,7 @@ export default class QikTrakHasura {
 
 			args: {
 				name: this.datamodel.GetTableForEntityName(r.FromEntity).TableName,
-				
+
 				table: {
 					schema: this.config.schema,
 					name: this.datamodel.GetTableForEntityName(r.ToEntity).TableName,
@@ -76,7 +76,7 @@ export default class QikTrakHasura {
 
 			args: {
 				name: r.ToEntity,
-				
+
 				table: {
 					schema: this.config.schema,
 					name: this.datamodel.GetTableForEntityName(r.FromEntity).TableName,
@@ -154,7 +154,7 @@ export default class QikTrakHasura {
 
 	//#region Name Handling
 
-	private ToColumnId(name: string): string{
+	private ToColumnId(name: string): string {
 		return name.toLowerCase().endsWith("id") ? name : name + "Id";
 	}
 
