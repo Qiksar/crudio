@@ -568,11 +568,4 @@ export interface ICrudioGenerator {
 	 * @type {string}
 	 */
 	values: string;
-	/**
-	 * Replace ' with ", as we use a cleaner way to express JSON
-	 * @date 8/2/2022 - 12:11:48 PM
-	 *
-	 * @type {string}
-	 */
-	isJson?:boolean;
 }

@@ -140,30 +140,6 @@ export default class CrudioEntityDefinition {
 	 */
 	public relationships: CrudioRelationship[] = [];
 	/**
-	 * Editor to use
-	 * @date 7/18/2022 - 2:17:32 PM
-	 *
-	 * @public
-	 * @type {string}
-	 */
-	public editor: string = "none";
-	/**
-	 * Icon to use in UI
-	 * @date 7/18/2022 - 2:17:32 PM
-	 *
-	 * @public
-	 * @type {string}
-	 */
-	public icon: string = "none";
-	/**
-	 * Caption to use for UI field
-	 * @date 7/18/2022 - 2:17:32 PM
-	 *
-	 * @public
-	 * @type {string}
-	 */
-	public caption: string = "none";
-	/**
 	 * Maximum number of data rows to create
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
@@ -171,10 +147,24 @@ export default class CrudioEntityDefinition {
 	 * @type {number}
 	 */
 	private max_row_count: number | string = CrudioDataModel.DefaultNumberOfRowsToGenerate;
+	/**
+	 * Maximum number of rows or generator to use to acquire unique values
+	 * @date 14/08/2022 - 13:17:54
+	 *
+	 * @public
+	 * @type {(string | number)}
+	 */
 	public set MaxRowCount(value: string | number) {
 		this.max_row_count = value;
 	}
 
+	/**	 
+	 * Maximum number of rows or generator to use to acquire unique values
+	 * @date 14/08/2022 - 13:17:54
+	 *
+	 * @public
+	 * @type {(string | number)}
+	 */
 	public get MaxRowCount(): string | number {
 		return this.max_row_count as number;
 	}
@@ -221,6 +211,14 @@ export default class CrudioEntityDefinition {
 		return this.relationships.filter(r => r.RelationshipType.toLowerCase() === "many");
 	}
 
+	/**
+	 * Indicates entity has many to many relationships
+	 * @date 14/08/2022 - 13:17:54
+	 *
+	 * @public
+	 * @param {CrudioEntityDefinition} entityDefinition
+	 * @returns {boolean}
+	 */
 	public HasManyToManyRelationship(entityDefinition: CrudioEntityDefinition): boolean {
 		return this.ManyToManyRelationships.filter(r => r.ToEntity == entityDefinition.name).length > 0;
 	}

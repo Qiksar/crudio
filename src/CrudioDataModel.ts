@@ -74,7 +74,7 @@ export default class CrudioDataModel {
 	 * @public
 	 * @type {Record<string, unknown>}
 	 */
-	private generators: Record<string, unknown> = {};
+	private generators: Record<string, ICrudioGenerator> = {};
 
 	/**
 	 * List of in memory datatables which hold the entity instances
@@ -968,12 +968,14 @@ export default class CrudioDataModel {
 		const generator: string = table.EntityDefinition.MaxRowCount as string;
 
 		if (typeof table.EntityDefinition.MaxRowCount === "string") {
-			const g = generator.replace(/\[|\]/g, "");
-			const v = this.GetGenerator(g);
+			const g = this.GetGenerator(generator.replace(/\[|\]/g, ""));
+			const v = g.values;
 			values = v.split(";").filter(f => f && f.length > 0);
 			count = values.length;
 
-			if (count == 0) throw new Error(`Error: Unable to determine entity count for ${table.TableName} using "${v}" `);
+			if (count == 0) {
+				throw new Error(`Error: Unable to determine entity count for ${table.TableName} using "${v}" `);
+			}
 		} else if (typeof table.EntityDefinition.MaxRowCount === "number") {
 			count = table.EntityDefinition.MaxRowCount;
 		} else {
@@ -1075,10 +1077,7 @@ export default class CrudioDataModel {
 	 */
 	private LoadGenerators(generators: ICrudioGenerator[]): void {
 		generators.map(g => {
-			if (g.isJson)
-				this.generators[g.name] = g.values.replaceAll("'", "\"");
-			else
-				this.generators[g.name] = g.values;
+			this.generators[g.name] = g;
 		});
 	}
 
@@ -1271,57 +1270,54 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {string} generator
+	 * @param {string} generator_name
 	 * @returns {*}
 	 */
-	public GetGeneratedValue(generator: string): any {
-		if (!generator) throw new Error("generator must specify a standard or customer generator");
+	public GetGeneratedValue(generator_name: string): any {
+		if (!generator_name) throw new Error("generator must specify a standard or customer generator");
+		var generator = this.GetGenerator(generator_name);
 
-		var content: string = this.GetGenerator(generator) ?? generator;
-		var value: any = "";
+		if (generator && generator.values) {
+			var json_args = null;
+			var generator_values;
 
-		const g = content.split(" ")[0].toLowerCase().replaceAll("[", "").replaceAll("]", "");
+			if (typeof generator.values === "object") {
+				generator_values = Object.keys(generator.values)[0];
+				json_args = generator.values[generator_values];
+			} else {
+				var content: string = generator.values ?? generator_name;
+				generator_values = content.split(" ")[0].toLowerCase().replaceAll("[", "").replaceAll("]", "");
+			};
 
-		const index = content.indexOf(" {");
-		var json =
-			index < 0
-				? null
-				: content
-					.slice(index + 1)
-					.replaceAll("[", "")
-					.replaceAll("]", "");
+			switch (generator_values) {
+				case "uuid":
+					return randomUUID();
 
-		var args = null;
+				case "datetime":
+					const dt = CrudioUtils.DateDuration(json_args);
+					return DateTime.utc().plus(dt).toFormat(this.date_format);
 
-		if (json) {
-			if (json.indexOf("[") > 0) {
-				const reprocess = `${g} ${json}`;
-				return reprocess;
+				case "timestamp":
+					const ts = new Date(Date.now()).toISOString().replace("Z", "");
+					return ts;
 			}
-
-			args = JSON.parse(json.replaceAll("'", '"'));
-		} else args = {};
-
-		switch (g) {
-			case "uuid":
-				return randomUUID();
-
-			case "datetime":
-				const a = CrudioUtils.DateDuration(args);
-				return DateTime.utc().plus(a).toFormat(this.date_format);
-
-			case "timestamp":
-				const v = new Date(Date.now()).toISOString().replace("Z", "");
-				return v;
 		}
 
-		if (content.includes(";")) {
-			value = CrudioUtils.GetRandomStringFromList(content);
-		} else if (content.includes(">")) {
-			var vals: string[] = content.split(">");
+		var value: any = "";
+
+		if (generator)
+			value = generator.values;
+
+		if (value.indexOf("[") >= 0)
+			return value;
+
+		if (!value) value = generator_name;
+
+		if (value.includes(";")) {
+			value = CrudioUtils.GetRandomStringFromList(value);
+		} else if (value.includes(">")) {
+			var vals: string[] = value.split(">");
 			value = CrudioUtils.GetRandomNumber(parseInt(vals[0], 10), parseInt(vals[1], 10));
-		} else {
-			value = content;
 		}
 
 		return value;
@@ -1335,13 +1331,8 @@ export default class CrudioDataModel {
 	 * @param {string} generatorName
 	 * @returns {string}
 	 */
-	private GetGenerator(generatorName: string): string {
-		/*
-		if (!Object.keys(this.generators).includes(generatorName)) {
-			throw new Error(`Generator name is invalid '${generatorName}'`);
-		}*/
-
-		return this.generators[generatorName] as string;
+	private GetGenerator(generatorName: string): ICrudioGenerator {
+		return this.generators[generatorName];
 	}
 
 	/**

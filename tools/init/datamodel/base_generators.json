@@ -99,7 +99,11 @@
 		},
 		{
 			"name": "expiry_date",
-			"values": "[datetime {'years-+': 5}]"
+			"values": {
+				"datetime": {
+					"years-+": 5
+				}
+			}
 		},
 		{
 			"name": "uuid",

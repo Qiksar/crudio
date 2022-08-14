@@ -10,7 +10,7 @@ describe("Save to database", () => {
 	jest.setTimeout(120000);
 
 	test("Populate database", async () => {
-		const datamodel = CrudioDataModel.FromJson("datamodel/datamodel.json", true, "datamodel/blocks/iot.json");
+		const datamodel = CrudioDataModel.FromJson("datamodel/datamodel.json"); //, true, "datamodel/blocks/iot.json");
 		const db = new CrudioDataWrapper(config, datamodel);
 		expect(db).not.toBeNull;
 

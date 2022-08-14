@@ -10,7 +10,12 @@
 		},
 		{
 			"name": "accreditation_expiry_date",
-			"values": "datetime {'years_lo': -10, 'years_hi': 10}"
+			"values": {
+				"datetime": {
+					"years_lo": -10,
+					"years_hi": 10
+				}
+			}
 		},
 		{
 			"name": "cohort_title",

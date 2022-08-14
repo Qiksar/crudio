@@ -2,6 +2,12 @@
 
 import { Command } from "commander";
 
+/**
+ * Indicates current NPM package value
+ * @date 14/08/2022 - 13:19:52
+ *
+ * @type {"0.10.8"}
+ */
 const package_version = "0.10.8";
 
 /**
