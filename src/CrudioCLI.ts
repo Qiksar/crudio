@@ -8,7 +8,7 @@ import { Command } from "commander";
  *
  * @type {"0.10.8"}
  */
-const package_version = "0.10.8";
+const package_version = "0.11.0";
 
 /**
  * Command Line (CLI) Entry Point
