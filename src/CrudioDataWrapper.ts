@@ -4,6 +4,7 @@ import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioHasura from "./CrudioHasura";
+import CrudioUtils from "./CrudioUtils";
 
 /**
  * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
@@ -196,7 +197,7 @@ export default class CrudioDataWrapper {
 
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
-			var column = this.IdColumn(r.FromColumn);
+			var column = CrudioUtils.ToColumnId(r.FromColumn);
 			instructions.table_column_definitions += `"${column}" uuid,`; // TODO if required NOT NULL
 			instructions.table_field_list.push(column);
 		});
@@ -210,17 +211,6 @@ export default class CrudioDataWrapper {
 
 		instructions.table_column_definitions = instructions.table_column_definitions.trim();
 		instructions.table_column_definitions = instructions.table_column_definitions.slice(0, instructions.table_column_definitions.length - 1);
-	}
-
-	private IdColumn(column: string): string {
-		// ensure columns involved in foreign keys have Id appended
-		// as this avoids a duplicate name when GraphQL introduces the object and array
-		// relationships
-		if (!column.endsWith("Id")) {
-			column += "Id";
-		}
-
-		return column;
 	}
 
 	/**
@@ -243,7 +233,7 @@ export default class CrudioDataWrapper {
 			instructions.create_foreign_keys += `
 			ALTER TABLE "${this.config.schema}"."${table.TableName}"
 			ADD CONSTRAINT FK_${r.RelationshipName}
-			FOREIGN KEY("${this.IdColumn(r.FromColumn)}") 
+			FOREIGN KEY("${CrudioUtils.ToColumnId(r.FromColumn)}") 
 			REFERENCES "${this.config.schema}"."${target.TableName}"("${r.ToColumn}");
 			`;
 		});
@@ -270,28 +260,24 @@ export default class CrudioDataWrapper {
 			var values = "";
 
 			instructions.table_field_list.map(i => {
-				var v: any = entity.DataValues[i];
+				var datavalue: any = entity.DataValues[i];
 
-				if (!v) {
-					if (i.endsWith("Id")) {
-						// Field was renamed to ...Id, so remove it to get the
-						// orginal name in order to retrieve the field value
-						const col = i.slice(0, i.length - 2);
-						v = entity.DataValues[col];
-					}
+				if (!datavalue && i.endsWith("Id")) {
+					// Field was renamed to ...Id, so remove it to get the
+					// orginal name in order to retrieve the field value
+					const column_name = i.slice(0, i.length - 2);
+					datavalue = entity.DataValues[column_name];
 				}
 
-				// Save foreign key values
-				// Check if the value is an object which has an id field
-				// If so, take the id of the object and use it as the field value
-				if (v && v.DataValues) {
-					v = v.DataValues.id;
+				// If one to many join, read the ID of the target object
+				if (datavalue && datavalue.DataValues) {
+					datavalue = datavalue.DataValues.id;
 				}
 
 				//Escape ' characters
-				var insert_value = v;
+				var insert_value = datavalue;
 				if (typeof insert_value === "string") {
-					insert_value = v.replaceAll("'", "''").trim();
+					insert_value = datavalue.replaceAll("'", "''").trim();
 				}
 
 				values += `${insert_value ? "'" + insert_value + "'" : "NULL"},`;

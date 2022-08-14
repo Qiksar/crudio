@@ -315,7 +315,7 @@ export default class CrudioDataModel {
 						type: "one",
 						name: r.FromEntity,
 						from: many_entity.Name,
-						from_column: r.FromEntity + "Id",
+						from_column: CrudioUtils.ToColumnId(r.FromEntity),
 						to: r.FromEntity,
 						to_column: "id",
 						required: true,
@@ -326,7 +326,7 @@ export default class CrudioDataModel {
 						type: "one",
 						name: r.ToEntity,
 						from: many_entity.Name,
-						from_column: r.ToEntity + "Id",
+						from_column: CrudioUtils.ToColumnId(r.ToEntity),
 						to: r.ToEntity,
 						to_column: "id",
 						required: true,
@@ -634,8 +634,6 @@ export default class CrudioDataModel {
 		const source_ids = sourceTable.DataRows.map(r => r.DataValues["id"]);
 		const target_ids = targetTable.DataRows.map(r => r.DataValues["id"]);
 
-		var index: number = 0;
-
 		// Iterate through every entity in the source table, e.g.Blog
 		source_ids.map((source_id: string) => {
 			const options = [...target_ids];
@@ -659,8 +657,10 @@ export default class CrudioDataModel {
 	 */
 	private CreateManyToManyRow(joinTable: CrudioTable, source_id: string, target_id: string): void {
 		const row = this.CreateEntityInstance(joinTable.EntityDefinition);
-		row.DataValues[row.EntityDefinition.SourceRelationship.FromEntity + "Id"] = source_id;
-		row.DataValues[row.EntityDefinition.SourceRelationship.ToEntity + "Id"] = target_id;
+
+		row.DataValues[CrudioUtils.ToColumnId(row.EntityDefinition.SourceRelationship.FromEntity)] = source_id;
+		row.DataValues[CrudioUtils.ToColumnId(row.EntityDefinition.SourceRelationship.ToEntity)] = target_id;
+
 		joinTable.DataRows.push(row);
 
 		this.SetupEntityGenerators(row);

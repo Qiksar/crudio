@@ -113,4 +113,21 @@ export default class CrudioUtils {
 		return Math.floor((max - min) * rndValue) + min;
 	}
 
+
+	/**
+	 * Ensure column text has Id appended if not present
+	 * This connects foreign keys between referenced tables
+	 * 
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @public
+	 * @static
+	 * @param {string} name
+	 * @returns {string}
+	 */
+	public static ToColumnId(name: string): string {
+		return name.toLowerCase().endsWith("id") ? name : name + "Id";
+	}
+
+
 }
