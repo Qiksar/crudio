@@ -53,7 +53,7 @@ In less than 2 minutes you have created a database filled with rich demonstratio
 
 By setting up tracking in Hasura, you have instantly gained a data management API to help you read and maintain the data.
 
-You now have a prototype database to beging your next rapid prototyping project, and so far, you haven't had to write one line of code!
+You now have a prototype database to begin your next rapid prototyping project, and so far, you haven't had to write one line of code!
 
 # Example GraphQL Queries - Hasura Console
 
