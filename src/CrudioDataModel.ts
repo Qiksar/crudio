@@ -1279,10 +1279,14 @@ export default class CrudioDataModel {
 
 		if (generator && generator.values) {
 			var json_args = null;
-			var generator_values;
+			var generator_values = "";
 
 			if (typeof generator.values === "object") {
 				generator_values = Object.keys(generator.values)[0];
+				
+				if (!generator.values)
+					throw `GetGeneratedValue: '${generator_name}' - could not read generator.values`;
+
 				json_args = generator.values[generator_values];
 			} else {
 				var content: string = generator.values ?? generator_name;
