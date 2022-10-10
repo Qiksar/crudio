@@ -8,6 +8,34 @@
 version: '3.4'
 
 services:
+  mongo:
+      image: mongo
+
+      ports:
+        - "27017:27017"
+
+      environment:
+          - MONGO_INITDB_ROOT_USERNAME=crudio
+          - MONGO_INITDB_ROOT_PASSWORD=crudio
+          - MONGO_INITDB_DATABASE=crudio
+
+
+  mongo-express:
+      image: mongo-express
+      environment:
+          - ME_CONFIG_MONGODB_SERVER=mongo
+          - ME_CONFIG_MONGODB_PORT=27017
+          - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+          - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+          - ME_CONFIG_MONGODB_AUTH_USERNAME=crudio
+          - ME_CONFIG_MONGODB_AUTH_PASSWORD=crudio
+          - ME_CONFIG_BASICAUTH_USERNAME=crudio
+          - ME_CONFIG_BASICAUTH_PASSWORD=crudio
+      depends_on:
+          - mongo
+      ports:
+        - "8081:8081"
+
   db:
     container_name: crudio_db
     image: postgres

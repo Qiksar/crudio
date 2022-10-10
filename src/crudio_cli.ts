@@ -7,6 +7,8 @@ import CrudioCLI from "./CrudioCLI";
 import CrudioDataWrapper from "./CrudioDataWrapper";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioHasura from "./CrudioHasura";
+import { ICrudioConfig } from "./CrudioTypes";
+import CrudioMongoose from "./CrudioMongoose";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -76,7 +78,7 @@ const Init = async (config: any): Promise<void> => {
 
 setTimeout(async () => {
 	const cli = new CrudioCLI(process.argv);
-	const config = cli.Config;
+	const config: ICrudioConfig = cli.Config;
 
 	if (config.verbose) {
 		console.log("Verbose option enabled");
@@ -102,7 +104,6 @@ setTimeout(async () => {
 	const datamodel = CrudioDataModel.FromJson(config.datamodel, true, config.include);
 	console.log("Data model definition loaded");
 
-	const db = new CrudioDataWrapper(config, datamodel);
 	console.log("Data model populated");
 
 	if (config.diagram) {
@@ -112,6 +113,25 @@ setTimeout(async () => {
 
 		fs.writeFileSync(config.diagram, diagram);
 	}
+
+	if (config.target === "m") {
+		await PopulateMongoose(config, datamodel);
+	}
+	else if (config.target === "p") {
+		await PopulatePostgres(config, datamodel);
+	}
+	else {
+		throw "--target options must be 'p' for PostgreSQL or 'm' for MongoDB"
+	}
+
+	console.log();
+	console.log("Crudio complete!");
+}, 100);
+
+async function PopulatePostgres(config, datamodel) {
+	console.log("Populating PostgreSQL tables with data...");
+
+	const db = new CrudioDataWrapper(config, datamodel);
 
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();
@@ -126,6 +146,19 @@ setTimeout(async () => {
 	const tracker = new CrudioHasura(config, datamodel);
 	await tracker.Track();
 
+}
+
+async function PopulateMongoose(config, datamodel) {
+	console.log("Populating MongoDB using Mongoose...");
+
+	const db = new CrudioMongoose(config, datamodel);
+
+	console.log("Populating tables with data...");
 	console.log();
-	console.log("Crudio complete!");
-}, 100);
+
+	await db.CreateDatabaseSchema();
+	await db.PopulateDatabaseTables();
+
+	console.log();
+	console.log("Database has been loaded.");
+}

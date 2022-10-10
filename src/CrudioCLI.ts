@@ -1,6 +1,7 @@
 // https://github.com/tj/commander.js/#quick-start
 
 import { Command } from "commander";
+import { ICrudioConfig } from "./CrudioTypes";
 
 /**
  * Indicates current NPM package value
@@ -34,7 +35,7 @@ export default class CrudioCLI {
 	 * @private
 	 * @type {*}
 	 */
-	private config: any;
+	private config: ICrudioConfig;
 
 	/**
 	 * Creates an instance of CrudioCLI.
@@ -58,8 +59,10 @@ export default class CrudioCLI {
 			.option("-m, --datamodel <model_file>", "Data model definition file (JSON)")
 			.option("-i, --include <include_file>", "Merge an additional data model definition")
 			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
+			.option("-c, --dbconnection <uri>", "Database connection string for Mongoose", "mongodb://localhost")
+			.option("-t, --target <dbtype>", "m=MongoDB, p=postgres", "p://localhost")
 
-		this.config = this.command_line.parse(args).opts();
+		this.config = this.command_line.parse(args).opts() as ICrudioConfig;
 		this.config.version = package_version;
 	}
 

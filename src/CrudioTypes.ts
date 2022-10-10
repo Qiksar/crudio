@@ -9,20 +9,21 @@ import CrudioEntityDefinition from "./CrudioEntityDefinition";
  * @typedef {ICrudioConfig}
  */
 export interface ICrudioConfig {
+	target: "m" | "p";
 	/**
 	 * Secret for admin privileges in Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
 	 *
 	 * @type {string}
 	 */
-	hasuraAdminSecret: string;
+	hasuraAdminSecret?: string;
 	/**
 	 * URL of Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
 	 *
 	 * @type {string}
 	 */
-	hasuraEndpoint: string;
+	hasuraEndpoint?: string;
 	/**
 	 * Default database schema to connect with Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -66,6 +67,19 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	include: string;
+
+	/**
+	 * Hold a URI type connection string
+	 * @date 10/10/2022 - 21:11:54
+	 *
+	 * @type {?string}
+	 */
+	dbconnection?: string;
+
+	verbose: boolean;
+	version: string;
+	project?: string;
+	diagram?: string;
 }
 
 /**
@@ -122,8 +136,28 @@ export interface ICrudioSchemaDefinition {
 	triggers?: ICrudioTrigger[];
 }
 
+/**
+ * Description placeholder
+ * @date 10/10/2022 - 21:11:54
+ *
+ * @export
+ * @interface ICrudioAssignment
+ * @typedef {ICrudioAssignment}
+ */
 export interface ICrudioAssignment {
+	/**
+	 * Description placeholder
+	 * @date 10/10/2022 - 21:11:54
+	 *
+	 * @type {string}
+	 */
 	target: string;
+	/**
+	 * Description placeholder
+	 * @date 10/10/2022 - 21:11:54
+	 *
+	 * @type {Record<string, unknown>}
+	 */
 	fields: Record<string, unknown>;
 }
 
