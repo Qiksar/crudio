@@ -14,7 +14,7 @@
 					"description": "integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
 					"type": [
 						"string",
-						"integer"
+						"number"n
 					]
 				},
 				"inherits": {
@@ -73,7 +73,7 @@
 							"properties": {
 								"count": {
 									"description": "specifies the number of entries to create per parent entity",
-									"type": "integer"
+									"type": "number"n
 								},
 								"fields": {
 									"description": "specifies aditional fields for the join table",
@@ -120,8 +120,8 @@
 					"description": "field type",
 					"string": "string",
 					"enum": [
+						"uuid",
 						"string",
-						"integer",
 						"number",
 						"timestamp",
 						"jsonb"
