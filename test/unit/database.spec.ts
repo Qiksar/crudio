@@ -1,3 +1,4 @@
+import Mongoose from "mongoose";
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioHasura from "../../src/CrudioHasura";
 import CrudioPostgresWrapper from "../../src/CrudioPostgresWrapper";
@@ -23,7 +24,7 @@ describe("Save datamodel", () => {
 
 	test("Populate MongoDB", async () => {
 		mongoose_config.datamodel = "datamodel/datamodel.json";
-		const model:any = CrudioDataModel.FromJson(mongoose_config, true);
+		const model: any = CrudioDataModel.FromJson(mongoose_config, true);
 
 		expect(model.DataModel.snippets.id.name).toEqual("_id");
 
@@ -32,5 +33,9 @@ describe("Save datamodel", () => {
 
 		await db.CreateDatabaseSchema();
 		await db.PopulateDatabaseTables();
+	});
+
+	test("gets organisation with employees", async () => {
+		Mongoose.connect(mongoose_config.dbconnection ?? "");
 	});
 });

@@ -1,17 +1,56 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
+import { ICrudioConfig } from "./CrudioTypes";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioField from "./CrudioField";
+import CrudioMongooseDataModel from "./CrudioMongooseDataModel";
 import CrudioTable from "./CrudioTable";
-import { ICrudioConfig } from "./CrudioTypes";
 
-
+/**
+ * Provide basic data insertion capabilities to populate a database
+ * @date 11/10/2022 - 14:28:24
+ *
+ * @export
+ * @class CrudioMongooseWrapper
+ * @typedef {CrudioMongooseWrapper}
+ */
 export default class CrudioMongooseWrapper {
-    private schema: any = {};
+    /**
+     * Reference to the mongoose schema and models
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @private
+     * @type {CrudioMongooseDataModel}
+     */
+    private data_model: CrudioMongooseDataModel;
 
     /**
-     * Creates an instance of CrudioMongoose.
+     * Schema map
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @public
+     * @readonly
+     * @type {*}
+     */
+    public get Schema(): any {
+        return this.data_model.Schema;
+    }
+
+    /**
+     * Models map
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @public
+     * @readonly
+     * @type {*}
+     */
+    public get Models(): any {
+        return this.data_model.Models;
+    }
+
+    /**
+     * Constructor
      * @date 7/18/2022 - 1:46:23 PM
      *
      * @constructor
@@ -20,10 +59,12 @@ export default class CrudioMongooseWrapper {
      */
     constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {
         if (datamodel.TargetDbSchema) this.config.schema = datamodel.TargetDbSchema;
+
+        this.data_model = new CrudioMongooseDataModel(config, datamodel);
     }
 
     /**
-     * Drop schema and recreate with no tables
+     * Drop all collections in the database
      * @date 7/18/2022 - 1:46:23 PM
      *
      * @public
@@ -43,20 +84,15 @@ export default class CrudioMongooseWrapper {
         }
     }
 
-    public CreateMongooseSchema() {
-        this.datamodel.Tables.map(t => {
-            const schema = this.GetMongooseSchema(t);
-            this.schema[t.TableName] = schema;
-        });
-
-        this.datamodel.Tables.map(t => {
-            this.AssignForeignKeys(t.EntityDefinition);
-        });
-    }
-
+    /**
+     * Populate database tables from memory based tables
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @public
+     * @async
+     * @returns {Promise<void>}
+     */
     public async PopulateDatabaseTables(): Promise<void> {
-        this.CreateMongooseSchema();
-
         for (var index = 0; index < this.datamodel.Tables.length; index++) {
             const table: CrudioTable = this.datamodel.Tables[index];
 
@@ -66,18 +102,16 @@ export default class CrudioMongooseWrapper {
     }
 
     /**
-     * Build the SQL to insert values into data tables
+     * Insert data into the specified table
      * @date 7/18/2022 - 1:46:23 PM
      *
      * @private
      * @param {CrudioTable} table
-     * @param {SqlInstructionList} instructions
      */
     private async InsertData(table: CrudioTable): Promise<void> {
         console.log("Loading ", table.TableName);
-        const schema = this.schema[table.TableName];
 
-        var model = mongoose.model(table.TableName, schema);
+        var model = this.Models[table.TableName];
 
         for (var r = 0; r < table.DataRows.length; r++) {
             let data = table.DataRows[r].DataValues;
@@ -115,46 +149,14 @@ export default class CrudioMongooseWrapper {
         }
     }
 
-    public GetMongooseSchema(table: CrudioTable): any {
-        const schema = {
-        }
-
-        table.EntityDefinition.fields.map(f => {
-            const field = {};
-            field["type"] = this.GetMongooseFieldType(f.fieldType);
-            schema[f.fieldName] = field;
-        });
-
-        return schema
-    }
-
-    public GetMongooseFieldType(fieldType: string): any {
-        switch (fieldType.toLocaleLowerCase()) {
-            case "uuid":
-            case "string":
-                return "String";
-
-            case "boolean":
-                return "Boolean";
-
-            case "integer":
-                return "Number";
-
-            case "decimal":
-                return "Number";
-
-            case "timestamp":
-            case "date":
-                return "Date";
-
-            case "array":
-                return "Array;"
-
-            case "jsonb":
-                return "Map;"
-        }
-    }
-
+    /**
+     * Get column names from the entity definition
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @private
+     * @param {CrudioEntityDefinition} entity
+     * @returns {string[]}
+     */
     private GetColumns(entity: CrudioEntityDefinition): string[] {
         const table_field_list = [];
 
@@ -167,30 +169,21 @@ export default class CrudioMongooseWrapper {
         return table_field_list;
     }
 
-    private AssignForeignKeys(entity: CrudioEntityDefinition): any {
+    /**
+     * Get the IDs of foreign tables which are referenced by entity values
+     * @date 11/10/2022 - 14:28:24
+     *
+     * @private
+     * @param {CrudioEntityDefinition} entity
+     * @param {*} entity_values
+     * @returns {*}
+     */
+    private GetForeignKeyValues(entity: CrudioEntityDefinition, entity_values: any): any {
         const key_map = {};
 
         // add foreign keys to insert columns for one to many
         entity.OneToManyRelationships.map(r => {
-
-            const from_entity = this.datamodel.GetEntityDefinition(r.FromEntity);
-            const to_entity = this.datamodel.GetEntityDefinition(r.ToEntity);
-            const from_schema = this.schema[from_entity.TableName];
-            const to_schema = this.schema[to_entity.TableName];
-
-            from_schema[to_entity.TableName] = { type: String, ref: to_entity.TableName };
-            to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
-        });
-
-        return key_map;
-    }
-
-    private GetForeignKeyValues(entity: CrudioEntityDefinition, values: any): any {
-        const key_map = {};
-
-        // add foreign keys to insert columns for one to many
-        entity.OneToManyRelationships.map(r => {
-            const source = values[r.FromColumn].dataValues;
+            const source = entity_values[r.FromColumn].dataValues;
             const entity = this.datamodel.GetEntityDefinition(r.ToEntity);
 
             key_map[entity.TableName] = source[this.config.idField];
