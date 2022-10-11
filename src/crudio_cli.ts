@@ -4,11 +4,11 @@ import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
-import CrudioDataWrapper from "./CrudioDataWrapper";
+import CrudioPostgresWrapper from "./CrudioPostgresWrapper";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioHasura from "./CrudioHasura";
 import { ICrudioConfig } from "./CrudioTypes";
-import CrudioMongoose from "./CrudioMongoose";
+import CrudioMongooseWrapper from "./CrudioMongooseWrapper";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -101,7 +101,7 @@ setTimeout(async () => {
 	console.log(`Loading Crudio data model definition from: "${config.datamodel}"`);
 	console.log();
 
-	const datamodel = CrudioDataModel.FromJson(config.datamodel, true, config.include);
+	const datamodel = CrudioDataModel.FromJson(config, true);
 	console.log("Data model definition loaded");
 
 	console.log("Data model populated");
@@ -131,7 +131,7 @@ setTimeout(async () => {
 async function PopulatePostgres(config, datamodel) {
 	console.log("Populating PostgreSQL tables with data...");
 
-	const db = new CrudioDataWrapper(config, datamodel);
+	const db = new CrudioPostgresWrapper(config, datamodel);
 
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();
@@ -151,7 +151,7 @@ async function PopulatePostgres(config, datamodel) {
 async function PopulateMongoose(config, datamodel) {
 	console.log("Populating MongoDB using Mongoose...");
 
-	const db = new CrudioMongoose(config, datamodel);
+	const db = new CrudioMongooseWrapper(config, datamodel);
 
 	console.log("Populating tables with data...");
 	console.log();

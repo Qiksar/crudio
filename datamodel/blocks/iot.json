@@ -1,5 +1,8 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+	"include": [
+		"datamodel/base.json"
+	],
 	"generators": [
 		{
 			"name": "temperature",

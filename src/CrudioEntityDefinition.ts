@@ -1,4 +1,4 @@
-import { ICrudioFieldOptions } from "./CrudioTypes";
+import { ICrudioConfig, ICrudioFieldOptions } from "./CrudioTypes";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
@@ -235,13 +235,15 @@ export default class CrudioEntityDefinition {
 	 * @param {boolean} isManyToMany
 	 * @param {(string | null)} [tableName=null]
 	 */
-	constructor(name: string, isAbstract: boolean, isManyToMany: boolean, tableName: string | null = null) {
+	constructor(private config: ICrudioConfig, name: string, isAbstract: boolean, isManyToMany: boolean, tableName: string | null = null) {
 		if (!tableName) tableName = CrudioUtils.Plural(name);
 
 		this.name = name;
 		this.tableName = tableName;
 		this.abstract = isAbstract;
 		this.many_to_many = isManyToMany;
+
+		//this.AddKey("uuid");
 	}
 
 	/**
@@ -339,20 +341,19 @@ export default class CrudioEntityDefinition {
 	 * Add a key field
 	 * @date 7/18/2022 - 2:17:32 PM
 	 *
-	 * @param {string} fieldName
 	 * @param {?string} [fieldType]
 	 * @returns {CrudioEntityDefinition}
 	 */
-	AddKey(fieldName: string, fieldType?: string): CrudioEntityDefinition {
+	AddKey(fieldType?: string): CrudioEntityDefinition {
 		if (this.KeyField !== null) {
 			throw new Error("a key field is already defined on entity '" + this.Name + "'");
 		}
 
-		if (this.GetField(fieldName)) {
-			throw new Error("'" + fieldName + "' is already defined on entity '" + this.Name + "'");
+		if (this.GetField(this.config.idField)) {
+			return this;
 		}
 
-		var keyField: CrudioField = new CrudioField(fieldName, fieldType || "uuid");
+		var keyField: CrudioField = new CrudioField(this.config.idField, fieldType || "uuid");
 		keyField.fieldOptions.isKey = true;
 		keyField.fieldOptions.readonly = true;
 
@@ -384,7 +385,7 @@ export default class CrudioEntityDefinition {
 	 * @returns {CrudioEntityDefinition}
 	 */
 	AddNumber(fieldName: string, options?: ICrudioFieldOptions): CrudioEntityDefinition {
-		this.AddField(fieldName, "number", options);
+		this.AddField(fieldName, "integer", options);
 
 		return this;
 	}
@@ -463,6 +464,6 @@ export default class CrudioEntityDefinition {
 	 * @returns {CrudioEntityInstance}
 	 */
 	CreateInstance(): CrudioEntityInstance {
-		return new CrudioEntityInstance(this);
+		return new CrudioEntityInstance(this.config, this);
 	}
 }

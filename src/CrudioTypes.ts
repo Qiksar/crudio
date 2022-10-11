@@ -66,7 +66,7 @@ export interface ICrudioConfig {
 	 *
 	 * @type {string}
 	 */
-	include: string;
+	include?: string;
 
 	/**
 	 * Hold a URI type connection string

@@ -1,9 +1,9 @@
 import * as fs from "fs";
-import { stringify, parse } from "flatted";
+import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioAssignment, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioAssignment, ICrudioConfig, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -149,6 +149,10 @@ export default class CrudioDataModel {
 	 * @type {string[]}
 	 */
 	private scripts: string[];
+
+	public get DataModel(): ICrudioSchemaDefinition {
+		return this.data_model;
+	}
 	//#endregion
 
 	/**
@@ -156,10 +160,10 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @constructor
-	 * @param {ICrudioSchemaDefinition} dataModel
+	 * @param {ICrudioSchemaDefinition} data_model
 	 */
-	constructor(dataModel: ICrudioSchemaDefinition, autoPopulate = true, include: string = null) {
-		this.PreProcessDataModelDefinition(dataModel, include);
+	constructor(private data_model: ICrudioSchemaDefinition, private config: ICrudioConfig, autoPopulate = true) {
+		this.PreProcessDataModelDefinition(data_model, config.include);
 
 		if (autoPopulate) {
 			this.FillDataTables();
@@ -231,6 +235,12 @@ export default class CrudioDataModel {
 
 		this.LoadGenerators(dataModel.generators);
 		this.LoadTriggers(dataModel.triggers);
+
+		// Patch the id field snippet to use the name specified in the config
+		if ((dataModel.snippets as any).id.name) {
+			(dataModel.snippets as any).id.name = this.config.idField;
+		}
+
 		this.ExpandAllSnippets(dataModel);
 		this.LoadEntityDefinitions(dataModel);
 		this.LoadAssignments(dataModel);
@@ -302,14 +312,14 @@ export default class CrudioDataModel {
 		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
 
 		m2m.map(r => {
-			const many_entity = new CrudioEntityDefinition(r.FromEntity + r.ToEntity, false, true);
+			const many_entity = new CrudioEntityDefinition(this.config, r.FromEntity + r.ToEntity, false, true);
 
 			// many to many join tables need to trace back to the relationship they were spawned from
 			// to assist with data generation
 			many_entity.SourceRelationship = r;
 
 			many_entity
-				.AddKey("id", "uuid")
+				.AddKey("uuid")
 				.AddRelation(
 					new CrudioRelationship({
 						type: "one",
@@ -317,9 +327,9 @@ export default class CrudioDataModel {
 						from: many_entity.Name,
 						from_column: CrudioUtils.ToColumnId(r.FromEntity),
 						to: r.FromEntity,
-						to_column: "id",
+						to_column: this.config.idField,
 						required: true,
-					})
+					}, this.config)
 				)
 				.AddRelation(
 					new CrudioRelationship({
@@ -328,12 +338,12 @@ export default class CrudioDataModel {
 						from: many_entity.Name,
 						from_column: CrudioUtils.ToColumnId(r.ToEntity),
 						to: r.ToEntity,
-						to_column: "id",
+						to_column: this.config.idField,
 						required: true,
-					})
+					}, this.config)
 				);
 
-			const key = many_entity.GetField("id");
+			const key = many_entity.GetField(this.config.idField);
 			key.fieldOptions.generator = "[uuid]";
 
 			// add any additional fields to the many to many join
@@ -367,7 +377,8 @@ export default class CrudioDataModel {
 
 			if (entity_snippets) {
 				entity_snippets.map(s => {
-					entity.fields[s] = { ...datamodel.snippets[s] };
+					const snippet = datamodel.snippets[s];
+					entity.fields[snippet.name] = { ...snippet };
 				});
 
 				// snippets can be deleted from the definition once they have been expanded
@@ -423,7 +434,7 @@ export default class CrudioDataModel {
 				const new_rel = new CrudioRelationship({
 					from: entityType.Name,
 					...r,
-				});
+				}, this.config);
 
 				entityType.relationships.push(new_rel);
 
@@ -525,7 +536,7 @@ export default class CrudioDataModel {
 		var entityDefinition: CrudioEntityDefinition | null = (entityDefinition = this.GetEntityDefinition(name, false));
 
 		if (entityDefinition === null) {
-			entityDefinition = new CrudioEntityDefinition(name, isAbstract, isManyToMany);
+			entityDefinition = new CrudioEntityDefinition(this.config, name, isAbstract, isManyToMany);
 			this.entityDefinitions.push(entityDefinition);
 
 			return entityDefinition;
@@ -631,8 +642,8 @@ export default class CrudioDataModel {
 		var sourceTable: CrudioTable = this.GetTableForEntityDefinition(d.SourceRelationship.FromEntity);
 		var targetTable: CrudioTable = this.GetTableForEntityDefinition(d.SourceRelationship.ToEntity);
 
-		const source_ids = sourceTable.DataRows.map(r => r.DataValues["id"]);
-		const target_ids = targetTable.DataRows.map(r => r.DataValues["id"]);
+		const source_ids = sourceTable.DataRows.map(r => r.DataValues[this.config.idField]);
+		const target_ids = targetTable.DataRows.map(r => r.DataValues[this.config.idField]);
 
 		// Iterate through every entity in the source table, e.g.Blog
 		source_ids.map((source_id: string) => {
@@ -826,30 +837,9 @@ export default class CrudioDataModel {
 	 * @param {string} filename
 	 * @returns {CrudioDataModel}
 	 */
-	public static FromJson(filename: string, autoPopulate = true, include: string = null): CrudioDataModel {
-		const json_object = CrudioJson.LoadJson(filename);
-		return new CrudioDataModel(json_object, autoPopulate, include);
-	}
-
-	/**
-	 * Deserialise a schema definition from a text string
-	 * @date 7/18/2022 - 3:39:38 PM
-	 *
-	 * @public
-	 * @static
-	 * @param {string} input
-	 * @returns {CrudioDataModel}
-	 */
-	public static FromString(input: string): CrudioDataModel {
-		input = input.trim();
-
-		// wrap JSON in array
-		if (input[0] != "[") input = "[" + input + "]";
-
-		const datamodel: CrudioDataModel = parse(input);
-		CrudioDataModel.SetPrototypes(datamodel);
-
-		return datamodel;
+	public static FromJson(config: ICrudioConfig, autoPopulate = true): CrudioDataModel {
+		const json_object = CrudioJson.LoadJson(config.datamodel);
+		return new CrudioDataModel(json_object, config, autoPopulate);
 	}
 
 	/**
@@ -1123,7 +1113,7 @@ export default class CrudioDataModel {
 		//
 		// The temporary entity gets the generated value, and if any unique contraints are violated, it is discarded.
 
-		const temporary_entity = new CrudioEntityInstance(entityInstance.EntityDefinition);
+		const temporary_entity = new CrudioEntityInstance(this.config, entityInstance.EntityDefinition);
 		const keys = Object.keys(entityInstance.DataValues);
 
 		var maxtries = 1000;
@@ -1283,7 +1273,7 @@ export default class CrudioDataModel {
 
 			if (typeof generator.values === "object") {
 				generator_values = Object.keys(generator.values)[0];
-				
+
 				if (!generator.values)
 					throw `GetGeneratedValue: '${generator_name}' - could not read generator.values`;
 
@@ -1536,7 +1526,7 @@ export default class CrudioDataModel {
 
 				if (new_entity.EntityDefinition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
 					const joinTable = this.GetManyToManyTable(new_entity.EntityDefinition, target_connection.EntityDefinition);
-					this.CreateManyToManyRow(joinTable, new_entity.DataValues["id"], target_connection.DataValues["id"]);
+					this.CreateManyToManyRow(joinTable, new_entity.DataValues[this.config.idField], target_connection.DataValues[this.config.idField]);
 				} else {
 					this.ConnectRows(new_entity, target_connection);
 				}
@@ -1544,7 +1534,7 @@ export default class CrudioDataModel {
 		} else if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
 			const source = parent_array[row_index];
 			const joinTable = this.GetManyToManyTable(entity_definition, target_connection.EntityDefinition);
-			this.CreateManyToManyRow(joinTable, source.DataValues["id"], target_connection.DataValues["id"]);
+			this.CreateManyToManyRow(joinTable, source.DataValues[this.config.idField], target_connection.DataValues[this.config.idField]);
 		}
 
 		if (row_index > parent_array.length) {

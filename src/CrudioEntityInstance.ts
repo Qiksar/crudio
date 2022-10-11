@@ -1,4 +1,5 @@
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import { ICrudioConfig } from "./CrudioTypes";
 
 /**
  * A data object populated with generated field values, equivalent to a row in a database
@@ -43,7 +44,7 @@ export default class CrudioEntityInstance {
 	 * @constructor
 	 * @param {CrudioEntityDefinition} entityType
 	 */
-	constructor(entityType: CrudioEntityDefinition) {
+	constructor(private config: ICrudioConfig, entityType: CrudioEntityDefinition) {
 		this.entityType = entityType;
 		this.dataValues = {};
 	}
@@ -56,9 +57,9 @@ export default class CrudioEntityInstance {
 	 * @returns {boolean}
 	 */
 	CheckId(entity: CrudioEntityInstance): boolean {
-		if (!entity.DataValues || !entity.DataValues.Id) {
+		if (!entity.DataValues || !entity.DataValues[this.config.idField]) {
 			throw new Error(`
-    CheckId: entity must have values and values.Id must be non-zero
+    CheckId: entity must have values and values.${this.config.idField} must be non-zero
     Entity: ${JSON.stringify(entity.DataValues)}
     `);
 		}

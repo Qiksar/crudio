@@ -9,7 +9,6 @@ export const postgres_config: ICrudioConfig = {
     schema: "test",
     wipe: true,
     datamodel: "datamodel/datamodel.json",
-    include: "repo/include.json",
     dbconnection: "mongodb://localhost",
     version: "1.0.0",
     verbose: true
@@ -17,12 +16,11 @@ export const postgres_config: ICrudioConfig = {
 
 export const mongoose_config: ICrudioConfig = {
     target: "p",
-    idField: "id",
+    idField: "_id",
     readonlyFields: [],
     schema: "test",
     wipe: true,
     datamodel: "datamodel/datamodel.json",
-    include: "repo/include.json",
     dbconnection: "mongodb://crudio:crudio@localhost:27017/crudio?authSource=admin",
     version: "1.0.0",
     verbose: true

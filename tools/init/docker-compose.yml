@@ -14,8 +14,6 @@ services:
     environment:
       POSTGRES_PASSWORD: crudio
       POSTGRES_DB: crudio
-    volumes:
-      - ./dbscripts/seed.sql:/docker-entrypoint-initdb.d/seed.sql
     restart: always
 
   gql:

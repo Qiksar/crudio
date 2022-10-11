@@ -1,4 +1,4 @@
-import { ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioConfig, ISchemaRelationship } from "./CrudioTypes";
 
 /**
  * An instance of a relationship between two entities
@@ -16,7 +16,7 @@ export default class CrudioRelationship {
 	 * @constructor
 	 * @param {ISchemaRelationship} relationship
 	 */
-	constructor(private relationship: ISchemaRelationship) {
+	constructor(private relationship: ISchemaRelationship, config:ICrudioConfig) {
 		if (!relationship.to) throw new Error("Relationship schema must provide a 'to' field specifying the target entity");
 		if (!relationship.type) throw new Error("Relationship schema must provide a 'type' field specifying the relationship cardinality of, one:one to many or many:many to many");
 		if (!relationship.required) relationship.required = false;
@@ -28,7 +28,7 @@ export default class CrudioRelationship {
 		// and its primary key
 		if (!relationship.name && relationship.type != "many") relationship.name = relationship.to;
 		if (!relationship.from_column) relationship.from_column = relationship.to;
-		if (!relationship.to_column) relationship.to_column = "id";
+		if (!relationship.to_column) relationship.to_column = config.idField;
 
 		if (relationship.type === "one" && relationship.count === undefined) {
 			if (!relationship.required) {

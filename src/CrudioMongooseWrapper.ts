@@ -8,7 +8,7 @@ import { ICrudioConfig } from "./CrudioTypes";
 import CrudioUtils from "./CrudioUtils";
 
 
-export default class CrudioMongoose {
+export default class CrudioMongooseWrapper {
     /**
      * Creates an instance of CrudioMongoose.
      * @date 7/18/2022 - 1:46:23 PM
@@ -61,7 +61,11 @@ export default class CrudioMongoose {
      * @param {SqlInstructionList} instructions
      */
     private async InsertData(table: CrudioTable): Promise<void> {
-        var schema = new Schema({ any: {} }, { strict: false });
+        var schema = new Schema({
+            _id: String,
+            data: {}
+        }, { strict: false });
+
         var model = mongoose.model(table.TableName, schema);
 
         console.log("Loading ", table.TableName);
@@ -89,7 +93,15 @@ export default class CrudioMongoose {
             });
 
             try {
-                var row = new model({ any: values });
+
+                const new_record = {
+                    _id: values[this.config.idField],
+                    data: values
+                };
+
+                delete values[this.config.idField];
+
+                var row = new model(new_record);
                 const result = await row.save();
             } catch (e) {
                 console.log("Failed to save", values, "\n\n", e);

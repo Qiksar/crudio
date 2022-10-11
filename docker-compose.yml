@@ -9,55 +9,67 @@ version: '3.4'
 
 services:
   mongo:
-      image: mongo
+    restart: always
 
-      ports:
-        - "27017:27017"
+    image: mongo
 
-      environment:
-          - MONGO_INITDB_ROOT_USERNAME=crudio
-          - MONGO_INITDB_ROOT_PASSWORD=crudio
-          - MONGO_INITDB_DATABASE=crudio
+    ports:
+      - "27017:27017"
+
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=crudio
+        - MONGO_INITDB_ROOT_PASSWORD=crudio
+        - MONGO_INITDB_DATABASE=crudio
 
 
   mongo-express:
-      image: mongo-express
-      environment:
-          - ME_CONFIG_MONGODB_SERVER=mongo
-          - ME_CONFIG_MONGODB_PORT=27017
-          - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-          - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-          - ME_CONFIG_MONGODB_AUTH_USERNAME=crudio
-          - ME_CONFIG_MONGODB_AUTH_PASSWORD=crudio
-          - ME_CONFIG_BASICAUTH_USERNAME=crudio
-          - ME_CONFIG_BASICAUTH_PASSWORD=crudio
-      depends_on:
-          - mongo
-      ports:
-        - "8081:8081"
+    restart: always
+    
+    image: mongo-express
+
+    environment:
+        - ME_CONFIG_MONGODB_SERVER=mongo
+        - ME_CONFIG_MONGODB_PORT=27017
+        - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+        - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+        - ME_CONFIG_MONGODB_AUTH_USERNAME=crudio
+        - ME_CONFIG_MONGODB_AUTH_PASSWORD=crudio
+        - ME_CONFIG_BASICAUTH_USERNAME=crudio
+        - ME_CONFIG_BASICAUTH_PASSWORD=crudio
+
+    depends_on:
+        - mongo
+    
+    ports:
+      - "8081:8081"
+
 
   db:
+    restart: always
+  
     container_name: crudio_db
     image: postgres
     environment:
       POSTGRES_PASSWORD: crudio
       POSTGRES_DB: crudio
-    volumes:
-      - ./dbscripts/seed.sql:/docker-entrypoint-initdb.d/seed.sql
-    restart: always
+
 
   gql:
+    restart: always
+
     container_name: crudio_gql
     image: hasura/graphql-engine 
     depends_on:
       - db
+
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:crudio@db:5432
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: crudio
+
     ports: 
       - "6789:8080"
-    restart: always
+
     command:
       - graphql-engine
       - serve

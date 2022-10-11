@@ -1,16 +1,17 @@
 // tslint:disable: max-line-length
 // tslint:disable: no-unused-expression
 
-import { workerData } from "worker_threads";
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
+import { postgres_config as config } from "./test-config";
 
 describe("Create datamodel", () => {
 	jest.setTimeout(120000);
 
 	test("Find Arrow Corporation and William Tell then check assigned roles", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
 		const rows = repo.GetTable("Organisations").DataRows;
 
 		const arrow = rows[0].DataValues;
@@ -36,7 +37,8 @@ describe("Create datamodel", () => {
 	});
 
 	test("Load data model definition from JSON file", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -52,7 +54,8 @@ describe("Create datamodel", () => {
 	});
 
 	test("All Blogs have at least one tag", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
 
 		const blogs = repo.GetTable("Blogs");
 		const tags = repo.GetTable("BlogTags");
@@ -68,7 +71,8 @@ describe("Create datamodel", () => {
 	});
 
 	test("Load data model and include file", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json", true, "datamodel/blocks/iot.json");
+		config.datamodel = "datamodel/blocks/iot.json";
+		const repo = CrudioDataModel.FromJson(config, true);
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
@@ -87,7 +91,9 @@ describe("Create datamodel", () => {
 	});
 
 	test("Check for unique email addresses", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
+
 		const users: CrudioEntityInstance[] = repo.GetTable("Users").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -109,7 +115,9 @@ describe("Create datamodel", () => {
 	});
 
 	test("Check for unique tag names", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
+
 		const tags: CrudioEntityInstance[] = repo.GetTable("Tags").DataRows;
 		var uniqueKeys: string[] = [];
 
@@ -131,11 +139,10 @@ describe("Create datamodel", () => {
 	});
 
 	test("Save and load database using flatted form", () => {
-		const repo = CrudioDataModel.FromJson("datamodel/datamodel.json");
-		repo.Save("test/unit/output/fake.flat.json");
+		config.datamodel = "datamodel/datamodel.json";
+		const db = CrudioDataModel.FromJson(config, true);
 
-		const db = CrudioDataModel.FromString(repo.ToString());
-		expect(db).not.toBeNull();
+		db.Save("test/unit/output/fake.flat.json");
 
 		const users: CrudioEntityInstance[] = db.GetTable("Users").DataRows;
 		const organizations: CrudioEntityInstance[] = db.GetTable("Organisations").DataRows;

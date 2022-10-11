@@ -84,6 +84,9 @@ export default class CrudioField implements ICrudioField {
       case "string":
         return "text";
 
+      case "string":
+        return "text";
+
       default:
         return this.fieldType;
     }

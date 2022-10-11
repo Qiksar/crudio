@@ -128,6 +128,4 @@ export default class CrudioUtils {
 	public static ToColumnId(name: string): string {
 		return name.toLowerCase().endsWith("id") ? name : name + "Id";
 	}
-
-
 }

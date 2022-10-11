@@ -59,9 +59,9 @@ class SqlInstructionList {
  *
  * @export
  * @class CrudioDataWrapper
- * @typedef {CrudioDataWrapper}
+ * @typedef {CrudioPostgresWrapper}
  */
-export default class CrudioDataWrapper {
+export default class CrudioPostgresWrapper {
 	//#region Properties
 	/**
 	 * GraphQL interface
@@ -257,7 +257,7 @@ export default class CrudioDataWrapper {
 			const entity = rows[r];
 			if (!entity) throw new Error("NULL data row");
 
-				var values = "";
+			var values = "";
 
 			instructions.table_field_list.map(i => {
 				var datavalue: any = entity.DataValues[i];
