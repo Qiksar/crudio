@@ -1,6 +1,7 @@
 import { Model, model } from "mongoose";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioRelationship from "./CrudioRelationship";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
 
@@ -103,7 +104,7 @@ export default class CrudioMongooseDataModel {
      */
     private CreateSchemaModels() {
         // First pass create all required schema
-        this.crudio_model.Tables.map(t => {
+        this.crudio_model.Tables.filter(t => !t.EntityDefinition.IsManyToManyJoin).map(t => {
             this.schema[t.TableName] = this.CreateSchemaForTable(t);
         });
 
@@ -111,7 +112,7 @@ export default class CrudioMongooseDataModel {
         this.AssignForeignKeys();
 
         // Build the models once all the fields and relationships are in place
-        this.crudio_model.Tables.map(t => {
+        this.crudio_model.Tables.filter(t => !t.EntityDefinition.IsManyToManyJoin).map(t => {
             this.models[t.TableName] = model(t.TableName, this.schema[t.TableName]);
         });
     }
@@ -182,11 +183,17 @@ export default class CrudioMongooseDataModel {
      * @param {CrudioEntityDefinition} entity
      * @returns {*}
      */
-    private AssignForeignKeys(): any {
-        const key_map = {};
+    private AssignForeignKeys(): void {
+        const relationships: CrudioRelationship[] = [];
 
-        // add foreign keys to insert columns for one to many
-        this.crudio_model.OneToManyRelationships.map(r => {
+        // Ensure join tables are not incorporated into the list of relationships
+        // as MongoDB uses arrays
+        this.crudio_model.EntityDefinitions.filter(d => !d.IsManyToManyJoin).map(
+            d => d.OneToManyRelationships.map(r => relationships.push(r))
+        )
+
+        // add foreign keys for one to many
+        relationships.map(r => {
             const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
             const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
             const from_schema = this.schema[from_entity.TableName];
@@ -196,18 +203,20 @@ export default class CrudioMongooseDataModel {
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
         });
 
-        // add foreign keys to insert columns for one to many
+        // add foreign keys for many to many
         this.crudio_model.ManyToManyRelationships.map(r => {
 
             const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
             const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
+          
             const from_schema = this.schema[from_entity.TableName];
             const to_schema = this.schema[to_entity.TableName];
+
+            if (!from_entity || !to_entity || !from_schema || !to_schema)
+                throw "bang"
 
             from_schema[to_entity.TableName] = [{ type: String, ref: to_entity.TableName }];
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
         });
-
-        return key_map;
     }
 }

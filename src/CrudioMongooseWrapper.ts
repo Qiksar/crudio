@@ -218,8 +218,16 @@ export default class CrudioMongooseWrapper {
      * @returns {Promise<void>}
      */
     private async AssignOneToManyKeys(): Promise<void> {
-        for (var fi = 0; fi < this.crudio_model.OneToManyRelationships.length; fi++) {
-            const r = this.crudio_model.OneToManyRelationships[fi];
+        const relationships: CrudioRelationship[] = [];
+
+        // Ensure join tables are not incorporated into the list of relationships
+        // as MongoDB uses arrays
+        this.crudio_model.EntityDefinitions.filter(d => !d.IsManyToManyJoin).map(
+            d => d.OneToManyRelationships.map(r => relationships.push(r))
+        )
+
+        for (var fi = 0; fi < relationships.length; fi++) {
+            const r = relationships[fi];
 
             this.AssignKeys(
                 this.crudio_model.GetTableForEntityName(r.ToEntity).TableName,
@@ -247,7 +255,7 @@ export default class CrudioMongooseWrapper {
         }
     }
 
-    private async ProcessManyToMany(join_table: CrudioTable, from_entity: string, to_entty: string, from_table: string, to_table: string): Promise<void> {
+    private async ProcessManyToMany(join_table: CrudioTable, from_entity: string, to_entity: string, from_table: string, to_table: string): Promise<void> {
         console.log(`Finalise many to many joins ${from_table} --> ${to_table}`);
 
         // Build a list of unique keys
@@ -262,23 +270,22 @@ export default class CrudioMongooseWrapper {
 
         // For each key find the related keys
         for (var uk = 0; uk < from_unique_keys.length; uk++) {
-            const from_key = from_unique_keys[uk];
-            const to_keys = [];
+            let from_key = from_unique_keys[uk];
+            let to_keys = [];
 
             // Extract the list of referenced keys
             join_table.DataRows
                 .filter(r => r.DataValues[from_entity + "Id"] === from_key)
-                .forEach(r => {
-                    const link = r.DataValues[to_entty + "Id"];
-                    to_keys.push(link);
-                });
+                .map(r => to_keys.push(r.DataValues[to_entity + "Id"]));
 
             // Update the target entity with the array of referenced keys
+            const parent_model = this.Models[from_table];
             try {
-                const parent_model = this.Models[from_table];
-                const res = await parent_model.findOneAndUpdate({ [this.config.idField]: from_key }, { [to_table]: to_keys });
+                const res = await parent_model.findOneAndUpdate({ [this.config.idField]: from_key }, { [to_table]: to_keys }, { new: true });
+                console.log(from_entity, res)
             } catch (e) {
-                console.log(e);
+                console.log("Aborted due to exception in ProcessManyToMany ", e);
+                break;
             }
         }
     }
