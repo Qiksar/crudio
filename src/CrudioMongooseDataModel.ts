@@ -1,8 +1,13 @@
-import { model } from "mongoose";
+import { Model, model } from "mongoose";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
+
+export interface IModelRelationship {
+    parent: string;
+    child: string;
+}
 
 /**
  * Definition of schema and models for Mongoose
@@ -21,6 +26,7 @@ export default class CrudioMongooseDataModel {
      * @type {*}
      */
     private schema: any = {};
+
     /**
      * Models map
      * @date 11/10/2022 - 14:31:36
@@ -29,6 +35,7 @@ export default class CrudioMongooseDataModel {
      * @type {*}
      */
     private models: any = {};
+
 
     /**
      * Schema map
@@ -52,6 +59,27 @@ export default class CrudioMongooseDataModel {
      */
     public get Models(): any {
         return this.models;
+    }
+
+    /**
+     * List of foreign keys
+     * @date 11/10/2022 - 15:57:33
+     *
+     * @private
+     * @type {{}}
+     */
+    private foreign_keys: IModelRelationship[] = [];
+
+    /**
+     * List of foreign ForeignKeys
+     * @date 11/10/2022 - 15:57:33
+     *
+     * @public
+     * @readonly
+     * @type {CrudioRelationship[]}
+     */
+    public get ForeignKeys(): IModelRelationship[] {
+        return this.foreign_keys;
     }
 
     /**
@@ -83,6 +111,10 @@ export default class CrudioMongooseDataModel {
         // Second pass connect foreign keys and create models
         this.datamodel.Tables.map(t => {
             this.AssignForeignKeys(t.EntityDefinition);
+        });
+
+        // Build the models once all the fields and relationships are in place
+        this.datamodel.Tables.map(t => {
             this.models[t.TableName] = model(t.TableName, this.schema[t.TableName]);
         });
     }
@@ -166,6 +198,13 @@ export default class CrudioMongooseDataModel {
 
             from_schema[to_entity.TableName] = { type: String, ref: to_entity.TableName };
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
+
+            const fk = {
+                parent: to_entity.TableName,
+                child: from_entity.TableName,
+            };
+
+            this.foreign_keys.push(fk);
         });
 
         return key_map;

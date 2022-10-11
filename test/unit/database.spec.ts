@@ -36,6 +36,25 @@ describe("Save datamodel", () => {
 	});
 
 	test("gets organisation with employees", async () => {
+		mongoose_config.datamodel = "datamodel/datamodel.json";
+		const model: any = CrudioDataModel.FromJson(mongoose_config, true);
+		const db = new CrudioMongooseWrapper(mongoose_config, model);
+
 		Mongoose.connect(mongoose_config.dbconnection ?? "");
+		const organisations = db.GetModel("Organisations");
+
+		expect(organisations).toBeDefined();
+		const arrow = await organisations.findOne({ name: "Arrow Corporation" })
+		expect(arrow.name).toEqual("Arrow Corporation");
+
+		try {
+			const arrowEmployees = await organisations.findOne({ name: "Arrow Corporation" }).populate("Employees");
+			const employees = arrowEmployees.Employees;
+			expect(employees).toBeDefined();
+			expect(employees.length).toBeGreaterThan(0);
+		} catch (e) {
+			console.log(e);
+		}
+
 	});
 });

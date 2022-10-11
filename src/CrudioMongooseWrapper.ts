@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 import { ICrudioConfig } from "./CrudioTypes";
 import CrudioDataModel from "./CrudioDataModel";
@@ -50,17 +50,29 @@ export default class CrudioMongooseWrapper {
     }
 
     /**
+     * Get Mongoose model for specified collection
+     * @date 11/10/2022 - 15:24:43
+     *
+     * @public
+     * @param {string} name
+     * @returns {Model<any>}
+     */
+    public GetModel(name: string): Model<any> {
+        return this.Models[name] as Model<any>;
+    }
+
+    /**
      * Constructor
      * @date 7/18/2022 - 1:46:23 PM
      *
      * @constructor
      * @param {ICrudioConfig} config
-     * @param {CrudioDataModel} datamodel
+     * @param {CrudioDataModel} crudio_model
      */
-    constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {
-        if (datamodel.TargetDbSchema) this.config.schema = datamodel.TargetDbSchema;
+    constructor(private config: ICrudioConfig, private crudio_model: CrudioDataModel) {
+        if (crudio_model.TargetDbSchema) this.config.schema = crudio_model.TargetDbSchema;
 
-        this.data_model = new CrudioMongooseDataModel(config, datamodel);
+        this.data_model = new CrudioMongooseDataModel(config, crudio_model);
     }
 
     /**
@@ -93,12 +105,14 @@ export default class CrudioMongooseWrapper {
      * @returns {Promise<void>}
      */
     public async PopulateDatabaseTables(): Promise<void> {
-        for (var index = 0; index < this.datamodel.Tables.length; index++) {
-            const table: CrudioTable = this.datamodel.Tables[index];
+        for (var index = 0; index < this.crudio_model.Tables.length; index++) {
+            const table: CrudioTable = this.crudio_model.Tables[index];
 
             if (!table.EntityDefinition.IsManyToManyJoin)
                 await this.InsertData(table);
         }
+
+        await this.SetChildrenIds();
     }
 
     /**
@@ -184,11 +198,48 @@ export default class CrudioMongooseWrapper {
         // add foreign keys to insert columns for one to many
         entity.OneToManyRelationships.map(r => {
             const source = entity_values[r.FromColumn].dataValues;
-            const entity = this.datamodel.GetEntityDefinition(r.ToEntity);
+            const entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
 
             key_map[entity.TableName] = source[this.config.idField];
         });
 
         return key_map;
+    }
+
+    private async SetChildrenIds(): Promise<void> {
+        for (var fi = 0; fi < this.data_model.ForeignKeys.length; fi++) {
+            const r = this.data_model.ForeignKeys[fi];
+
+            const parent_model = this.Models[r.parent];
+            const child_model = this.Models[r.child];
+
+            // Primary keys of all parent records
+            const parent_keys = this.GetAllKeys(r.parent);
+
+            for (var i = 0; i < parent_keys.length; i++) {
+                const parent_id = parent_keys[i];
+
+                try {
+                    // get children
+                    const children = await child_model.find({ [r.parent]: parent_id }, { [this.config.idField]: 1 });
+
+                    // get all keys of children
+                    const child_keys = children.map(c => {
+                        return c[this.config.idField]
+                    });
+
+                    const res = await parent_model.findOneAndUpdate({ [this.config.idField]: parent_id }, { [r.child]: child_keys });
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+
+
+        }
+    }
+
+    private GetAllKeys(tablename: string): string[] {
+        const keys = this.crudio_model.GetTable(tablename).DataRows.map(e => e.DataValues[this.config.idField]);
+        return keys;
     }
 }
