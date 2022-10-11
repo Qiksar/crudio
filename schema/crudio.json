@@ -14,7 +14,7 @@
 					"description": "integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
 					"type": [
 						"string",
-						"number"n
+						"number"
 					]
 				},
 				"inherits": {
@@ -73,7 +73,7 @@
 							"properties": {
 								"count": {
 									"description": "specifies the number of entries to create per parent entity",
-									"type": "number"n
+									"type": "number"
 								},
 								"fields": {
 									"description": "specifies aditional fields for the join table",
