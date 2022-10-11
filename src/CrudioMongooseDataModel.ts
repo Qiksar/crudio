@@ -4,8 +4,28 @@ import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioTable from "./CrudioTable";
 import { ICrudioConfig } from "./CrudioTypes";
 
+/**
+ * Cache details of relationship between two tables
+ * @date 11/10/2022 - 17:25:54
+ *
+ * @export
+ * @interface IModelRelationship
+ * @typedef {IModelRelationship}
+ */
 export interface IModelRelationship {
+    /**
+     * Many End
+     * @date 11/10/2022 - 17:25:54
+     *
+     * @type {string}
+     */
     parent: string;
+    /**
+     * Single End
+     * @date 11/10/2022 - 17:25:54
+     *
+     * @type {string}
+     */
     child: string;
 }
 
@@ -62,37 +82,16 @@ export default class CrudioMongooseDataModel {
     }
 
     /**
-     * List of foreign keys
-     * @date 11/10/2022 - 15:57:33
-     *
-     * @private
-     * @type {{}}
-     */
-    private foreign_keys: IModelRelationship[] = [];
-
-    /**
-     * List of foreign ForeignKeys
-     * @date 11/10/2022 - 15:57:33
-     *
-     * @public
-     * @readonly
-     * @type {CrudioRelationship[]}
-     */
-    public get ForeignKeys(): IModelRelationship[] {
-        return this.foreign_keys;
-    }
-
-    /**
      * Constructor
      * @date 7/18/2022 - 1:46:23 PM
      *
      * @constructor
      * @param {ICrudioConfig} config
-     * @param {CrudioDataModel} datamodel
+     * @param {CrudioDataModel} crudio_model
      */
-    constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {
-        if (datamodel.TargetDbSchema)
-            this.config.schema = datamodel.TargetDbSchema;
+    constructor(private config: ICrudioConfig, private crudio_model: CrudioDataModel) {
+        if (crudio_model.TargetDbSchema)
+            this.config.schema = crudio_model.TargetDbSchema;
         this.CreateSchemaModels();
     }
 
@@ -104,17 +103,15 @@ export default class CrudioMongooseDataModel {
      */
     private CreateSchemaModels() {
         // First pass create all required schema
-        this.datamodel.Tables.map(t => {
+        this.crudio_model.Tables.map(t => {
             this.schema[t.TableName] = this.CreateSchemaForTable(t);
         });
 
         // Second pass connect foreign keys and create models
-        this.datamodel.Tables.map(t => {
-            this.AssignForeignKeys(t.EntityDefinition);
-        });
+        this.AssignForeignKeys();
 
         // Build the models once all the fields and relationships are in place
-        this.datamodel.Tables.map(t => {
+        this.crudio_model.Tables.map(t => {
             this.models[t.TableName] = model(t.TableName, this.schema[t.TableName]);
         });
     }
@@ -185,26 +182,30 @@ export default class CrudioMongooseDataModel {
      * @param {CrudioEntityDefinition} entity
      * @returns {*}
      */
-    private AssignForeignKeys(entity: CrudioEntityDefinition): any {
+    private AssignForeignKeys(): any {
         const key_map = {};
 
         // add foreign keys to insert columns for one to many
-        entity.OneToManyRelationships.map(r => {
-
-            const from_entity = this.datamodel.GetEntityDefinition(r.FromEntity);
-            const to_entity = this.datamodel.GetEntityDefinition(r.ToEntity);
+        this.crudio_model.OneToManyRelationships.map(r => {
+            const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
+            const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
             const from_schema = this.schema[from_entity.TableName];
             const to_schema = this.schema[to_entity.TableName];
 
             from_schema[to_entity.TableName] = { type: String, ref: to_entity.TableName };
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
+        });
 
-            const fk = {
-                parent: to_entity.TableName,
-                child: from_entity.TableName,
-            };
+        // add foreign keys to insert columns for one to many
+        this.crudio_model.ManyToManyRelationships.map(r => {
 
-            this.foreign_keys.push(fk);
+            const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
+            const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
+            const from_schema = this.schema[from_entity.TableName];
+            const to_schema = this.schema[to_entity.TableName];
+
+            from_schema[to_entity.TableName] = [{ type: String, ref: to_entity.TableName }];
+            to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
         });
 
         return key_map;

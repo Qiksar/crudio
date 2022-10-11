@@ -6,6 +6,7 @@ import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioField from "./CrudioField";
 import CrudioMongooseDataModel from "./CrudioMongooseDataModel";
 import CrudioTable from "./CrudioTable";
+import CrudioRelationship from "./CrudioRelationship";
 
 /**
  * Provide basic data insertion capabilities to populate a database
@@ -112,7 +113,8 @@ export default class CrudioMongooseWrapper {
                 await this.PopulateDatabaseTable(table);
         }
 
-        await this.SetChildrenIds();
+        await this.AssignOneToManyKeys();
+        await this.AssignManyToManyKeys();
     }
 
     /**
@@ -206,38 +208,125 @@ export default class CrudioMongooseWrapper {
         return key_map;
     }
 
-    private async SetChildrenIds(): Promise<void> {
-        for (var fi = 0; fi < this.data_model.ForeignKeys.length; fi++) {
-            const r = this.data_model.ForeignKeys[fi];
+    /**
+     * For one to many relationships collect keys from the referencing table and place them in an array on the referenced table.
+     * For many to many relationships ru the process from both ends so each table has an array of keys referencing the other. 
+     * @date 11/10/2022 - 17:31:17
+     *
+     * @private
+     * @async
+     * @returns {Promise<void>}
+     */
+    private async AssignOneToManyKeys(): Promise<void> {
+        for (var fi = 0; fi < this.crudio_model.OneToManyRelationships.length; fi++) {
+            const r = this.crudio_model.OneToManyRelationships[fi];
 
-            const parent_model = this.Models[r.parent];
-            const child_model = this.Models[r.child];
-
-            // Primary keys of all parent records
-            const parent_keys = this.GetPrimaryKeyValues(r.parent);
-
-            for (var i = 0; i < parent_keys.length; i++) {
-                const parent_id = parent_keys[i];
-
-                try {
-                    // get children
-                    const children = await child_model.find({ [r.parent]: parent_id }, { [this.config.idField]: 1 });
-
-                    // get all keys of children
-                    const child_keys = children.map(c => {
-                        return c[this.config.idField]
-                    });
-
-                    const res = await parent_model.findOneAndUpdate({ [this.config.idField]: parent_id }, { [r.child]: child_keys });
-                } catch (e) {
-                    console.log(e);
-                }
-            }
-
-
+            this.AssignKeys(
+                this.crudio_model.GetTableForEntityName(r.ToEntity).TableName,
+                this.crudio_model.GetTableForEntityName(r.FromEntity).TableName
+            );
         }
     }
 
+    private async AssignManyToManyKeys(): Promise<void> {
+
+        // For every many to many table
+        for (var i = 0; i < this.crudio_model.ManyToManyDefinitions.length; i++) {
+            const d = this.crudio_model.ManyToManyDefinitions[i];
+
+            // Acquire the table details
+            const join_table = this.crudio_model.GetTable(d.TableName);
+            const rel = d.SourceRelationship;
+            const from_table = this.crudio_model.GetTableForEntityName(rel.FromEntity).TableName;
+            const to_table = this.crudio_model.GetTableForEntityName(rel.ToEntity).TableName;
+
+            // Process all the references from table1 ---> table2 in the many to many join
+            // Then all the references from table1 <--- table2 in the many to many join
+            await this.ProcessManyToMany(join_table, rel.FromEntity, rel.ToEntity, from_table, to_table);
+            await this.ProcessManyToMany(join_table, rel.ToEntity, rel.FromEntity, to_table, from_table);
+        }
+    }
+
+    private async ProcessManyToMany(join_table: CrudioTable, from_entity: string, to_entty: string, from_table: string, to_table: string): Promise<void> {
+        console.log(`Finalise many to many joins ${from_table} --> ${to_table}`);
+
+        // Build a list of unique keys
+        const from_unique_keys = [];
+        join_table.DataRows.forEach(r => {
+            const key = r.DataValues[from_entity + "Id"];
+
+            if (!from_unique_keys.includes(key)) {
+                from_unique_keys.push(key);
+            }
+        });
+
+        // For each key find the related keys
+        for (var uk = 0; uk < from_unique_keys.length; uk++) {
+            const from_key = from_unique_keys[uk];
+            const to_keys = [];
+
+            // Extract the list of referenced keys
+            join_table.DataRows
+                .filter(r => r.DataValues[from_entity + "Id"] === from_key)
+                .forEach(r => {
+                    const link = r.DataValues[to_entty + "Id"];
+                    to_keys.push(link);
+                });
+
+            // Update the target entity with the array of referenced keys
+            try {
+                const parent_model = this.Models[from_table];
+                const res = await parent_model.findOneAndUpdate({ [this.config.idField]: from_key }, { [to_table]: to_keys });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+    /**
+     * Description placeholder
+     * @date 11/10/2022 - 17:31:17
+     *
+     * @private
+     * @async
+     * @param {string} parent
+     * @param {string} child
+     * @returns {Promise<void>}
+     */
+    private async AssignKeys(parent: string, child: string): Promise<void> {
+
+        // Primary keys of all parent records
+        const parent_keys = this.GetPrimaryKeyValues(parent);
+
+        for (var i = 0; i < parent_keys.length; i++) {
+            const parent_id = parent_keys[i];
+
+            try {
+                // get children
+                const child_model = this.Models[child];
+                const children = await child_model.find({ [parent]: parent_id }, { [this.config.idField]: 1 });
+
+                // get all keys of children
+                const child_keys = children.map(c => {
+                    return c[this.config.idField]
+                });
+
+                const parent_model = this.Models[parent];
+                const res = await parent_model.findOneAndUpdate({ [this.config.idField]: parent_id }, { [child]: child_keys });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+    /**
+     * Description placeholder
+     * @date 11/10/2022 - 17:31:17
+     *
+     * @private
+     * @param {string} tablename
+     * @returns {string[]}
+     */
     private GetPrimaryKeyValues(tablename: string): string[] {
         const keys = this.crudio_model.GetTable(tablename).DataRows.map(e => e.DataValues[this.config.idField]);
         return keys;

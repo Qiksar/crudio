@@ -86,6 +86,42 @@ export default class CrudioDataModel {
 	private tables: CrudioTable[] = [];
 
 	/**
+	 * One to Many relationships
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @public
+	 * @readonly
+	 * @type {CrudioRelationship[]}
+	 */
+	public get OneToManyRelationships(): CrudioRelationship[] {
+		return this.relationships.filter(r => r.RelationshipType === "one");
+	}
+
+	/**
+	 * Many to Many relationships
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @public
+	 * @readonly
+	 * @type {CrudioRelationship[]}
+	 */
+	public get ManyToManyRelationships(): CrudioRelationship[] {
+		return this.relationships.filter(r => r.RelationshipType === "many");
+	}
+
+	/**
+	 * Get entity definitions that represent many to many joins
+	 * @date 11/10/2022 - 18:12:39
+	 *
+	 * @public
+	 * @readonly
+	 * @type {CrudioEntityDefinition[]}
+	 */
+	public get ManyToManyDefinitions(): CrudioEntityDefinition[] {
+		return this.entityDefinitions.filter(e => e.IsManyToManyJoin)
+	}
+	
+	/**
 	 * Date format to use
 	 * @date 7/26/2022 - 12:53:10 PM
 	 *
@@ -94,6 +130,14 @@ export default class CrudioDataModel {
 	 * @type {CrudioTable[]}
 	 */
 	private date_format = "yyyy-MM-dd HH:mm:ss";
+	/**
+	 * Description placeholder
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @public
+	 * @readonly
+	 * @type {string}
+	 */
 	public get DateFormat(): string {
 		return this.date_format;
 	}
@@ -110,6 +154,13 @@ export default class CrudioDataModel {
 		return this.tables;
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @private
+	 * @type {CrudioEntityDefinition[]}
+	 */
 	private entityDefinitions: CrudioEntityDefinition[] = [];
 
 	/**
@@ -150,6 +201,14 @@ export default class CrudioDataModel {
 	 */
 	private scripts: string[];
 
+	/**
+	 * Description placeholder
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @public
+	 * @readonly
+	 * @type {ICrudioSchemaDefinition}
+	 */
 	public get DataModel(): ICrudioSchemaDefinition {
 		return this.data_model;
 	}
@@ -309,7 +368,7 @@ export default class CrudioDataModel {
 	 * @private
 	 */
 	private CreateManyToManyJoinTables() {
-		const m2m = this.relationships.filter(r => r.RelationshipType === "many");
+		const m2m = this.ManyToManyRelationships;
 
 		m2m.map(r => {
 			const many_entity = new CrudioEntityDefinition(this.config, r.FromEntity + r.ToEntity, false, true);
@@ -626,7 +685,8 @@ export default class CrudioDataModel {
 	 * @private
 	 */
 	private ConnectManyToManyRelationships(): void {
-		const definitions = this.entityDefinitions.filter(e => e.IsManyToManyJoin);
+		const definitions = this.ManyToManyDefinitions;
+
 		definitions.map(d => this.JoinManyToMany(d));
 	}
 
@@ -1542,6 +1602,15 @@ export default class CrudioDataModel {
 		}
 	}
 
+	/**
+	 * Description placeholder
+	 * @date 11/10/2022 - 17:39:59
+	 *
+	 * @private
+	 * @param {CrudioEntityDefinition} source
+	 * @param {CrudioEntityDefinition} target
+	 * @returns {CrudioTable}
+	 */
 	private GetManyToManyTable(source: CrudioEntityDefinition, target: CrudioEntityDefinition): CrudioTable {
 		const table = this.Tables.filter(t => t.EntityDefinition.SourceRelationship && t.EntityDefinition.SourceRelationship.FromEntity === source.Name && t.EntityDefinition.SourceRelationship.ToEntity === target.Name);
 

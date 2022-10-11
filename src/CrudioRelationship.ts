@@ -21,9 +21,6 @@ export default class CrudioRelationship {
 		if (!relationship.type) throw new Error("Relationship schema must provide a 'type' field specifying the relationship cardinality of, one:one to many or many:many to many");
 		if (!relationship.required) relationship.required = false;
 
-		relationship.type = relationship.type.toLowerCase().trim();
-
-
 		// The user can specify relationships in shorthand, where field values default to the name of the target entity
 		// and its primary key
 		if (!relationship.name && relationship.type != "many") relationship.name = relationship.to;
@@ -71,6 +68,7 @@ export default class CrudioRelationship {
 	get FromEntity(): string {
 		return this.relationship.from;
 	}
+
 	/**
 	 * The referencing column (field)
 	 * @date 7/18/2022 - 2:14:01 PM
@@ -111,7 +109,7 @@ export default class CrudioRelationship {
 	 * @readonly
 	 * @type {string}
 	 */
-	get RelationshipType(): string {
+	get RelationshipType(): "one" | "many" {
 		return this.relationship.type;
 	}
 

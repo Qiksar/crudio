@@ -483,7 +483,7 @@ export interface ISchemaRelationship {
 	 *
 	 * @type {string}
 	 */
-	type: string;
+	type: "one" | "many";
 
 	/**
 	 * Number of sample data rows to insert in a many to many table
