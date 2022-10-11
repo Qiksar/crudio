@@ -1,5 +1,6 @@
 # local files
 repo/scratch/*
+.local
 
 # npm
 .npmrc
