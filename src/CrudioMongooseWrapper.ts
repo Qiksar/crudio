@@ -109,7 +109,7 @@ export default class CrudioMongooseWrapper {
             const table: CrudioTable = this.crudio_model.Tables[index];
 
             if (!table.EntityDefinition.IsManyToManyJoin)
-                await this.InsertData(table);
+                await this.PopulateDatabaseTable(table);
         }
 
         await this.SetChildrenIds();
@@ -122,7 +122,7 @@ export default class CrudioMongooseWrapper {
      * @private
      * @param {CrudioTable} table
      */
-    private async InsertData(table: CrudioTable): Promise<void> {
+    private async PopulateDatabaseTable(table: CrudioTable): Promise<void> {
         console.log("Loading ", table.TableName);
 
         var model = this.Models[table.TableName];
@@ -214,7 +214,7 @@ export default class CrudioMongooseWrapper {
             const child_model = this.Models[r.child];
 
             // Primary keys of all parent records
-            const parent_keys = this.GetAllKeys(r.parent);
+            const parent_keys = this.GetPrimaryKeyValues(r.parent);
 
             for (var i = 0; i < parent_keys.length; i++) {
                 const parent_id = parent_keys[i];
@@ -238,7 +238,7 @@ export default class CrudioMongooseWrapper {
         }
     }
 
-    private GetAllKeys(tablename: string): string[] {
+    private GetPrimaryKeyValues(tablename: string): string[] {
         const keys = this.crudio_model.GetTable(tablename).DataRows.map(e => e.DataValues[this.config.idField]);
         return keys;
     }
