@@ -305,13 +305,9 @@
 					"type": "many",
 					"count": 2,
 					"fields": {
-						"published_date": {
+						"tagged_date": {
 							"type": "timestamp",
 							"generator": "[timestamp]"
-						},
-						"priority": {
-							"type": "integer",
-							"generator": "[1>10]"
 						}
 					}
 				},

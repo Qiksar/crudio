@@ -93,7 +93,6 @@ export default class CrudioMongooseWrapper {
             });
 
             try {
-
                 const new_record = {
                     _id: values[this.config.idField],
                     data: values
