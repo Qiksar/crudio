@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import CrudioDataModel from "../../src/CrudioDataModel";
-import { postgres_config as config } from "./test-config"
+
+import config from "./config/hasura-config"
 
 describe("Produce diagrams from data model", () => {
 

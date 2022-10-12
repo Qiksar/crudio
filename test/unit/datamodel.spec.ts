@@ -4,7 +4,7 @@
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioEntityInstance from "../../src/CrudioEntityInstance";
 import CrudioTable from "../../src/CrudioTable";
-import { postgres_config as config } from "./test-config";
+import config from "./config/hasura-config";
 
 describe("Create datamodel", () => {
 	jest.setTimeout(120000);
