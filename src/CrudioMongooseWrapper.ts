@@ -1,4 +1,4 @@
-import mongoose, { Model } from "mongoose";
+import Mongoose, { Model } from "mongoose";
 
 import { ICrudioConfig } from "./CrudioTypes";
 import CrudioDataModel from "./CrudioDataModel";
@@ -73,7 +73,13 @@ export default class CrudioMongooseWrapper {
     constructor(private config: ICrudioConfig, private crudio_model: CrudioDataModel) {
         if (crudio_model.TargetDbSchema) this.config.schema = crudio_model.TargetDbSchema;
 
+        Mongoose.connect(config.dbconnection ?? "");
         this.data_model = new CrudioMongooseDataModel(config, crudio_model);
+    }
+
+    public async Close(): Promise<void> {
+        this.data_model.ReleaseModels();
+        await Mongoose.connection.close();
     }
 
     /**
@@ -85,15 +91,15 @@ export default class CrudioMongooseWrapper {
      * @returns {*}
      */
     public async CreateDatabaseSchema(): Promise<void> {
-        await mongoose.connect(this.config.dbconnection).catch(e => {
+        await Mongoose.connect(this.config.dbconnection).catch(e => {
             console.log("Mongoose failed to connect:", e);
         });
 
-        const collectionNames = await mongoose.connection.db.listCollections().toArray();
+        const collectionNames = await Mongoose.connection.db.listCollections().toArray();
 
         for (var index = 0; index < collectionNames.length; index++) {
             console.log("Dropped ", collectionNames[index].name);
-            await mongoose.connection.db.dropCollection(collectionNames[index].name);
+            await Mongoose.connection.db.dropCollection(collectionNames[index].name);
         }
     }
 

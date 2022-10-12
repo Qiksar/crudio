@@ -1,9 +1,10 @@
-import { Model, model } from "mongoose";
+import { model } from "mongoose";
+import { ICrudioConfig } from "./CrudioTypes";
 import CrudioDataModel from "./CrudioDataModel";
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioRelationship from "./CrudioRelationship";
 import CrudioTable from "./CrudioTable";
-import { ICrudioConfig } from "./CrudioTypes";
+
+import Mongoose from "mongoose";
 
 /**
  * Cache details of relationship between two tables
@@ -94,6 +95,15 @@ export default class CrudioMongooseDataModel {
         if (crudio_model.TargetDbSchema)
             this.config.schema = crudio_model.TargetDbSchema;
         this.CreateSchemaModels();
+    }
+
+    public ReleaseModels(): void {
+        this.models = {};
+        this.schema = {};
+
+        Object.keys(Mongoose.connection.models).map(modelName => {
+            Mongoose.connection.deleteModel(modelName);
+        });
     }
 
     /**
@@ -208,7 +218,7 @@ export default class CrudioMongooseDataModel {
 
             const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
             const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
-          
+
             const from_schema = this.schema[from_entity.TableName];
             const to_schema = this.schema[to_entity.TableName];
 
