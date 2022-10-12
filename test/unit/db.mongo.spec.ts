@@ -4,7 +4,7 @@ import CrudioMongooseWrapper from "../../src/CrudioMongooseWrapper";
 import config from "./config/mongoose-config"
 
 describe("mongodb interaction", () => {
-    jest.setTimeout(15000);
+    jest.setTimeout(30000);
 
 
     test("Populate MongoDB", async () => {
@@ -32,10 +32,9 @@ describe("mongodb interaction", () => {
         expect(arrow.name).toEqual("Arrow Corporation");
 
         try {
-            const arrowEmployees = await organisations.findOne({ name: "Arrow Corporation" }).populate("Employees");
-            const employees = arrowEmployees.Employees;
-            expect(employees).toBeDefined();
-            expect(employees.length).toBeGreaterThan(0);
+            const arrow = await organisations.findOne({ name: "Arrow Corporation" }).populate(["Employees", "OrganisationDepartments"]);
+            expect(arrow.Employees.length).toBeGreaterThan(0);
+            expect(arrow.OrganisationDepartments.length).toBeGreaterThan(0);
         } catch (e) {
             console.log(e);
         }

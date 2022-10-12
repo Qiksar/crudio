@@ -5,7 +5,7 @@ import CrudioPostgresWrapper from "../../src/CrudioPostgresWrapper";
 import config from "./config/hasura-config";
 
 describe("Save datamodel", () => {
-	jest.setTimeout(15000);
+	jest.setTimeout(30000);
 
 	test("Populate PostgreSQL and track in Hasura", async () => {
 		const datamodel = CrudioDataModel.FromJson(config, true);
