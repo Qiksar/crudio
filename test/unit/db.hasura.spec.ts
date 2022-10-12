@@ -1,7 +1,7 @@
 import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioHasura from "../../src/CrudioHasura";
-import CrudioPostgresWrapper from "../../src/CrudioPostgresWrapper";
-
+import { ICrudioDataWrapper } from "../../src/CrudioTypes";
+import CrudioHasuraWrapper from "../../src/DataWrappers/CrudioHasuraWrapper"
 import config from "./config/hasura-config";
 
 describe("Save datamodel", () => {
@@ -10,7 +10,7 @@ describe("Save datamodel", () => {
 	test("Populate PostgreSQL and track in Hasura", async () => {
 		const datamodel = CrudioDataModel.FromJson(config, true);
 
-		const db = new CrudioPostgresWrapper(config, datamodel);
+		const db:ICrudioDataWrapper = new CrudioHasuraWrapper(config, datamodel);
 		expect(db).not.toBeNull;
 
 		await db.CreateDatabaseSchema();

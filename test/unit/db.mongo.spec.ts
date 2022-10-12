@@ -1,6 +1,6 @@
-import Mongoose from "mongoose";
 import CrudioDataModel from "../../src/CrudioDataModel";
-import CrudioMongooseWrapper from "../../src/CrudioMongooseWrapper";
+import CrudioMongooseWrapper from "../../src/DataWrappers/CrudioMongooseWrapper";
+import { ICrudioDataWrapper } from "../../src/CrudioTypes";
 import config from "./config/mongoose-config"
 
 describe("mongodb interaction", () => {
@@ -9,10 +9,9 @@ describe("mongodb interaction", () => {
 
     test("Populate MongoDB", async () => {
         const model: any = CrudioDataModel.FromJson(config, true);
-
         expect(model.DataModel.snippets.id.name).toEqual("_id");
 
-        const db = new CrudioMongooseWrapper(config, model);
+        const db: ICrudioDataWrapper = new CrudioMongooseWrapper(config, model);
         expect(db).not.toBeNull;
 
         await db.CreateDatabaseSchema();

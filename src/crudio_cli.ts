@@ -4,7 +4,7 @@ import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
-import CrudioPostgresWrapper from "./CrudioPostgresWrapper";
+import CrudioHasuraWrapper from "./DataWrappers/CrudioHasuraWrapper";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioHasura from "./CrudioHasura";
 import { ICrudioConfig } from "./CrudioTypes";
@@ -131,7 +131,7 @@ setTimeout(async () => {
 async function PopulatePostgres(config, datamodel) {
 	console.log("Populating PostgreSQL tables with data...");
 
-	const db = new CrudioPostgresWrapper(config, datamodel);
+	const db = new CrudioHasuraWrapper(config, datamodel);
 
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();

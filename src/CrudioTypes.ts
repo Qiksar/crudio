@@ -9,6 +9,12 @@ import CrudioEntityDefinition from "./CrudioEntityDefinition";
  * @typedef {ICrudioConfig}
  */
 export interface ICrudioConfig {
+	/**
+	 * Base configuration
+	 * @date 13/10/2022 - 07:24:33
+	 *
+	 * @type {("m" | "p")}
+	 */
 	target: "m" | "p";
 	/**
 	 * Secret for admin privileges in Hasura
@@ -76,9 +82,33 @@ export interface ICrudioConfig {
 	 */
 	dbconnection?: string;
 
+	/**
+	 * Output verbose logging
+	 * @date 13/10/2022 - 07:24:33
+	 *
+	 * @type {boolean}
+	 */
 	verbose: boolean;
+	/**
+	 * Package version
+	 * @date 13/10/2022 - 07:24:33
+	 *
+	 * @type {string}
+	 */
 	version: string;
+	/**
+	 * Project name, which defines filename of data model definition
+	 * @date 13/10/2022 - 07:24:33
+	 *
+	 * @type {?string}
+	 */
 	project?: string;
+	/**
+	 * Diagram name, which defines filename for diagram file
+	 * @date 13/10/2022 - 07:24:33
+	 *
+	 * @type {?string}
+	 */
 	diagram?: string;
 }
 
@@ -602,4 +632,31 @@ export interface ICrudioGenerator {
 	 * @type {string}
 	 */
 	values: string;
+}
+
+/**
+ * Base interface for data management
+ * @date 13/10/2022 - 07:24:33
+ *
+ * @export
+ * @interface ICrudioDataWrapper
+ * @typedef {ICrudioDataWrapper}
+ */
+export interface ICrudioDataWrapper {
+	/**
+	 * Create the target internal database model and manifest the schema in the target database 
+	 * @date 13/10/2022 - 07:24:33
+	 */
+	CreateDatabaseSchema(): void;
+	/**
+	 * Populate the database
+	 * @date 13/10/2022 - 07:24:33
+	 */
+	PopulateDatabaseTables(): void;
+
+	/**
+	 * Close database connection and release resources
+	 * @date 13/10/2022 - 07:29:39
+	 */
+	Close(): void;
 }

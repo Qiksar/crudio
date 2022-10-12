@@ -16,23 +16,16 @@
     "strictPropertyInitialization": false,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": [
-      "jest",
-      "node"
-    ],
+    "types": ["jest", "node"],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
   "include": [
     "src/**/*.ts",
     "tests/**/*.ts",
-    "tests/**/*.spec.ts"
+    "tests/**/*.spec.ts",
+    "src/DataWrappers/CrudioHasuraWrapper.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "lib"
-  ]
+  "exclude": ["node_modules", "lib"]
 }

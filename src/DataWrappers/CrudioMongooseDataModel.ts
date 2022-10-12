@@ -1,10 +1,10 @@
 import { model } from "mongoose";
-import { ICrudioConfig } from "./CrudioTypes";
-import CrudioDataModel from "./CrudioDataModel";
-import CrudioRelationship from "./CrudioRelationship";
-import CrudioTable from "./CrudioTable";
 
 import Mongoose from "mongoose";
+import CrudioDataModel from "@/CrudioDataModel";
+import CrudioRelationship from "@/CrudioRelationship";
+import CrudioTable from "@/CrudioTable";
+import { ICrudioConfig } from "@/CrudioTypes";
 
 /**
  * Cache details of relationship between two tables

@@ -1,10 +1,10 @@
-import CrudioDataModel from "./CrudioDataModel";
-import CrudioField from "./CrudioField";
-import CrudioTable from "./CrudioTable";
-import { ICrudioConfig } from "./CrudioTypes";
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
-import CrudioHasura from "./CrudioHasura";
-import CrudioUtils from "./CrudioUtils";
+import CrudioDataModel from "../CrudioDataModel";
+import CrudioField from "../CrudioField";
+import CrudioTable from "../CrudioTable";
+import { ICrudioConfig, ICrudioDataWrapper } from "../CrudioTypes";
+import CrudioEntityDefinition from "../CrudioEntityDefinition";
+import CrudioHasura from "../CrudioHasura";
+import CrudioUtils from "../CrudioUtils";
 
 /**
  * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
@@ -59,9 +59,9 @@ class SqlInstructionList {
  *
  * @export
  * @class CrudioDataWrapper
- * @typedef {CrudioPostgresWrapper}
+ * @typedef {CrudioHasuraWrapper}
  */
-export default class CrudioPostgresWrapper {
+export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 	//#region Properties
 	/**
 	 * GraphQL interface
@@ -100,6 +100,16 @@ export default class CrudioPostgresWrapper {
 		this.gql = new CrudioHasura(this.config, this.datamodel);
 		this.datamodel = datamodel;
 	}
+
+	/**
+	 * Stub function - no need to close any connection
+	 * @date 13/10/2022 - 07:36:01
+	 *
+	 * @public
+	 * @async
+	 * @returns {Promise<void>}
+	 */
+	public async Close(): Promise<void> { }
 
 	/**
 	 * Drop schema and recreate with no tables
