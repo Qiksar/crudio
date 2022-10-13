@@ -223,7 +223,7 @@ export default class CrudioMongooseDataModel {
             const to_schema = this.schema[to_entity.TableName];
 
             if (!from_entity || !to_entity || !from_schema || !to_schema)
-                throw "bang"
+                throw "Invalid many to many relationship definition" + JSON.stringify(r);
 
             from_schema[to_entity.TableName] = [{ type: String, ref: to_entity.TableName }];
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];

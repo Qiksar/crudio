@@ -8,7 +8,7 @@ import CrudioHasuraWrapper from "./DataWrappers/CrudioHasuraWrapper";
 import CrudioDataModel from "./CrudioDataModel";
 import CrudioHasura from "./CrudioHasura";
 import { ICrudioConfig } from "./CrudioTypes";
-import CrudioMongooseWrapper from "./CrudioMongooseWrapper";
+import CrudioMongooseWrapper from "./DataWrappers/CrudioMongooseWrapper";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -136,13 +136,18 @@ async function PopulatePostgres(config, datamodel) {
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();
 
-	await db.PopulateDatabaseTables();
 	console.log("Populating tables with data...");
 	console.log();
+
+	await db.PopulateDatabaseTables();
+	console.log();
+	console.log("Database has been loaded.");
+
+	await db.Close();
+
 	console.log("Database has been loaded.");
 	console.log();
 	console.log("Setup Hasura tracking...");
-
 	const tracker = new CrudioHasura(config, datamodel);
 	await tracker.Track();
 
@@ -158,6 +163,7 @@ async function PopulateMongoose(config, datamodel) {
 
 	await db.CreateDatabaseSchema();
 	await db.PopulateDatabaseTables();
+	await db.Close();
 
 	console.log();
 	console.log("Database has been loaded.");

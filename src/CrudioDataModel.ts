@@ -106,7 +106,13 @@ export default class CrudioDataModel {
 	 * @type {CrudioRelationship[]}
 	 */
 	public get ManyToManyRelationships(): CrudioRelationship[] {
-		return this.relationships.filter(r => r.RelationshipType === "many");
+		const relationships: CrudioRelationship[] = [];
+
+		this.entityDefinitions.map(d => d.ManyToManyRelationships.map(r => {
+			relationships.push(r);
+		}));
+
+		return relationships;
 	}
 
 	/**
@@ -120,7 +126,7 @@ export default class CrudioDataModel {
 	public get ManyToManyDefinitions(): CrudioEntityDefinition[] {
 		return this.entityDefinitions.filter(e => e.IsManyToManyJoin)
 	}
-	
+
 	/**
 	 * Date format to use
 	 * @date 7/26/2022 - 12:53:10 PM
@@ -1095,7 +1101,7 @@ export default class CrudioDataModel {
 	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
-		entity.DataValues.id = randomUUID();
+		entity.DataValues[this.config.idField] = randomUUID();
 
 		return entity;
 	}

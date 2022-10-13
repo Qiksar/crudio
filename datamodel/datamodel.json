@@ -330,24 +330,45 @@
 				"Employees(0).OrganisationRole?name=CEO",
 				"Employees(0).OrganisationRole?name=Staff",
 				"Employees(0).OrganisationDepartment?name=Board",
+			
 				"Employees(1).OrganisationRole?name=CFO",
+				"Employees(1).OrganisationRole?name=Staff",
 				"Employees(1).OrganisationDepartment?name=Board",
+			
 				"Employees(2).OrganisationRole?name=COO",
+				"Employees(2).OrganisationRole?name=Staff",
 				"Employees(2).OrganisationDepartment?name=Board",
+				
 				"Employees(3).OrganisationRole?name=Head of Sales",
+				"Employees(3).OrganisationRole?name=Staff",
 				"Employees(3).OrganisationDepartment?name=Sales",
+				
 				"Employees(4).OrganisationRole?name=Head of HR",
+				"Employees(4).OrganisationRole?name=Staff",
 				"Employees(4).OrganisationDepartment?name=HR",
+				
 				"Employees(5).OrganisationRole?name=Head of Marketing",
+				"Employees(5).OrganisationRole?name=Staff",
 				"Employees(5).OrganisationDepartment?name=Marketing",
-				"Employees(6-10).OrganisationRole?name=Staff",
-				"Employees(6-10).OrganisationDepartment?name=Sales",
-				"Employees(10-20).OrganisationRole?name=Staff",
-				"Employees(10-20).OrganisationDepartment?name=Marketing",
+				
+				"Employees(6).OrganisationRole?name=Head of Finance",
+				"Employees(6).OrganisationRole?name=Staff",
+				"Employees(6).OrganisationDepartment?name=Finance",
+				
+				"Employees(7-10).OrganisationRole?name=Staff",
+				"Employees(7-10).OrganisationDepartment?name=Sales",
+				
+				"Employees(11-20).OrganisationRole?name=Staff",
+				"Employees(11-20).OrganisationDepartment?name=Marketing",
+				
 				"Employees(21-30).OrganisationRole?name=Staff",
 				"Employees(21-30).OrganisationDepartment?name=HR",
+				
 				"Employees(31-40).OrganisationRole?name=Staff",
-				"Employees(31-40).OrganisationDepartment?name=IT"
+				"Employees(31-40).OrganisationDepartment?name=IT",
+
+				"Employees(41-46).OrganisationRole?name=Staff",
+				"Employees(41-46).OrganisationDepartment?name=Finance"
 			]
 		}
 	],

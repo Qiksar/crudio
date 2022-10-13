@@ -281,7 +281,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 
 				// If one to many join, read the ID of the target object
 				if (datavalue && datavalue.DataValues) {
-					datavalue = datavalue.DataValues.id;
+					datavalue = datavalue.DataValues[this.config.idField];
 				}
 
 				//Escape ' characters

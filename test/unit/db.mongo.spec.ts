@@ -24,19 +24,31 @@ describe("mongodb interaction", () => {
         const model: any = CrudioDataModel.FromJson(config, true);
         const db = new CrudioMongooseWrapper(config, model);
 
+        await db.CreateDatabaseSchema();
+        await db.PopulateDatabaseTables();
+
         const organisations = db.GetModel("Organisations");
-
         expect(organisations).toBeDefined();
-        const arrow = await organisations.findOne({ name: "Arrow Corporation" })
-        expect(arrow.name).toEqual("Arrow Corporation");
 
-        try {
-            const arrow = await organisations.findOne({ name: "Arrow Corporation" }).populate(["Employees", "OrganisationDepartments"]);
-            expect(arrow.Employees.length).toBeGreaterThan(0);
-            expect(arrow.OrganisationDepartments.length).toBeGreaterThan(0);
-        } catch (e) {
-            console.log(e);
-        }
+        const employees = db.GetModel("Employees");
+        expect(employees).toBeDefined();
+
+        const departments = db.GetModel("OrganisationDepartments");
+        expect(departments).toBeDefined();
+
+        const programs = db.GetModel("Programs");
+        expect(programs).toBeDefined();
+
+        const arrow = await organisations.findOne({ name: "Arrow Corporation" }).populate(["Employees", "Programs"]);
+        expect(arrow).not.toBeNull();
+        expect(arrow.Programs.length).toBeGreaterThan(0);
+        expect(arrow.Employees.length).toBeGreaterThan(0);
+
+        const william = await employees.findOne({ firstname: "William", lastname: "Tell" }).populate(["Organisations", "OrganisationDepartments", "OrganisationRoles"]);
+        expect(william).not.toBeNull();
+        expect(william.Organisations.name).toEqual(arrow.name);
+        expect(william.OrganisationRoles.length).toBeGreaterThan(0);
+        expect(william.OrganisationDepartments.name?.length).toBeGreaterThan(0);
 
         await db.Close();
     });

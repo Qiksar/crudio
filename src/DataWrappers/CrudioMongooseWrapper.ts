@@ -58,7 +58,7 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
      * @param {string} name
      * @returns {Model<any>}
      */
-    public GetModel(name: string): Model < any > {
+    public GetModel(name: string): Model<any> {
         return this.Models[name] as Model<any>;
     }
 
@@ -85,7 +85,7 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
      * @async
      * @returns {Promise<void>}
      */
-    public async Close(): Promise < void> {
+    public async Close(): Promise<void> {
         this.data_model.ReleaseModels();
         await Mongoose.connection.close();
     }
@@ -98,18 +98,18 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
      * @async
      * @returns {*}
      */
-    public async CreateDatabaseSchema(): Promise < void> {
+    public async CreateDatabaseSchema(): Promise<void> {
         await Mongoose.connect(this.config.dbconnection).catch(e => {
             console.log("Mongoose failed to connect:", e);
         });
 
         const collectionNames = await Mongoose.connection.db.listCollections().toArray();
 
-        for(var index = 0; index<collectionNames.length; index++) {
-        console.log("Dropped ", collectionNames[index].name);
-        await Mongoose.connection.db.dropCollection(collectionNames[index].name);
+        for (var index = 0; index < collectionNames.length; index++) {
+            console.log("Dropped ", collectionNames[index].name);
+            await Mongoose.connection.db.dropCollection(collectionNames[index].name);
+        }
     }
-}
 
     /**
      * Populate database tables from memory based tables
@@ -119,16 +119,16 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
      * @async
      * @returns {Promise<void>}
      */
-    public async PopulateDatabaseTables(): Promise < void> {
-    for(var index = 0; index< this.crudio_model.Tables.length; index++) {
-    const table: CrudioTable = this.crudio_model.Tables[index];
+    public async PopulateDatabaseTables(): Promise<void> {
+        for (var index = 0; index < this.crudio_model.Tables.length; index++) {
+            const table: CrudioTable = this.crudio_model.Tables[index];
 
-    if (!table.EntityDefinition.IsManyToManyJoin)
-        await this.PopulateDatabaseTable(table);
-}
+            if (!table.EntityDefinition.IsManyToManyJoin)
+                await this.PopulateDatabaseTable(table);
+        }
 
-await this.AssignOneToManyKeys();
-await this.AssignManyToManyKeys();
+        await this.AssignOneToManyKeys();
+        await this.AssignManyToManyKeys();
     }
 
     /**
@@ -138,45 +138,45 @@ await this.AssignManyToManyKeys();
      * @private
      * @param {CrudioTable} table
      */
-    private async PopulateDatabaseTable(table: CrudioTable): Promise < void> {
-    console.log("Loading ", table.TableName);
+    private async PopulateDatabaseTable(table: CrudioTable): Promise<void> {
+        console.log("Loading ", table.TableName);
 
-    var model = this.Models[table.TableName];
+        var model = this.Models[table.TableName];
 
-    for(var r = 0; r<table.DataRows.length; r++) {
-    let data = table.DataRows[r].DataValues;
-    const values = {};
+        for (var r = 0; r < table.DataRows.length; r++) {
+            let data = table.DataRows[r].DataValues;
+            const values = {};
 
-    this.GetColumns(table.EntityDefinition).map(k => {
-        let datavalue = data[k]
+            this.GetColumns(table.EntityDefinition).map(k => {
+                let datavalue = data[k]
 
-        if (!datavalue && k.endsWith("Id")) {
-            // Field was renamed to ...Id, so remove it to get the
-            // orginal name in order to retrieve the field value
-            const column_name = k.slice(0, k.length - 2);
-            datavalue = data[column_name];
+                if (!datavalue && k.endsWith("Id")) {
+                    // Field was renamed to ...Id, so remove it to get the
+                    // orginal name in order to retrieve the field value
+                    const column_name = k.slice(0, k.length - 2);
+                    datavalue = data[column_name];
+                }
+
+                // If one to many join, read the ID of the target object
+                if (datavalue && datavalue.DataValues) {
+                    datavalue = datavalue.DataValues[this.config.idField];
+                }
+
+                values[k] = datavalue;
+            });
+
+            const fkv = this.GetForeignKeyValues(table.EntityDefinition, data);
+            Object.keys(fkv).map(k => {
+                values[k] = fkv[k];
+            })
+
+            try {
+                var row = new model(values);
+                const result = await row.save();
+            } catch (e) {
+                console.log("Failed to save", values, "\n\n", e);
+            }
         }
-
-        // If one to many join, read the ID of the target object
-        if (datavalue && datavalue.DataValues) {
-            datavalue = datavalue.DataValues.id;
-        }
-
-        values[k] = datavalue;
-    });
-
-    const fkv = this.GetForeignKeyValues(table.EntityDefinition, data);
-    Object.keys(fkv).map(k => {
-        values[k] = fkv[k];
-    })
-
-    try {
-        var row = new model(values);
-        const result = await row.save();
-    } catch (e) {
-        console.log("Failed to save", values, "\n\n", e);
-    }
-}
     }
 
     /**
@@ -188,16 +188,16 @@ await this.AssignManyToManyKeys();
      * @returns {string[]}
      */
     private GetColumns(entity: CrudioEntityDefinition): string[] {
-    const table_field_list = [];
+        const table_field_list = [];
 
-    // Create a list of SQL columns from the basic entity fields
-    // The list of columns goes into the INSERT statement
-    entity.fields.map((f: CrudioField) => {
-        table_field_list.push(f.fieldName);
-    });
+        // Create a list of SQL columns from the basic entity fields
+        // The list of columns goes into the INSERT statement
+        entity.fields.map((f: CrudioField) => {
+            table_field_list.push(f.fieldName);
+        });
 
-    return table_field_list;
-}
+        return table_field_list;
+    }
 
     /**
      * Get the IDs of foreign tables which are referenced by entity values
@@ -209,18 +209,18 @@ await this.AssignManyToManyKeys();
      * @returns {*}
      */
     private GetForeignKeyValues(entity: CrudioEntityDefinition, entity_values: any): any {
-    const key_map = {};
+        const key_map = {};
 
-    // add foreign keys to insert columns for one to many
-    entity.OneToManyRelationships.map(r => {
-        const source = entity_values[r.FromColumn].dataValues;
-        const entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
+        // add foreign keys to insert columns for one to many
+        entity.OneToManyRelationships.map(r => {
+            const source = entity_values[r.FromColumn].dataValues;
+            const entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
 
-        key_map[entity.TableName] = source[this.config.idField];
-    });
+            key_map[entity.TableName] = source[this.config.idField];
+        });
 
-    return key_map;
-}
+        return key_map;
+    }
 
     /**
      * For one to many relationships collect keys from the referencing table and place them in an array on the referenced table.
@@ -231,23 +231,23 @@ await this.AssignManyToManyKeys();
      * @async
      * @returns {Promise<void>}
      */
-    private async AssignOneToManyKeys(): Promise < void> {
-    const relationships: CrudioRelationship[] = [];
+    private async AssignOneToManyKeys(): Promise<void> {
+        const relationships: CrudioRelationship[] = [];
 
-    // Ensure join tables are not incorporated into the list of relationships
-    // as MongoDB uses arrays
-    this.crudio_model.EntityDefinitions.filter(d => !d.IsManyToManyJoin).map(
-        d => d.OneToManyRelationships.map(r => relationships.push(r))
-    )
+        // Ensure join tables are not incorporated into the list of relationships
+        // as MongoDB uses arrays
+        this.crudio_model.EntityDefinitions.filter(d => !d.IsManyToManyJoin).map(
+            d => d.OneToManyRelationships.map(r => relationships.push(r))
+        )
 
-        for(var fi = 0; fi<relationships.length; fi++) {
-    const r = relationships[fi];
+        for (var fi = 0; fi < relationships.length; fi++) {
+            const r = relationships[fi];
 
-    this.AssignKeys(
-        this.crudio_model.GetTableForEntityName(r.ToEntity).TableName,
-        this.crudio_model.GetTableForEntityName(r.FromEntity).TableName
-    );
-}
+            this.AssignKeys(
+                this.crudio_model.GetTableForEntityName(r.ToEntity).TableName,
+                this.crudio_model.GetTableForEntityName(r.FromEntity).TableName
+            );
+        }
     }
 
     /**
@@ -258,23 +258,23 @@ await this.AssignManyToManyKeys();
      * @async
      * @returns {Promise<void>}
      */
-    private async AssignManyToManyKeys(): Promise < void> {
+    private async AssignManyToManyKeys(): Promise<void> {
 
-    // For every many to many table
-    for(var i = 0; i< this.crudio_model.ManyToManyDefinitions.length; i++) {
-    const d = this.crudio_model.ManyToManyDefinitions[i];
+        // For every many to many table
+        for (var i = 0; i < this.crudio_model.ManyToManyDefinitions.length; i++) {
+            const d = this.crudio_model.ManyToManyDefinitions[i];
 
-    // Acquire the table details
-    const join_table = this.crudio_model.GetTable(d.TableName);
-    const rel = d.SourceRelationship;
-    const from_table = this.crudio_model.GetTableForEntityName(rel.FromEntity).TableName;
-    const to_table = this.crudio_model.GetTableForEntityName(rel.ToEntity).TableName;
+            // Acquire the table details
+            const join_table = this.crudio_model.GetTable(d.TableName);
+            const rel = d.SourceRelationship;
+            const from_table = this.crudio_model.GetTableForEntityName(rel.FromEntity).TableName;
+            const to_table = this.crudio_model.GetTableForEntityName(rel.ToEntity).TableName;
 
-    // Process all the references from table1 ---> table2 in the many to many join
-    // Then all the references from table1 <--- table2 in the many to many join
-    await this.ProcessManyToMany(join_table, rel.FromEntity, rel.ToEntity, from_table, to_table);
-    await this.ProcessManyToMany(join_table, rel.ToEntity, rel.FromEntity, to_table, from_table);
-}
+            // Process all the references from table1 ---> table2 in the many to many join
+            // Then all the references from table1 <--- table2 in the many to many join
+            await this.ProcessManyToMany(join_table, rel.FromEntity, rel.ToEntity, from_table, to_table);
+            await this.ProcessManyToMany(join_table, rel.ToEntity, rel.FromEntity, to_table, from_table);
+        }
     }
 
     /**
@@ -290,39 +290,39 @@ await this.AssignManyToManyKeys();
      * @param {string} to_table
      * @returns {Promise<void>}
      */
-    private async ProcessManyToMany(join_table: CrudioTable, from_entity: string, to_entity: string, from_table: string, to_table: string): Promise < void> {
-    console.log(`Finalise many to many joins ${from_table} --> ${to_table}`);
+    private async ProcessManyToMany(join_table: CrudioTable, from_entity: string, to_entity: string, from_table: string, to_table: string): Promise<void> {
+        console.log(`Finalise many to many joins ${from_table} --> ${to_table}`);
 
-    // Build a list of unique keys
-    const from_unique_keys = [];
-    join_table.DataRows.forEach(r => {
-        const key = r.DataValues[from_entity + "Id"];
+        // Build a list of unique keys
+        const from_unique_keys = [];
+        join_table.DataRows.map(r => {
+            const key = r.DataValues[from_entity + "Id"];
 
-        if (!from_unique_keys.includes(key)) {
-            from_unique_keys.push(key);
+            if (!from_unique_keys.includes(key)) {
+                from_unique_keys.push(key);
+            }
+        });
+
+        // For each key find the related keys
+        for (var uk = 0; uk < from_unique_keys.length; uk++) {
+            let from_key = from_unique_keys[uk];
+            let to_keys = [];
+
+            // Extract the list of referenced keys
+            join_table.DataRows
+                .filter(r => r.DataValues[from_entity + "Id"] === from_key)
+                .map(r => to_keys.push(r.DataValues[to_entity + "Id"]));
+
+            // Update the target entity with the array of referenced keys
+            const parent_model = this.Models[from_table];
+            const record = await parent_model.findOne({ [this.config.idField]: from_key });
+
+            if (record) {
+                const updated = await record.updateOne({ [to_table]: to_keys }, { new: true });
+            } else {
+                throw new Error(`ProcessManyToMany: failed to retrieve '${from_table}' with id: '${from_key}'`);
+            }
         }
-    });
-
-    // For each key find the related keys
-    for(var uk = 0; uk<from_unique_keys.length; uk++) {
-    let from_key = from_unique_keys[uk];
-    let to_keys = [];
-
-    // Extract the list of referenced keys
-    join_table.DataRows
-        .filter(r => r.DataValues[from_entity + "Id"] === from_key)
-        .map(r => to_keys.push(r.DataValues[to_entity + "Id"]));
-
-    // Update the target entity with the array of referenced keys
-    const parent_model = this.Models[from_table];
-    try {
-        const res = await parent_model.findOneAndUpdate({ [this.config.idField]: from_key }, { [to_table]: to_keys }, { new: true });
-        console.log(from_entity, res)
-    } catch (e) {
-        console.log("Aborted due to exception in ProcessManyToMany ", e);
-        break;
-    }
-}
     }
 
     /**
@@ -335,30 +335,30 @@ await this.AssignManyToManyKeys();
      * @param {string} child
      * @returns {Promise<void>}
      */
-    private async AssignKeys(parent: string, child: string): Promise < void> {
+    private async AssignKeys(parent: string, child: string): Promise<void> {
 
-    // Primary keys of all parent records
-    const parent_keys = this.GetPrimaryKeyValues(parent);
+        // Primary keys of all parent records
+        const parent_keys = this.GetPrimaryKeyValues(parent);
 
-    for(var i = 0; i<parent_keys.length; i++) {
-    const parent_id = parent_keys[i];
+        for (var i = 0; i < parent_keys.length; i++) {
+            const parent_id = parent_keys[i];
 
-    try {
-        // get children
-        const child_model = this.Models[child];
-        const children = await child_model.find({ [parent]: parent_id }, { [this.config.idField]: 1 });
+            try {
+                // get children
+                const child_model = this.Models[child];
+                const children = await child_model.find({ [parent]: parent_id }, { [this.config.idField]: 1 });
 
-        // get all keys of children
-        const child_keys = children.map(c => {
-            return c[this.config.idField]
-        });
+                // get all keys of children
+                const child_keys = children.map(c => {
+                    return c[this.config.idField]
+                });
 
-        const parent_model = this.Models[parent];
-        const res = await parent_model.findOneAndUpdate({ [this.config.idField]: parent_id }, { [child]: child_keys });
-    } catch (e) {
-        console.log(e);
-    }
-}
+                const parent_model = this.Models[parent];
+                const res = await parent_model.findOneAndUpdate({ [this.config.idField]: parent_id }, { [child]: child_keys });
+            } catch (e) {
+                console.log(e);
+            }
+        }
     }
 
     /**
@@ -370,7 +370,7 @@ await this.AssignManyToManyKeys();
      * @returns {string[]}
      */
     private GetPrimaryKeyValues(tablename: string): string[] {
-    const keys = this.crudio_model.GetTable(tablename).DataRows.map(e => e.DataValues[this.config.idField]);
-    return keys;
-}
+        const keys = this.crudio_model.GetTable(tablename).DataRows.map(e => e.DataValues[this.config.idField]);
+        return keys;
+    }
 }
