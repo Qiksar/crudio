@@ -16,6 +16,7 @@ export interface ICrudioConfig {
 	 * @type {("m" | "p")}
 	 */
 	target: "m" | "p";
+
 	/**
 	 * Secret for admin privileges in Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -23,6 +24,7 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	hasuraAdminSecret?: string;
+
 	/**
 	 * URL of Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -30,6 +32,7 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	hasuraEndpoint?: string;
+
 	/**
 	 * Default database schema to connect with Hasura
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -37,6 +40,7 @@ export interface ICrudioConfig {
 	 * @type {?string}
 	 */
 	schema: string;
+
 	/**
 	 * Default name to use for ID fields
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -44,6 +48,7 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	idField: string;
+
 	/**
 	 * List of read-only fields
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -51,6 +56,7 @@ export interface ICrudioConfig {
 	 * @type {string[]}
 	 */
 	readonlyFields: string[];
+
 	/**
 	 * Delete all tables in the schema and prepare for completely new data
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -66,6 +72,7 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	datamodel: string;
+
 	/**
 	 * Name of a further JSON file to include with the main data model
 	 * @date 7/21/2022 - 1:47:19 PM
@@ -89,6 +96,7 @@ export interface ICrudioConfig {
 	 * @type {boolean}
 	 */
 	verbose: boolean;
+
 	/**
 	 * Package version
 	 * @date 13/10/2022 - 07:24:33
@@ -96,13 +104,15 @@ export interface ICrudioConfig {
 	 * @type {string}
 	 */
 	version: string;
+
 	/**
-	 * Project name, which defines filename of data model definition
+	 * Project output folder
 	 * @date 13/10/2022 - 07:24:33
 	 *
 	 * @type {?string}
 	 */
 	project?: string;
+
 	/**
 	 * Diagram name, which defines filename for diagram file
 	 * @date 13/10/2022 - 07:24:33
@@ -559,7 +569,6 @@ export interface ISchemaRelationship {
  * @interface ICrudioConfig
  * @typedef {ISingularNamedRelationship}
  */
-
 interface ISingularNamedRelationship {
 	/**
 	 * @date 7/25/2022 - 10:45:41 AM
