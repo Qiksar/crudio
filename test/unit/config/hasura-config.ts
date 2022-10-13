@@ -9,7 +9,6 @@ const config: ICrudioConfig = {
     schema: "test",
     wipe: true,
     datamodel: "datamodel/datamodel.json",
-    dbconnection: "mongodb://localhost",
     version: "1.0.0",
     verbose: true
 };

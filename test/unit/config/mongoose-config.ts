@@ -1,7 +1,7 @@
 import { ICrudioConfig } from "../../../src/CrudioTypes";
 
 export const config: ICrudioConfig = {
-    target: "p",
+    target: "m",
     idField: "_id",
     readonlyFields: [],
     schema: "test",
