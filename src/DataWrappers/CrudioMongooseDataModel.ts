@@ -1,10 +1,8 @@
-import { model } from "mongoose";
-
-import Mongoose from "mongoose";
+import Mongoose, { model } from "mongoose";
+import { ICrudioConfig } from "@/CrudioTypes";
 import CrudioDataModel from "@/CrudioDataModel";
 import CrudioRelationship from "@/CrudioRelationship";
 import CrudioTable from "@/CrudioTable";
-import { ICrudioConfig } from "@/CrudioTypes";
 
 /**
  * Cache details of relationship between two tables
@@ -97,6 +95,13 @@ export default class CrudioMongooseDataModel {
         this.CreateSchemaModels();
     }
 
+    /**
+     * Delete models so that any subsequent test runs or re-execution of the engine
+     * will not error due to pre-existing models.
+     * @date 13/10/2022 - 12:41:07
+     *
+     * @public
+     */
     public ReleaseModels(): void {
         this.models = {};
         this.schema = {};
@@ -215,7 +220,6 @@ export default class CrudioMongooseDataModel {
 
         // add foreign keys for many to many
         this.crudio_model.ManyToManyRelationships.map(r => {
-
             const from_entity = this.crudio_model.GetEntityDefinition(r.FromEntity);
             const to_entity = this.crudio_model.GetEntityDefinition(r.ToEntity);
 
@@ -223,7 +227,7 @@ export default class CrudioMongooseDataModel {
             const to_schema = this.schema[to_entity.TableName];
 
             if (!from_entity || !to_entity || !from_schema || !to_schema)
-                throw "Invalid many to many relationship definition" + JSON.stringify(r);
+                throw "Invalid many to many relationship definition " + JSON.stringify(r);
 
             from_schema[to_entity.TableName] = [{ type: String, ref: to_entity.TableName }];
             to_schema[from_entity.TableName] = [{ type: String, ref: from_entity.TableName }];
