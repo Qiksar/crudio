@@ -497,8 +497,8 @@ export default class CrudioDataModel {
 		if (entityDefinition.relationships) {
 			entityDefinition.relationships.map((r: ISchemaRelationship) => {
 				const new_rel = new CrudioRelationship({
-					from: entityType.Name,
 					...r,
+					from: entityType.Name,
 				}, this.config);
 
 				entityType.relationships.push(new_rel);
