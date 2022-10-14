@@ -23,7 +23,7 @@ afterAll(async () => {
 });
 
 describe("mongodb interaction", () => {
-    jest.setTimeout(30000);
+    jest.setTimeout(120000);
 
     test("Populate MongoDB", async () => {
         const model: any = CrudioDataModel.FromJson(config, true);
