@@ -656,16 +656,16 @@ export interface ICrudioDataWrapper {
 	 * Create the target internal database model and manifest the schema in the target database 
 	 * @date 13/10/2022 - 07:24:33
 	 */
-	CreateDatabaseSchema(): void;
+	CreateDatabaseSchema(): Promise<void>;
 	/**
 	 * Populate the database
 	 * @date 13/10/2022 - 07:24:33
 	 */
-	PopulateDatabaseTables(): void;
+	PopulateDatabaseTables(): Promise<void>;
 
 	/**
 	 * Close database connection and release resources
 	 * @date 13/10/2022 - 07:29:39
 	 */
-	Close(): void;
+	Close(): Promise<void>;
 }

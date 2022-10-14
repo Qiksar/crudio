@@ -7,13 +7,30 @@
 
 # Welcome to Crudio!
 
-Using Crudio will enable you to rapidly build a database auto-populated with test data. A data model is described by a simple JSON file which contains descriptions of the types of entities and data you required for your prototype.
+**HOT NEWS!** Crudio now populates MongoDB and demonstrates how to use an in-memory version of mongo for unit tests.
 
-Your data model can leverage pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and users). 
+Imagine. Two minutes from now, you could have a PostgreSQL database fully integrated with Hasura, automatically populated with test data, and all you had to do was click the mouse!
 
-Why use it? You might be building a prototype app and want a database that is filled with sensible data, so you can spend more time coding your prototype UI and less time trying to create meaningful test data. Also, your project might ultimately work with sensitive data, and you don't want any sensitive data in a prototype or test context. Or perhaps you just don't have any data yet, because your app isn't live, so where else are you going to get test data?
+Why? Creating test data is painful, and a copy of our production data doesn't support all of the edge cases that we need to test. Or...there is no production data, because your project is new, and / or you're simply not allowed to have a copy. 
+
+How? A data model is described in a JSON file that contains descriptions of the types of entities and datavalues that you require for your prototype application. Your data model can leverage (include) pre-defined entities, such as organisations and users, and specify details of how to connect entities (e.g. organisations, departments, roles and employees). Crudio uses docker images for Postgres and Hasura, and can use MongoDB (and the in memory version of mongo), so you can build and run test cases, to support the rapid development of a new prototype app or API. 
 
 Further information is available on the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
+
+# MongoDb - In-memory
+
+The wonderful fact is that with the in-memory version of MongoDb you can run Crudio and have a database for testing, and you don't even have to run Docker images! This is very new, and we are clearly very excited about this...but it's early days. Still, we will continue to enhance crudio for loading Mongo, which is already fully implemented. Checkout our test code for tips on how to use Mongoose and the in-memory database. You may be shocked how simple it is!
+
+## Using WSL (Ubuntu 22.04 LTS)
+
+An issue exists whereby the in-memory mongo component fails to launch.
+
+If you encounter an error whereby the component complains that `libssl1.1` is not installed, simply execute this in the environment that you are developing / testing in.
+
+```
+wget http://debian.mirror.ac.za/debian/pool/main/o/openssl/libssl1.1_1.1.1o-1_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1o-1_amd64.deb
+```
 
 # Quickly Build a Rich Demo
 

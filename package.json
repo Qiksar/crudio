@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "lib/crudio_cli.js",
   "main": "lib/crudio_cli.js",
@@ -25,11 +25,12 @@
     "jest": "^27.1.0",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.8.2",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "commander-ts": "^0.2.0",
+    "mongodb-memory-server": "^8.9.3"
   },
   "dependencies": {
     "axios": "^0.21.3",
-    "commander-ts": "^0.2.0",
     "flatted": "^3.2.6",
     "global": "^4.4.0",
     "jsonschema": "^1.4.1",
@@ -37,7 +38,10 @@
     "mongoose": "^6.6.5"
   },
   "keywords": [
+    "qikblox",
     "hasura",
+    "mongodb",
+    "mongoose",
     "postgres",
     "testing",
     "lowcode",

@@ -2,10 +2,28 @@ import CrudioDataModel from "../../src/CrudioDataModel";
 import CrudioMongooseWrapper from "../../src/DataWrappers/CrudioMongooseWrapper";
 import { ICrudioDataWrapper } from "../../src/CrudioTypes";
 import config from "./config/mongoose-config"
+import { DbConnect, DbDrop } from "./utils/in_memory_mongodb";
+
+// If you want to run with an in-memory MongoDB instance, then set this flag to true.
+// If you wish to run against the docker container with MongoDB, then set it to false.
+// If in-memory MongoDB fails to launch, refer to the READ ME for further information.
+const in_memory = true;
+
+beforeAll(async () => {
+    if (in_memory) {
+        const uri = await DbConnect();
+        config.dbconnection = uri;
+    }
+});
+
+afterAll(async () => {
+    if (in_memory) {
+        await DbDrop();
+    }
+});
 
 describe("mongodb interaction", () => {
     jest.setTimeout(30000);
-
 
     test("Populate MongoDB", async () => {
         const model: any = CrudioDataModel.FromJson(config, true);
