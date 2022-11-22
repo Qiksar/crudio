@@ -51,7 +51,7 @@ npm install -g npx
 
 Build a completely functional demo in just a few minutes with one command.
 
-The command below creates a complete demonstration environment which includes, Postgres and Hasura GraphQL running in docker containers, with a fully populated database:
+The command below creates a complete demonstration environment which includes, Postgres and Hasura GraphQL running in docker containers, with a fully populated Postgres database:
 
 ```
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
@@ -61,6 +61,8 @@ This command:
 - Fetches the initialisation script from Github and executes it
 - The initialisation script uses a docker-compose file to build Postgres and Hasura docker containers
 - Crudio then populates the database with awesome test data like organisations, departments, roles and users, IoT devices and their related data logs
+
+**note - a MongoDB container is also built, but you would have to populate this by using the Crudio CLI with `-t m`, meaning target MongoDB)**
 
 Once the script has executed, browse to [Hasura Console](http://localhost:6789) and select the `DATA` tab and click the buttons to track all tables and track all relationships.
 
