@@ -19,7 +19,7 @@ jobs:
           registry-url: https://www.npmjs.com/
           scope: "@qiksar"
       - run: npm install
-      - run: npm run test
+#      - run: npm run test
       - run: npm run build
       - run: npm publish
         env:
