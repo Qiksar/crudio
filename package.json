@@ -58,6 +58,6 @@
     "rapid_prototyping"
   ],
   "publishConfig": {
-    "registry": "https://www.npmjs.com/package/@qiksar/crudio"
+    "registry": "https://www.npmjs.com/package/@qiksar/"
   }
 }
