@@ -1,12 +1,12 @@
 #!/bin/bash
-mkdir repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base.json -P repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_entity.json -P repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_generators.json -P repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_snippets.json -P repo
-wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/datamodel.json -P repo
+mkdir datamodel
+wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base.json -P datamodel
+wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_entity.json -P datamodel
+wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_generators.json -P datamodel
+wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/base_snippets.json -P datamodel
+wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/datamodel/datamodel.json -P datamodel
 wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/docker-compose.yml
 
 docker-compose up -d
 sleep 5
-npx -y @qiksar/crudio@latest -v -w -m repo/datamodel.json 
+npx -y @qiksar/crudio@latest -v -w -m datamodel/datamodel.json 
