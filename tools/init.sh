@@ -9,4 +9,4 @@ wget -q https://raw.githubusercontent.com/Qiksar/crudio/main/docker-compose.yml
 
 docker-compose up -d
 sleep 5
-npx -y @qiksar/crudio@latest -v -w -m datamodel/datamodel.json 
+npx -y @qiksar/crudio@latest -v -w -m -t p datamodel/datamodel.json 
