@@ -2,9 +2,6 @@
 repo/scratch/*
 .local
 
-# npm
-.npmrc
-
 # Output files
 test/unit/output/*
 lib/
