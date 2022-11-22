@@ -92,7 +92,7 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
   crudio_Blogs {
     article
     BlogTags {
-      tagByTag {
+      Tag {
         name
       }
     }
@@ -100,14 +100,14 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
 }
 ```
 
-## Get a list of users with their organisations and prove their email addresses match the orgniation they work for
+## Get a list of employees with their organisations and prove their email addresses match the organisation that they work for
 ```graphql
 {
-  crudio_Users{
+  crudio_Employees{
     firstname
     lastname
     email
-    organisationByOrganisation {
+    Organisation {
       name
     }
   }
