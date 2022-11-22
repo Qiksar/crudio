@@ -2,8 +2,8 @@
 #
 echo "Start docker, load PostgreSQL and automatically configure Hasura..."
 npm run docker_up 
-npm run compile 
-node lib/crudio_cli.js  -v -w -m datamodel/datamodel.json --target p -d test/unit/output/datamodel.mermaid.md 
+npm run build 
+node dist/cjs/crudio_cli.js  -v -w -m datamodel/datamodel.json --target p -d test/unit/output/datamodel.mermaid.md 
 
 echo ""
 echo "PostgreSQL database loaded"

@@ -8,7 +8,7 @@
     "noImplicitAny": false,
     "jsx": "preserve",
     "declaration": true /* Generates corresponding '.d.ts' file. */,
-    "outDir": "./lib" /* Redirect output structure to the directory. */,
+    "outDir": "./dist" /* Redirect output structure to the directory. */,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
