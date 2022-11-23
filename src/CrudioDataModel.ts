@@ -108,9 +108,11 @@ export default class CrudioDataModel {
 	public get ManyToManyRelationships(): CrudioRelationship[] {
 		const relationships: CrudioRelationship[] = [];
 
-		this.entityDefinitions.map(d => d.ManyToManyRelationships.map(r => {
-			relationships.push(r);
-		}));
+		this.entityDefinitions.map(d =>
+			d.ManyToManyRelationships.map(r => {
+				relationships.push(r);
+			})
+		);
 
 		return relationships;
 	}
@@ -124,7 +126,7 @@ export default class CrudioDataModel {
 	 * @type {CrudioEntityDefinition[]}
 	 */
 	public get ManyToManyDefinitions(): CrudioEntityDefinition[] {
-		return this.entityDefinitions.filter(e => e.IsManyToManyJoin)
+		return this.entityDefinitions.filter(e => e.IsManyToManyJoin);
 	}
 
 	/**
@@ -386,26 +388,32 @@ export default class CrudioDataModel {
 			many_entity
 				.AddKey("uuid")
 				.AddRelation(
-					new CrudioRelationship({
-						type: "one",
-						name: r.FromEntity,
-						from: many_entity.Name,
-						from_column: CrudioUtils.ToColumnId(r.FromEntity),
-						to: r.FromEntity,
-						to_column: this.config.idField,
-						required: true,
-					}, this.config)
+					new CrudioRelationship(
+						{
+							type: "one",
+							name: r.FromEntity,
+							from: many_entity.Name,
+							from_column: CrudioUtils.ToColumnId(r.FromEntity),
+							to: r.FromEntity,
+							to_column: this.config.idField,
+							required: true,
+						},
+						this.config
+					)
 				)
 				.AddRelation(
-					new CrudioRelationship({
-						type: "one",
-						name: r.ToEntity,
-						from: many_entity.Name,
-						from_column: CrudioUtils.ToColumnId(r.ToEntity),
-						to: r.ToEntity,
-						to_column: this.config.idField,
-						required: true,
-					}, this.config)
+					new CrudioRelationship(
+						{
+							type: "one",
+							name: r.ToEntity,
+							from: many_entity.Name,
+							from_column: CrudioUtils.ToColumnId(r.ToEntity),
+							to: r.ToEntity,
+							to_column: this.config.idField,
+							required: true,
+						},
+						this.config
+					)
 				);
 
 			const key = many_entity.GetField(this.config.idField);
@@ -496,10 +504,13 @@ export default class CrudioDataModel {
 
 		if (entityDefinition.relationships) {
 			entityDefinition.relationships.map((r: ISchemaRelationship) => {
-				const new_rel = new CrudioRelationship({
-					...r,
-					from: entityType.Name,
-				}, this.config);
+				const new_rel = new CrudioRelationship(
+					{
+						...r,
+						from: entityType.Name,
+					},
+					this.config
+				);
 
 				entityType.relationships.push(new_rel);
 
@@ -932,8 +943,9 @@ export default class CrudioDataModel {
 	 * @public
 	 * @returns {string}
 	 */
-	public ToMermaid(): string {
-		var output = "```mermaid\rerDiagram\r";
+	public ToMermaid(addH1 = true): string {
+		var output = "# Entity Relationship Diagram\r\r";
+		output += "```mermaid\rerDiagram\r";
 
 		this.entityDefinitions.map(e => {
 			output += `${e.Name} {\r`;
@@ -1340,14 +1352,13 @@ export default class CrudioDataModel {
 			if (typeof generator.values === "object") {
 				generator_values = Object.keys(generator.values)[0];
 
-				if (!generator.values)
-					throw `GetGeneratedValue: '${generator_name}' - could not read generator.values`;
+				if (!generator.values) throw `GetGeneratedValue: '${generator_name}' - could not read generator.values`;
 
 				json_args = generator.values[generator_values];
 			} else {
 				var content: string = generator.values ?? generator_name;
 				generator_values = content.split(" ")[0].toLowerCase().replaceAll("[", "").replaceAll("]", "");
-			};
+			}
 
 			switch (generator_values) {
 				case "uuid":
@@ -1365,11 +1376,9 @@ export default class CrudioDataModel {
 
 		var value: any = "";
 
-		if (generator)
-			value = generator.values;
+		if (generator) value = generator.values;
 
-		if (value.indexOf("[") >= 0)
-			return value;
+		if (value.indexOf("[") >= 0) return value;
 
 		if (!value) value = generator_name;
 

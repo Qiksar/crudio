@@ -1,8 +1,4 @@
-name: Publish to NPM
-# on:
-#   release:
-#     types: [created]
-
+name: Publish NPM Package
 on:
   push:
     branches:
@@ -20,11 +16,8 @@ jobs:
           node-version: 16.13.x
           registry-url: "https://registry.npmjs.org"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      - name: Create .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc && cat .npmrc
-
       - name: Install dependencies and build
         run: npm ci && npm run build
 
