@@ -14,18 +14,19 @@ jobs:
     steps:
       - name: Check out repo's default branch
         uses: actions/checkout@v3
-      - name: Remove unnecessary files
-        run: echo "//registry.npmjs.org/:_authToken=${secrets.NPM_TOKEN}" > .npmrc
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16.13.x
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Create .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
 
       - name: Install dependencies and build
         run: npm ci && npm run build
 
       - name: Publish package on NPM
         run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
