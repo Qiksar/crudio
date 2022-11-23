@@ -61,7 +61,7 @@
     "url": "https://github.com/Qiksar/crudio.git"
   },
   "publishConfig": {
-    "registry": "https://www.npmjs.com/package/@qiksar/"
+    "registry": "https://registry.npmjs.org"
   },
   "homepage": "https://github.com/Qiksar/crudio/#readme"
 }
