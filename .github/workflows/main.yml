@@ -1,9 +1,7 @@
-name: Node.js Package
-
+name: Publish to NPM
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [created]
 
 jobs:
   publish-gpr:
@@ -11,14 +9,18 @@ jobs:
     steps:
       - name: Check out repo's default branch
         uses: actions/checkout@v3
+      - name: Remove unnecessary files
+        run: rm .npmrc
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16.13.x
-          cache: npm
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies and build
+        run: npm ci && npm run build
+
+      - name: Publish package on NPM
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm install
-      - run: npm run build
-      - run: npm publish

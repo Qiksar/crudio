@@ -5,7 +5,6 @@
   "bin": "dist/cjs/crudio_cli.js",
   "main": "dist/cjs/crudio_cli.js",
   "typings": "dist/types/index.d.ts",
-  "repository": "github.com:/qiksar/crudio",
   "author": "Chris Nurse",
   "license": "GPL-3.0-only",
   "scripts": {
@@ -57,7 +56,12 @@
     "test_data_generation",
     "rapid_prototyping"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qiksar/crudio.git"
+  },
   "publishConfig": {
     "registry": "https://www.npmjs.com/package/@qiksar/"
-  }
+  },
+  "homepage": "https://github.com/Qiksar/crudio/#readme"
 }
