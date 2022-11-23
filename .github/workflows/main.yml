@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 16.13.x
           cache: npm
-          registry-url: https://www.npmjs.com/
+          registry-url: https://registry.npmjs.org/
           scope: "@qiksar"
       - run: npm install
 #      - run: npm run test
