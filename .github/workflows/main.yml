@@ -15,7 +15,7 @@ jobs:
       - name: Check out repo's default branch
         uses: actions/checkout@v3
       - name: Remove unnecessary files
-        run: rm .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${secrets.NPM_TOKEN}" > .npmrc
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
