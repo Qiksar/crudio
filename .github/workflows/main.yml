@@ -23,7 +23,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: Create .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc && cat .npmrc
 
       - name: Install dependencies and build
         run: npm ci && npm run build
