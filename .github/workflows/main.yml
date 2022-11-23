@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: Check out repo's default branch
         uses: actions/checkout@v3
-      - name: Remove unnecessary files
+      # - name: Remove unnecessary files
+      #   run: rm .npmrc
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
