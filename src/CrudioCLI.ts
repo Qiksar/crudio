@@ -60,7 +60,7 @@ export default class CrudioCLI {
 			.option("-i, --include <include_file>", "Merge an additional data model definition")
 			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
 			.option("-c, --dbconnection <uri>", "Database connection string for Mongoose", "mongodb://localhost")
-			.option("-t, --target <dbtype>", "m=MongoDB, p=postgres", "p://localhost")
+			.option("-t, --target <dbtype>", "m=MongoDB, p=postgres", "p")
 
 		this.config = this.command_line.parse(args).opts() as ICrudioConfig;
 		this.config.version = package_version;
