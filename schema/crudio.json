@@ -223,10 +223,10 @@
 				"name": {
 					"type": "string"
 				},
-				"entity": {
+				"parentEntity": {
 					"type": "string"
 				},
-				"output": {
+				"createEntity": {
 					"type": "string"
 				},
 				"for": {
@@ -235,8 +235,8 @@
 			},
 			"required": [
 				"name",
-				"entity",
-				"output",
+				"parentEntity",
+				"createEntity",
 				"for"
 			]
 		}

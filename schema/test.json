@@ -439,8 +439,8 @@
     "streams": [
         {
             "name": "temperatures",
-            "entity": "Device",
-            "output": "DeviceReading",
+            "parentEntity": "Device",
+            "createEntity": "DeviceReading",
             "for": {
                 "range": {
                     "name": "years_ago",
