@@ -31,7 +31,7 @@
 		},
 		{
 			"name": "device_site",
-			"values": "shed;north paddock;south paddock;stock yard;"
+			"values": "westerlea housing complex;rose estate;diamond community center;administration building;"
 		},
 		{
 			"name": "email",
