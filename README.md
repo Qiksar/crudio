@@ -84,7 +84,7 @@ You can use the `API` tab, to execute the example GraphQL queries, and you will 
 
 But if you run the **unit tests**, the schema will be `crudio_test`, so you will have to prefix the tables like so... `crudio_test_Blogs` instead of `crudio_Blogs`
 
-[More GraphQL Examples](https://github.com/Qiksar/crudio/wiki/Example-GraphQL-Queries)
+[More GraphQL Examples](https://github.com/Qiksar/crudio/wiki/05.-Example-GraphQL-Queries)
 
 ## Get a list of blog posts with their related tags
 ```graphql
