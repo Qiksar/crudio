@@ -226,6 +226,16 @@
 				"parentEntity": {
 					"type": "string"
 				},
+				"key": {
+					"type": "string"
+				},
+				"value": {
+					"type": [
+						"string",
+						"number",
+						"integer"
+					]
+				},
 				"createEntity": {
 					"type": "string"
 				},

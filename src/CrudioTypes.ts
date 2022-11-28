@@ -1,4 +1,6 @@
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioTable from "./CrudioTable";
+import { SqlInstructionList } from "./DataWrappers/SqlInstructionList";
 
 /**
  * System configuration
@@ -184,7 +186,7 @@ export interface ICrudioSchemaDefinition {
 }
 
 /**
- * Description placeholder
+ * Hard coded data assignment which is placed into the data model to support storytelling
  * @date 10/10/2022 - 21:11:54
  *
  * @export
@@ -193,14 +195,14 @@ export interface ICrudioSchemaDefinition {
  */
 export interface ICrudioAssignment {
 	/**
-	 * Description placeholder
+	 * Target specification
 	 * @date 10/10/2022 - 21:11:54
 	 *
 	 * @type {string}
 	 */
 	target: string;
 	/**
-	 * Description placeholder
+	 * Fields to set
 	 * @date 10/10/2022 - 21:11:54
 	 *
 	 * @type {Record<string, unknown>}
@@ -652,7 +654,9 @@ export interface ICrudioGenerator {
 
 export interface ICrudioStream {
 	name: string;
-	entity: string;
+	parentEntity: string;
+	key: string;
+	value: string;
 	createEntity: string;
 	for: ICrudioForLoop;
 }
@@ -660,7 +664,6 @@ export interface ICrudioStream {
 export interface ICrudioForLoop {
 	for: ICrudioForLoop;
 	list: (string | number | Date)[];
-	complete: boolean;
 	output: any | undefined;
 	range: ICrudioRange;
 }
@@ -693,6 +696,8 @@ export interface ICrudioDataWrapper {
 	 */
 	PopulateDatabaseTables(): Promise<void>;
 
+	InsertTableData(table: CrudioTable, instructions: SqlInstructionList | null);
+	
 	/**
 	 * Close database connection and release resources
 	 * @date 13/10/2022 - 07:29:39

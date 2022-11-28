@@ -3,7 +3,7 @@ import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioAssignment, ICrudioConfig, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioStream, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioAssignment, ICrudioConfig, ICrudioDataWrapper, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioStream, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -33,6 +33,13 @@ export default class CrudioDataModel {
 	 */
 	private assign: ICrudioAssignment[] = [];
 
+	/**
+	 * Scripts to create bulk data
+	 * @date 29/11/2022 - 05:34:03
+	 *
+	 * @private
+	 * @type {ICrudioStream[]}
+	 */
 	private streams: ICrudioStream[] = [];
 
 	/**
@@ -141,8 +148,9 @@ export default class CrudioDataModel {
 	 * @type {CrudioTable[]}
 	 */
 	private date_format = "yyyy-MM-dd HH:mm:ss";
+
 	/**
-	 * Description placeholder
+	 * Preferred output format for dates
 	 * @date 11/10/2022 - 17:39:59
 	 *
 	 * @public
@@ -166,7 +174,7 @@ export default class CrudioDataModel {
 	}
 
 	/**
-	 * Description placeholder
+	 * List of definitions for data entities
 	 * @date 11/10/2022 - 17:39:59
 	 *
 	 * @private
@@ -213,7 +221,7 @@ export default class CrudioDataModel {
 	private scripts: string[];
 
 	/**
-	 * Description placeholder
+	 * Data model containing the schema of the data objects as well as the data for the inter-related tables
 	 * @date 11/10/2022 - 17:39:59
 	 *
 	 * @public
@@ -1031,9 +1039,6 @@ export default class CrudioDataModel {
 		// This must be done after token processing, because that is the step in the process where all
 		// value generators have executed, which enables the lookups to complete
 		this.ConnectDefaultRelationships();
-
-		// Create streaming data
-		this.ExecuteStreams();
 	}
 
 	/**
@@ -1358,6 +1363,15 @@ export default class CrudioDataModel {
 		return fieldValue;
 	}
 
+	/**
+	 * Execute dynamic javascript code
+	 * @date 29/11/2022 - 05:34:03
+	 *
+	 * @private
+	 * @param {string} code
+	 * @param {CrudioEntityInstance} entity
+	 * @returns {*}
+	 */
 	private ExecuteFunction(code: string, entity: CrudioEntityInstance): any {
 		code = code.trim();
 		if (code[0] != "{" || code[code.length - 1] != "}") {
@@ -1675,7 +1689,7 @@ export default class CrudioDataModel {
 	}
 
 	/**
-	 * Description placeholder
+	 * Get the many to many table definition that joins two specified entities
 	 * @date 11/10/2022 - 17:39:59
 	 *
 	 * @private
@@ -1717,7 +1731,8 @@ export default class CrudioDataModel {
 	}
 
 	/**
-	 * Description placeholder
+	 * Execute assignment scripts which place known values into the data model.
+	 * This behavious supports story telling in demonstrations, where the presenter now knows certain values in the dataset that support their demonstation script.
 	 * @date 8/2/2022 - 12:57:37 PM
 	 *
 	 * @private
@@ -1739,7 +1754,7 @@ export default class CrudioDataModel {
 	}
 
 	/**
-	 * Description placeholder
+	 * Retrieve an object from a json.path.structure
 	 * @date 8/2/2022 - 12:57:37 PM
 	 *
 	 * @private
@@ -1796,6 +1811,14 @@ export default class CrudioDataModel {
 		this.streams = datamodel.streams;
 	}
 
+	/**
+	 * Get the specified stream script
+	 * @date 29/11/2022 - 05:34:03
+	 *
+	 * @private
+	 * @param {string} name
+	 * @returns {ICrudioStream}
+	 */
 	private GetStream(name: string): ICrudioStream {
 		return this.streams.filter(s => s.name === name)[0];
 	}
@@ -1808,21 +1831,37 @@ export default class CrudioDataModel {
 	 *
 	 * @private
 	 */
+	public async ExecuteStreams(dataWrapper: ICrudioDataWrapper): Promise<void> {
+		console.log();
+		console.log("Create streaming data and load into database tables...");
 
-	private ExecuteStreams(): void {
-		this.DataModel.streams.map(s => this.ExecuteStream(s.name));
+		for (var i = 0; i < this.DataModel.streams.length; i++) {
+			const s = this.DataModel.streams[i];
+			await this.ExecuteStream(s.name, dataWrapper);
+		}
 	}
 
-	private ExecuteStream(name: string): void {
+	/**
+	 * Execute the specified stream script
+	 * @date 29/11/2022 - 05:34:03
+	 *
+	 * @private
+	 * @async
+	 * @param {string} name
+	 * @param {ICrudioDataWrapper} dataWrapper
+	 * @returns {Promise<void>}
+	 */
+	private async ExecuteStream(name: string, dataWrapper: ICrudioDataWrapper): Promise<void> {
+		console.log(`Processing stream: '${name}'...`);
+
 		const stream_definition = this.GetStream(name);
 		const stream = new CrudioStream(this.generators, stream_definition);
 
-		const parentTable: CrudioTable = this.GetTable(stream.entity);
+		const parentTable: CrudioTable = this.GetTable(stream.parentEntity);
 		const childTable: CrudioTable = this.GetTable(stream.createEntity);
 		const entity_definition = childTable.EntityDefinition;
 
 		let parent: CrudioEntityInstance;
-		var records: CrudioEntityInstance[] = [];
 
 		const callback = (outputDefinition: any): void => {
 			// Assign generators from the stream definition into the entity definition
@@ -1834,15 +1873,33 @@ export default class CrudioDataModel {
 			const entity = this.CreateEntityInstance(entity_definition);
 			this.ProcessTokensInEntity(entity);
 			this.ConnectChildEntityToParentEntity(entity, parent);
-			records.push(entity);
+			childTable.DataRows.push(entity);
 		};
+
+		childTable.DataRows = [];
 
 		for (var c = 0; c < parentTable.DataRows.length; c++) {
 			parent = parentTable.DataRows[c];
-			stream.Execute(callback);
+			let key_value: any;
+
+			if (stream.key) {
+				const parts = stream.key.split(".");
+				let node = parent;
+
+				parts.map(p => {
+					node = node["dataValues"][p];
+				});
+
+				key_value = node;
+			}
+
+			if (stream.key === undefined || key_value === stream.value) {
+				stream.Execute(callback);
+			}
 		}
 
-		childTable.DataRows = records;
+		await dataWrapper.InsertTableData(childTable, null);
+		childTable.DataRows = [];
 	}
 
 	//#endregion

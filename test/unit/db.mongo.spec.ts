@@ -34,6 +34,7 @@ describe("mongodb interaction", () => {
 
         await db.CreateDatabaseSchema();
         await db.PopulateDatabaseTables();
+		await model.ExecuteStreams(db);
 
         await db.Close();
     });

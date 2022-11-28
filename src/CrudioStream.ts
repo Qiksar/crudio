@@ -2,17 +2,44 @@ import { ICrudioForLoop, ICrudioRange, ICrudioStream } from "./CrudioTypes";
 
 export class CrudioStream {
 	name: string;
-	entity: string;
+	parentEntity: string;
+	key: string;
+	value: any;
 	createEntity: string;
 	for: CrudioForLoop;
 
 	constructor(private context: Record<string, unknown>, definition: ICrudioStream) {
 		this.name = definition.name;
-		this.entity = definition.entity;
+		this.parentEntity = definition.parentEntity;
 		this.createEntity = definition.createEntity;
+
+		if (this.parentEntity === undefined) {
+			throw `CrudioStream: stream '${this.name} - missing 'parentEntity' attribute`;
+		}
+
+		if (this.createEntity === undefined) {
+			throw `CrudioStream: stream '${this.name} - missing 'createEntity' attribute`;
+		}
+
+		if (this.createEntity === undefined) {
+			throw `CrudioStream: stream '${this.name} - missing 'createEntity' attribute`;
+		}
+
+		this.key = definition.key;
+		this.value = definition.value;
+
+		if (this.key === undefined && this.value !== undefined) {
+			throw `CrudioStream: stream '${this.name} - 'value' is specified, but 'key' has not been specified. To filter the parent entity, both attributes must be specified`;
+		}
+
+		if (this.value === undefined && this.key !== undefined) {
+			throw `CrudioStream: stream '${this.name} - 'key' is specified, but 'value' has not been specified. To filter the parent entity, both attributes must be specified`;
+		}
 
 		if (definition.for) {
 			this.for = new CrudioForLoop(definition.for);
+		} else {
+			throw `CrudioStream: stream '${this.name} - missing 'for' specification`;
 		}
 	}
 

@@ -5,53 +5,7 @@ import { ICrudioConfig, ICrudioDataWrapper } from "../CrudioTypes";
 import CrudioEntityDefinition from "../CrudioEntityDefinition";
 import CrudioHasura from "../CrudioHasura";
 import CrudioUtils from "../CrudioUtils";
-
-/**
- * Cache of SQL instructions which is built and executed to create tables, relationships and sample data
- * @date 7/18/2022 - 1:46:23 PM
- *
- * @class SqlInstructionList
- * @typedef {SqlInstructionList}
- */
-class SqlInstructionList {
-	/**
-	 * List of fields on the current table
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {{}}
-	 */
-	public table_field_list: string[] = [];
-	/**
-	 * SQL definitions for the columns on the current table
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public table_column_definitions: string = "";
-	/**
-	 * Concatenated version of field names
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public table_column_names: string = "";
-
-	/**
-	 * SQL to create foreign key relationships for all tables
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public create_foreign_keys: string = "";
-
-	/**
-	 * SQL to insert data table values
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public insert_table_rows: string = "";
-}
+import { SqlInstructionList } from "./SqlInstructionList";
 
 /**
  * Data management wrapper which interfaces with the database through the Hasura Grapql interface
@@ -151,18 +105,38 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 
 			// -------------- Build and insert rows
 
-			if (table.DataRows.length > 0) {
-				let offset = 0;
-				const count = 100;
-
-				while (this.BuildInsertData(table, instructions, offset, count)) {
-					offset += count;
-					await this.gql.ExecuteSqlCommand(instructions.insert_table_rows);
-				}
-			}
+			await this.InsertTableData(table, instructions);
 		}
 
 		await this.CreateForeignKeys(instructions);
+	}
+
+	/**
+	 * Insert all data for specified table
+	 * @date 29/11/2022 - 05:25:23
+	 *
+	 * @public
+	 * @async
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 * @returns {Promise<void>}
+	 */
+
+	public async InsertTableData(table: CrudioTable, instructions: SqlInstructionList | null = null) {
+		if (instructions === null) {
+			instructions = new SqlInstructionList();
+			this.BuildSqlColumnsForTable(table.EntityDefinition, instructions);
+		}
+
+		if (table.DataRows.length > 0) {
+			let offset = 0;
+			const count = 100;
+
+			while (this.BuildInsertData(table, instructions, offset, count)) {
+				offset += count;
+				await this.gql.ExecuteSqlCommand(instructions.insert_table_rows);
+			}
+		}
 	}
 
 	/**

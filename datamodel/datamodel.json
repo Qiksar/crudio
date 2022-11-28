@@ -446,8 +446,10 @@
 	],
 	"streams": [
 		{
-			"name": "temperatures",
+			"name": "temperature",
 			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "temperature",
 			"createEntity": "DeviceReadings",
 			"for": {
 				"range": {
@@ -460,7 +462,7 @@
 				"for": {
 					"range": {
 						"name": "day_of_year",
-						"type":"date",
+						"type": "date",
 						"min": 0,
 						"max": 365,
 						"increment": 1
@@ -475,6 +477,80 @@
 						"output": {
 							"timestamp": "{ new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') }",
 							"value": "{ ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) }"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "humidity",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "humidity",
+			"createEntity": "DeviceReadings",
+			"for": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"for": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"for": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 2
+						},
+						"output": {
+							"timestamp": "{ new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') }",
+							"value": "{ Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) }"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "windspeed",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "windspeed",
+			"createEntity": "DeviceReadings",
+			"for": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"for": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 4
+					},
+					"for": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 2
+						},
+						"output": {
+							"timestamp": "{ new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') }",
+							"value": "{ Math.floor( ( (Math.random() * (365 - [day_of_year]))) + ( 100 / ([hour_of_day] + 1) % 8 ) ) }"
 						}
 					}
 				}

@@ -2,7 +2,7 @@
 #
 echo "Start docker, load PostgreSQL and automatically configure Hasura..."
 npm run docker_up 
-npm run compile 
+npm run build 
 node dist/cjs/crudio_cli.js   -v -w -m datamodel/datamodel.json --target m -k _id -c mongodb://crudio:crudio@localhost:27654/crudio?authSource=admin  
 
 echo ""

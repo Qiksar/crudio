@@ -116,12 +116,10 @@ setTimeout(async () => {
 
 	if (config.target === "m") {
 		await PopulateMongoose(config, datamodel);
-	}
-	else if (config.target === "p") {
+	} else if (config.target === "p") {
 		await PopulatePostgres(config, datamodel);
-	}
-	else {
-		throw "--target options must be 'p' for PostgreSQL or 'm' for MongoDB"
+	} else {
+		throw "--target options must be 'p' for PostgreSQL or 'm' for MongoDB";
 	}
 
 	console.log();
@@ -136,21 +134,27 @@ async function PopulatePostgres(config, datamodel) {
 	console.log(`Creating empty database schema ${config.schema}...`);
 	await db.CreateDatabaseSchema();
 
+	console.log();
 	console.log("Populating tables with data...");
 	console.log();
 
 	await db.PopulateDatabaseTables();
-	console.log();
-	console.log("Database has been loaded.");
 
+	console.log();
+	console.log("Database tables loaded with structured data.");
+
+	// Create streaming data
+	await datamodel.ExecuteStreams(db);
+	console.log("Database tables loaded with streaming data.");
+	
 	await db.Close();
 
+	console.log();
 	console.log("Database has been loaded.");
 	console.log();
 	console.log("Setup Hasura tracking...");
 	const tracker = new CrudioHasura(config, datamodel);
 	await tracker.Track();
-
 }
 
 async function PopulateMongoose(config, datamodel) {
@@ -163,6 +167,14 @@ async function PopulateMongoose(config, datamodel) {
 
 	await db.CreateDatabaseSchema();
 	await db.PopulateDatabaseTables();
+	
+	console.log();
+	console.log("Database tables loaded with structured data.");
+
+	// Create streaming data
+	await datamodel.ExecuteStreams(db);
+	console.log("Database tables loaded with streaming data.");
+
 	await db.Close();
 
 	console.log();
