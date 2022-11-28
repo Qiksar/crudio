@@ -182,4 +182,9 @@ describe("Create datamodel", () => {
 		const cohort: any = cohorts[0] as any;
 		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
 	});
+
+	test("Execute stream", () => {
+		config.datamodel = "datamodel/datamodel.json";
+		const repo = CrudioDataModel.FromJson(config, true);
+	});
 });

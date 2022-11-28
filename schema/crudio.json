@@ -129,6 +129,116 @@
 					]
 				}
 			}
+		},
+		"range_list": {
+			"dscription": "special generator used in a stream that provides values from an array",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "unique name for range",
+					"type": "string"
+				},
+				"list": {
+					"description": "list of values which will be iterated in turn",
+					"type": "array",
+					"items": {
+						"description": "item value",
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"name",
+				"list"
+			]
+		},
+		"range_numeric": {
+			"dscription": "special generator used in a stream that provides incremental numeric values",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "unique name for range",
+					"type": "string"
+				},
+				"min": {
+					"description": "initial value of range",
+					"type": "number"
+				},
+				"max": {
+					"description": "maximum value of range",
+					"type": "number"
+				},
+				"increment": {
+					"description": "incremental step size",
+					"type": "number"
+				}
+			},
+			"required": [
+				"name",
+				"min",
+				"max",
+				"increment"
+			]
+		},
+		"range": {
+			"oneOf": [
+				{
+					"$ref": "#/definitions/range_list"
+				},
+				{
+					"$ref": "#/definitions/range_numeric"
+				}
+			]
+		},
+		"entity_output": {
+			"description": "Output containing generated values. All text between { ...is javascript... } and 'ctx' provides access to execution context.",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": true
+			}
+		},
+		"for_loop": {
+			"description": "a loop that iterates over a specified range, and can recusrively run other for loops",
+			"type": "object",
+			"properties": {
+				"range": {
+					"$ref": "#/definitions/range"
+				},
+				"for_loop": {
+					"$ref": "#/definitions/for_loop"
+				},
+				"output": {
+					"$ref": "#/definitions/entity_output"
+				}
+			},
+			"required": [
+				"range"
+			]
+		},
+		"stream": {
+			"description": "a stream which creates a number of outputs for a specified entity",
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"entity": {
+					"type": "string"
+				},
+				"output": {
+					"type": "string"
+				},
+				"for": {
+					"$ref": "#/definitions/for_loop"
+				}
+			},
+			"required": [
+				"name",
+				"entity",
+				"output",
+				"for"
+			]
 		}
 	},
 	"properties": {
@@ -172,6 +282,44 @@
 				]
 			}
 		},
+		"snippets": {
+			"description": "specify pre-defined fields which can be used by any entity in the datamodel",
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/field"
+			}
+		},
+		"entities": {
+			"description": "specify the entities in the datamodel",
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/definitions/entityProperties"
+			}
+		},
+		"assign": {
+			"description": "assign hardcoded values to entities which have been placed in data tables",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"target": {
+						"description": "path to the target object which is to be assigned values from 'fields'",
+						"examples": [
+							"Organisation(0)",
+							"Organisation(10).Users(3)"
+						],
+						"type": "string"
+					},
+					"fields": {
+						"type": "object"
+					}
+				},
+				"required": [
+					"target",
+					"fields"
+				]
+			}
+		},
 		"triggers": {
 			"description": "instructions to execute when an entity is created",
 			"type": "array",
@@ -205,42 +353,10 @@
 				]
 			}
 		},
-		"entities": {
-			"description": "specify the entities in the datamodel",
-			"type": "object",
-			"additionalProperties": {
-				"$ref": "#/definitions/entityProperties"
-			}
-		},
-		"snippets": {
-			"description": "specify pre-defined fields which can be used by any entity in the datamodel",
-			"type": "object",
-			"additionalProperties": {
-				"$ref": "#/definitions/field"
-			}
-		},
-		"assign": {
-			"description": "assign hardcoded values to entities which have been placed in data tables",
+		"streams": {
 			"type": "array",
 			"items": {
-				"type": "object",
-				"properties": {
-					"target": {
-						"description": "path to the target object which is to be assigned values from 'fields'",
-						"examples": [
-							"Organisation(0)",
-							"Organisation(10).Users(3)"
-						],
-						"type": "string"
-					},
-					"fields": {
-						"type": "object"
-					}
-				},
-				"required": [
-					"target",
-					"fields"
-				]
+				"$ref": "#/definitions/stream"
 			}
 		}
 	}

@@ -174,6 +174,13 @@ export interface ICrudioSchemaDefinition {
 	 * @type {string[]}
 	 */
 	triggers?: ICrudioTrigger[];
+	/**
+	 * Actions to execute when entities are created
+	 * @date 7/18/2022 - 1:47:30 PM
+	 *
+	 * @type {string[]}
+	 */
+	streams?: ICrudioStream[];
 }
 
 /**
@@ -643,6 +650,29 @@ export interface ICrudioGenerator {
 	values: string;
 }
 
+export interface ICrudioStream {
+	name: string;
+	entity: string;
+	createEntity: string;
+	for: ICrudioForLoop;
+}
+
+export interface ICrudioForLoop {
+	for: ICrudioForLoop;
+	list: (string | number | Date)[];
+	complete: boolean;
+	output: any | undefined;
+	range: ICrudioRange;
+}
+
+export interface ICrudioRange {
+	name: string;
+	list: unknown[];
+	min: number | Date;
+	max: number | Date;
+	increment: number;
+}
+
 /**
  * Base interface for data management
  * @date 13/10/2022 - 07:24:33
@@ -653,7 +683,7 @@ export interface ICrudioGenerator {
  */
 export interface ICrudioDataWrapper {
 	/**
-	 * Create the target internal database model and manifest the schema in the target database 
+	 * Create the target internal database model and manifest the schema in the target database
 	 * @date 13/10/2022 - 07:24:33
 	 */
 	CreateDatabaseSchema(): Promise<void>;

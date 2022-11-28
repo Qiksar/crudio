@@ -3,7 +3,7 @@ import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioAssignment, ICrudioConfig, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
+import { ICrudioAssignment, ICrudioConfig, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioStream, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioField from "./CrudioField";
@@ -11,6 +11,7 @@ import CrudioRelationship from "./CrudioRelationship";
 import CrudioTable from "./CrudioTable";
 import CrudioUtils from "./CrudioUtils";
 import { CrudioJson } from "./CrudioJson";
+import { CrudioStream } from "./CrudioStream";
 
 /**
  * Concrete implementation of the data model description and state
@@ -31,6 +32,8 @@ export default class CrudioDataModel {
 	 * @type {string[]}
 	 */
 	private assign: ICrudioAssignment[] = [];
+
+	private streams: ICrudioStream[] = [];
 
 	/**
 	 * List of triggers to run when entities are created
@@ -292,6 +295,10 @@ export default class CrudioDataModel {
 			dataModel.assign = [];
 		}
 
+		if (!dataModel.streams) {
+			dataModel.streams = [];
+		}
+
 		if (include) {
 			dataModel.include = [include, ...dataModel.include];
 		}
@@ -311,6 +318,7 @@ export default class CrudioDataModel {
 		this.ExpandAllSnippets(dataModel);
 		this.LoadEntityDefinitions(dataModel);
 		this.LoadAssignments(dataModel);
+		this.LoadStreams(dataModel);
 	}
 
 	/**
@@ -690,7 +698,7 @@ export default class CrudioDataModel {
 			const row_num = index > targetTable.DataRows.length - 1 ? CrudioUtils.GetRandomNumber(0, targetTable.DataRows.length) : index++;
 			if (row_num < targetTable.DataRows.length) {
 				const targetRow = targetTable.DataRows[row_num];
-				this.ConnectRows(sourceRow, targetRow);
+				this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
 			}
 		});
 	}
@@ -815,7 +823,7 @@ export default class CrudioDataModel {
 				const sourceRow = sourceRows[source_index++];
 
 				// connect the user from the organisation with the role
-				this.ConnectRows(sourceRow, targetRow);
+				this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
 
 				sourceRow.skip = true;
 			});
@@ -832,7 +840,7 @@ export default class CrudioDataModel {
 				return f === value;
 			})[0];
 
-			this.ConnectRows(sourceRow, targetRow);
+			this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
 		});
 	}
 
@@ -841,29 +849,29 @@ export default class CrudioDataModel {
 	 * @date 7/18/2022 - 3:39:38 PM
 	 *
 	 * @private
-	 * @param {CrudioEntityInstance} sourceRow
+	 * @param {CrudioEntityInstance} childEntity
 	 * @param {CrudioTable} sourceTable
-	 * @param {CrudioEntityInstance} targetRow
+	 * @param {CrudioEntityInstance} parentEntity
 	 * @param {CrudioTable} targetTable
 	 */
-	private ConnectRows(sourceRow: CrudioEntityInstance, targetRow: CrudioEntityInstance): void {
-		if (!sourceRow) throw "Error: sourceRow must be specified";
+	private ConnectChildEntityToParentEntity(childEntity: CrudioEntityInstance, parentEntity: CrudioEntityInstance): void {
+		if (!childEntity) throw "Error: sourceRow must be specified";
 
-		if (!targetRow) throw "Error: targetRow must be specified";
+		if (!parentEntity) throw "Error: targetRow must be specified";
 
-		const sourceTable = this.GetTableForEntityDefinition(sourceRow.EntityDefinition.Name);
-		const targetTable = this.GetTableForEntityDefinition(targetRow.EntityDefinition.Name);
+		const childEntityDefinition = this.GetTableForEntityDefinition(childEntity.EntityDefinition.Name);
+		const parentTable = this.GetTableForEntityDefinition(parentEntity.EntityDefinition.Name);
 
 		// the source points to a single target record... user 1 -> 1 organisation
-		sourceRow.DataValues[targetTable.EntityDefinition.Name] = targetRow;
+		childEntity.DataValues[parentTable.EntityDefinition.Name] = parentEntity;
 
 		// initialise all target entities with an empty array to receive referencing entities
-		if (!targetRow.DataValues[sourceTable.TableName] || targetRow.DataValues[sourceTable.TableName] === undefined) {
-			targetRow.DataValues[sourceTable.TableName] = [];
+		if (!parentEntity.DataValues[childEntityDefinition.TableName] || parentEntity.DataValues[childEntityDefinition.TableName] === undefined) {
+			parentEntity.DataValues[childEntityDefinition.TableName] = [];
 		}
 
 		// the target has a list of records which it points back to... organisation 1 -> * user
-		targetRow.DataValues[sourceTable.TableName].push(sourceRow);
+		parentEntity.DataValues[childEntityDefinition.TableName].push(childEntity);
 	}
 
 	/**
@@ -915,8 +923,12 @@ export default class CrudioDataModel {
 	 * @returns {CrudioDataModel}
 	 */
 	public static FromJson(config: ICrudioConfig, autoPopulate = true): CrudioDataModel {
-		const json_object = CrudioJson.LoadJson(config.datamodel);
-		return new CrudioDataModel(json_object, config, autoPopulate);
+		try {
+			const json_object = CrudioJson.LoadJson(config.datamodel);
+			return new CrudioDataModel(json_object, config, autoPopulate);
+		} catch (e) {
+			throw e;
+		}
 	}
 
 	/**
@@ -1019,6 +1031,9 @@ export default class CrudioDataModel {
 		// This must be done after token processing, because that is the step in the process where all
 		// value generators have executed, which enables the lookups to complete
 		this.ConnectDefaultRelationships();
+
+		// Create streaming data
+		this.ExecuteStreams();
 	}
 
 	/**
@@ -1037,6 +1052,11 @@ export default class CrudioDataModel {
 
 		if (typeof table.EntityDefinition.MaxRowCount === "string") {
 			const g = this.GetGenerator(generator.replace(/\[|\]/g, ""));
+
+			if (!g) {
+				throw `FillTable '${table.TableName}' - requesting undefined generator '${generator}'. Has the generated been defined or included?`;
+			}
+
 			const v = g.values;
 			values = v.split(";").filter(f => f && f.length > 0);
 			count = values.length;
@@ -1208,9 +1228,10 @@ export default class CrudioDataModel {
 					const detokenised_value = this.ReplaceTokens(field_value, temporary_entity);
 					temporary_entity.DataValues[field_name] = detokenised_value;
 
-					if (detokenised_value.indexOf("[") >= 0) {
+					if (typeof detokenised_value === "string" && detokenised_value.indexOf("[") >= 0) {
 						throw new Error(`Error: Detokenisation failed in Entity:${temporary_entity.EntityDefinition.Name} - ${field_name}`);
 					}
+
 					const entity_field = temporary_entity.EntityDefinition.GetField(field_name);
 
 					// keep track of unique field values
@@ -1330,7 +1351,24 @@ export default class CrudioDataModel {
 			loop = typeof value === "string" && value.includes("[") && value.includes("]");
 		} while (loop);
 
+		if (typeof fieldValue === "string" && fieldValue.trim()[0] === "{") {
+			return this.ExecuteFunction(fieldValue, entity);
+		}
+
 		return fieldValue;
+	}
+
+	private ExecuteFunction(code: string, entity: CrudioEntityInstance): any {
+		code = code.trim();
+		if (code[0] != "{" || code[code.length - 1] != "}") {
+			throw `ExecuteFunction for entity '${entity.EntityDefinition.Name}' code must be wrapped in { }`;
+		}
+
+		code = code.substring(1, code.length - 2).trim();
+
+		const result = eval(code);
+
+		return result;
 	}
 
 	/**
@@ -1344,6 +1382,10 @@ export default class CrudioDataModel {
 	public GetGeneratedValue(generator_name: string): any {
 		if (!generator_name) throw new Error("generator must specify a standard or customer generator");
 		var generator = this.GetGenerator(generator_name);
+
+		if (generator && typeof generator.values === "number") {
+			return generator.values;
+		}
 
 		if (generator && generator.values) {
 			var json_args = null;
@@ -1371,12 +1413,27 @@ export default class CrudioDataModel {
 				case "timestamp":
 					const ts = new Date(Date.now()).toISOString().replace("Z", "");
 					return ts;
+
+				case "years_ago_1":
+				case "years_ago_2":
+				case "years_ago_3":
+				case "years_ago_4":
+				case "years_ago_5":
+				case "years_ago_6":
+				case "years_ago_7":
+				case "years_ago_8":
+				case "years_ago_9":
+				case "years_ago_10":
+					const numOfYears = new Date().getFullYear() - parseInt(generator_values.replace("years_ago_", ""));
+					const generated_date = new Date(Date.now());
+					generated_date.setFullYear(numOfYears);
+					return generated_date.toISOString().replace("Z", "");
 			}
 		}
 
 		var value: any = "";
 
-		if (generator) value = generator.values;
+		if (generator && generator.values) value = generator.values;
 
 		if (value.indexOf("[") >= 0) return value;
 
@@ -1597,13 +1654,13 @@ export default class CrudioDataModel {
 				// add the new entity to the global table
 				global_table.DataRows.push(new_entity);
 
-				this.ConnectRows(new_entity, parent_entity);
+				this.ConnectChildEntityToParentEntity(new_entity, parent_entity);
 
 				if (new_entity.EntityDefinition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
 					const joinTable = this.GetManyToManyTable(new_entity.EntityDefinition, target_connection.EntityDefinition);
 					this.CreateManyToManyRow(joinTable, new_entity.DataValues[this.config.idField], target_connection.DataValues[this.config.idField]);
 				} else {
-					this.ConnectRows(new_entity, target_connection);
+					this.ConnectChildEntityToParentEntity(new_entity, target_connection);
 				}
 			}
 		} else if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
@@ -1722,6 +1779,70 @@ export default class CrudioDataModel {
 		}
 
 		return obj;
+	}
+
+	//#endregion
+
+	//#region Streaming data
+
+	/**
+	 * Load hard coded assignments
+	 * @date 8/2/2022 - 12:57:37 PM
+	 *
+	 * @private
+	 * @param {*} datamodel
+	 */
+	private LoadStreams(datamodel: ICrudioSchemaDefinition): void {
+		this.streams = datamodel.streams;
+	}
+
+	private GetStream(name: string): ICrudioStream {
+		return this.streams.filter(s => s.name === name)[0];
+	}
+
+	/**
+	 * Fill an in-memory datatable with entity instances whose fields are populated with generated data
+	 * @date 7/18/2022 - 3:39:38 PM
+	 *
+	 * @param {CrudioTable} table
+	 *
+	 * @private
+	 */
+
+	private ExecuteStreams(): void {
+		this.DataModel.streams.map(s => this.ExecuteStream(s.name));
+	}
+
+	private ExecuteStream(name: string): void {
+		const stream_definition = this.GetStream(name);
+		const stream = new CrudioStream(this.generators, stream_definition);
+
+		const parentTable: CrudioTable = this.GetTable(stream.entity);
+		const childTable: CrudioTable = this.GetTable(stream.createEntity);
+		const entity_definition = childTable.EntityDefinition;
+
+		let parent: CrudioEntityInstance;
+		var records: CrudioEntityInstance[] = [];
+
+		const callback = (outputDefinition: any): void => {
+			// Assign generators from the stream definition into the entity definition
+			Object.keys(outputDefinition).map(k => {
+				const definitionField = entity_definition.GetField(k);
+				definitionField.fieldOptions.generator = outputDefinition[k];
+			});
+
+			const entity = this.CreateEntityInstance(entity_definition);
+			this.ProcessTokensInEntity(entity);
+			this.ConnectChildEntityToParentEntity(entity, parent);
+			records.push(entity);
+		};
+
+		for (var c = 0; c < parentTable.DataRows.length; c++) {
+			parent = parentTable.DataRows[c];
+			stream.Execute(callback);
+		}
+
+		childTable.DataRows = records;
 	}
 
 	//#endregion
