@@ -109,7 +109,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 	 * @async
 	 * @returns {Promise<void>}
 	 */
-	public async Close(): Promise<void> { }
+	public async Close(): Promise<void> {}
 
 	/**
 	 * Drop schema and recreate with no tables
@@ -137,6 +137,8 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 		for (var index = 0; index < this.datamodel.Tables.length; index++) {
 			const table: CrudioTable = this.datamodel.Tables[index];
 
+			console.log(table.TableName + "...");
+
 			this.BuildSqlColumnsForTable(table.EntityDefinition, instructions);
 			this.BuildSqlForOneToManyKeys(table.EntityDefinition, table, instructions);
 
@@ -150,8 +152,13 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 			// -------------- Build and insert rows
 
 			if (table.DataRows.length > 0) {
-				this.BuildInsertData(table, instructions);
-				await this.gql.ExecuteSqlCommand(instructions.insert_table_rows);
+				let offset = 0;
+				const count = 100;
+
+				while (this.BuildInsertData(table, instructions, offset, count)) {
+					offset += count;
+					await this.gql.ExecuteSqlCommand(instructions.insert_table_rows);
+				}
 			}
 		}
 
@@ -257,14 +264,15 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 	 * @param {CrudioTable} table
 	 * @param {SqlInstructionList} instructions
 	 */
-	private BuildInsertData(table: CrudioTable, instructions: SqlInstructionList): void {
+	private BuildInsertData(table: CrudioTable, instructions: SqlInstructionList, offset: number, count: number): number {
 		instructions.insert_table_rows = "";
 
 		var insert_rows = `INSERT INTO "${this.config.schema}"."${table.TableName}" (${instructions.table_column_names}) VALUES`;
-		const rows = table.DataRows;
+		let inserted = 0;
 
-		for (var r = 0; r < rows.length; r++) {
-			const entity = rows[r];
+		while (inserted < count && offset < table.DataRows.length) {
+			const entity = table.DataRows[offset];
+
 			if (!entity) throw new Error("NULL data row");
 
 			var values = "";
@@ -296,13 +304,17 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 			values = values.substring(0, values.length - 1);
 
 			if (values.indexOf("[") >= 0) {
-				throw new Error(`Error: Found an unprocessed token at row ${r} in ${values}`);
+				throw new Error(`Error: Found an unprocessed token at row ${offset} in ${values}`);
 			}
 
 			insert_rows += `(${values}),`;
+			inserted++;
+			offset++;
 		}
 
 		instructions.insert_table_rows = insert_rows.substring(0, insert_rows.length - 1);
+
+		return inserted;
 	}
 
 	/**

@@ -222,9 +222,6 @@ export default class CrudioHasura {
 				if (!e.response) console.error("Error Message : " + e);
 				else console.error("Error Message : " + JSON.stringify(e.response.data));
 
-				console.error("SQL Statement:");
-				console.error(sql_statement);
-
 				throw e;
 			});
 	}
