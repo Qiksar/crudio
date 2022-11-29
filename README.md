@@ -28,7 +28,7 @@ Crudio is perfect for:
 ## Tell me more...
 People are terrible at creating data for testing and demonstration purposes. They copy/paste Lorem Ipsum ZZzzzzz and type in names and address that look like, ahsjsdflkjsdflk lfskljsdflkjsdf. How are you supposed to test accurately? How are you supposed to sell your vision, when your demo data looks like $ h ! t?
 
-## Show me
+## Show me...
 
 Cool! In two minutes, you will have a PostgreSQL database filled with demo data, and fully integrated with Hasura for a powerful GraphQL API and all you need to do is copy/paste this command in you linux shell (WSL2 for Windows). You also need NPX and Docker installed (see below for more help if you need it):
 
@@ -73,14 +73,6 @@ The wonderful fact is that with the in-memory version of MongoDb you can run Cru
 
 MongoDB is also run in a Docker container by the demo script. So checkout our test code for tips on how to use MongoDB, Mongoose and the in-memory database. You may be shocked how simple it is!
 
-## Using WSL (Ubuntu 22.04 LTS)
-
-An issue exists whereby the in-memory MongoDB component may fail to launch. If you encounter an error whereby the component complains that `libssl1.1` is not installed, simply execute this in the environment that you are developing / testing in.
-
-```
-wget http://debian.mirror.ac.za/debian/pool/main/o/openssl/libssl1.1_1.1.1o-1_amd64.deb
-sudo dpkg -i libssl1.1_1.1.1o-1_amd64.deb
-```
 ## Pre-requisites
 
 In order install and run Crudio you need three simple pre-requisites. Node, NPX and Docker.
@@ -95,7 +87,16 @@ In order install and run Crudio you need three simple pre-requisites. Node, NPX 
 ```
 npm install -g npx
 ```
-# Example GraphQL Queries - Hasura Console
+## Troubleshooting - Using WSL (Ubuntu 22.04 LTS)
+
+An issue exists whereby the in-memory MongoDB component may fail to launch. If you encounter an error whereby the component complains that `libssl1.1` is not installed, simply execute this in the environment that you are developing / testing in.
+
+```
+wget http://debian.mirror.ac.za/debian/pool/main/o/openssl/libssl1.1_1.1.1o-1_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1o-1_amd64.deb
+```
+
+## Example GraphQL Queries - Hasura Console
 
 Once the Crudio demo environment is running in Docker, browse to [Hasura Console](http://localhost:6789) (or whatever port you have used), to see the new database through Hasura GraphQL.
 
@@ -107,7 +108,7 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
 
 [More GraphQL Examples](https://github.com/Qiksar/crudio/wiki/05.-Example-GraphQL-Queries)
 
-## Get a list of blog posts with their related tags
+### Get a list of blog posts with their related tags
 ```graphql
 {
   crudio_Blogs {
@@ -121,7 +122,7 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
 }
 ```
 
-## Get a list of employees with their organisations and prove their email addresses match the organisation that they work for
+### Get a list of employees with their organisations and prove their email addresses match the organisation that they work for
 ```graphql
 {
   crudio_Employees{
@@ -135,7 +136,7 @@ But if you run the **unit tests**, the schema will be `crudio_test`, so you will
 }
 ```
 
-# How to Remove the Crudio Demo environment
+## How to Remove the Crudio Demo environment
 
 If you want to remove and clean-up the demo environment, follow these simple steps.
 
@@ -147,7 +148,7 @@ docker-compose down --rmi local
 
 You can then delete all of the files that were fetched from the Github repository. You may need administrative rights to delete the `dbscripts` folder, which is created by Postgres.
 
-# Using the CLI - Initialise a New Project
+## Using the CLI - Initialise a New Project
 
 The CLI is very easy to use. It will create a Crudio project folder, fetch a demonstration data model and then build the docker containers.
 
@@ -166,12 +167,12 @@ chmod u+rwx *.sh
 ./stop.sh
 ```
 
-# Where to find the code and NPM package
+## Where to find the code and NPM package
 
 Click here to find the Github project: [Github](https://github.com/Qiksar/crudio)
 
 Click here to find the latest published package: [NPM](https://www.npmjs.com/package/@qiksar/crudio)
 
-# More Information
+## More Information
 
 When you are ready, and need more information about how to create your own data models and values, please explore the [Crudio WIKI](https://github.com/Qiksar/crudio/wiki/01.-Home)
