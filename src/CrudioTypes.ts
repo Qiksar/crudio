@@ -658,11 +658,11 @@ export interface ICrudioStream {
 	key: string;
 	value: string;
 	createEntity: string;
-	for: ICrudioForLoop;
+	loop: ICrudioForLoop;
 }
 
 export interface ICrudioForLoop {
-	for: ICrudioForLoop;
+	loop: ICrudioForLoop;
 	list: (string | number | Date)[];
 	output: any | undefined;
 	range: ICrudioRange;

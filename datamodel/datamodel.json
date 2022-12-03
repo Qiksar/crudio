@@ -451,7 +451,7 @@
 			"key": "DeviceType.name",
 			"value": "temperature",
 			"createEntity": "DeviceReadings",
-			"for": {
+			"loop": {
 				"range": {
 					"name": "years_ago",
 					"list": [
@@ -459,7 +459,7 @@
 						"[years_ago_1]"
 					]
 				},
-				"for": {
+				"loop": {
 					"range": {
 						"name": "day_of_year",
 						"type": "date",
@@ -467,7 +467,7 @@
 						"max": 365,
 						"increment": 1
 					},
-					"for": {
+					"loop": {
 						"range": {
 							"name": "hour_of_day",
 							"min": 0,
@@ -488,7 +488,7 @@
 			"key": "DeviceType.name",
 			"value": "humidity",
 			"createEntity": "DeviceReadings",
-			"for": {
+			"loop": {
 				"range": {
 					"name": "years_ago",
 					"list": [
@@ -496,7 +496,7 @@
 						"[years_ago_1]"
 					]
 				},
-				"for": {
+				"loop": {
 					"range": {
 						"name": "day_of_year",
 						"type": "date",
@@ -504,7 +504,7 @@
 						"max": 365,
 						"increment": 1
 					},
-					"for": {
+					"loop": {
 						"range": {
 							"name": "hour_of_day",
 							"min": 0,
@@ -525,7 +525,7 @@
 			"key": "DeviceType.name",
 			"value": "windspeed",
 			"createEntity": "DeviceReadings",
-			"for": {
+			"loop": {
 				"range": {
 					"name": "years_ago",
 					"list": [
@@ -533,7 +533,7 @@
 						"[years_ago_1]"
 					]
 				},
-				"for": {
+				"loop": {
 					"range": {
 						"name": "day_of_year",
 						"type": "date",
@@ -541,7 +541,7 @@
 						"max": 365,
 						"increment": 4
 					},
-					"for": {
+					"loop": {
 						"range": {
 							"name": "hour_of_day",
 							"min": 0,

@@ -6,7 +6,7 @@ export class CrudioStream {
 	key: string;
 	value: any;
 	createEntity: string;
-	for: CrudioForLoop;
+	loop: CrudioForLoop;
 
 	constructor(private context: Record<string, unknown>, definition: ICrudioStream) {
 		this.name = definition.name;
@@ -36,22 +36,22 @@ export class CrudioStream {
 			throw `CrudioStream: stream '${this.name} - 'key' is specified, but 'value' has not been specified. To filter the parent entity, both attributes must be specified`;
 		}
 
-		if (definition.for) {
-			this.for = new CrudioForLoop(definition.for);
+		if (definition.loop) {
+			this.loop = new CrudioForLoop(definition.loop);
 		} else {
-			throw `CrudioStream: stream '${this.name} - missing 'for' specification`;
+			throw `CrudioStream: stream '${this.name} - missing 'loop' specification`;
 		}
 	}
 
 	Execute(cb: (output_entity: any) => void): void {
-		this.for.Execute(this.context, output_entity => {
+		this.loop.Execute(this.context, output_entity => {
 			cb(output_entity);
 		});
 	}
 }
 
 export class CrudioForLoop {
-	for: CrudioForLoop;
+	loop: CrudioForLoop;
 	index = 0;
 	current_value: string | number | Date;
 	complete = false;
@@ -59,8 +59,8 @@ export class CrudioForLoop {
 	range: ICrudioRange;
 
 	constructor(definition: ICrudioForLoop) {
-		if (definition.for) {
-			this.for = new CrudioForLoop(definition.for);
+		if (definition.loop) {
+			this.loop = new CrudioForLoop(definition.loop);
 		}
 
 		this.output = definition.output;
@@ -129,8 +129,8 @@ export class CrudioForLoop {
 				cb(this.output);
 			}
 
-			if (this.for) {
-				this.for.Execute(context, cb);
+			if (this.loop) {
+				this.loop.Execute(context, cb);
 			}
 
 			this.Increment();
