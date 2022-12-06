@@ -1,4 +1,4 @@
-import { ICrudioConfig } from "../../../src/CrudioTypes";
+import { ICrudioConfig } from "../../src/CrudioTypes";
 
 const config: ICrudioConfig = {
     target: "p",

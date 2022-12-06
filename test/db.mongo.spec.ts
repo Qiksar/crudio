@@ -1,6 +1,6 @@
-import CrudioDataModel from "../../src/CrudioDataModel";
-import CrudioMongooseWrapper from "../../src/DataWrappers/CrudioMongooseWrapper";
-import { ICrudioDataWrapper } from "../../src/CrudioTypes";
+import CrudioDataModel from "../src/CrudioDataModel";
+import CrudioMongooseWrapper from "../src/DataWrappers/CrudioMongooseWrapper";
+import { ICrudioDataWrapper } from "../src/CrudioTypes";
 import config from "./config/mongoose-config"
 import { DbConnect, DbDrop } from "./utils/in_memory_mongodb";
 

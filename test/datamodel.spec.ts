@@ -1,9 +1,9 @@
 // tslint:disable: max-line-length
 // tslint:disable: no-unused-expression
 
-import CrudioDataModel from "../../src/CrudioDataModel";
-import CrudioEntityInstance from "../../src/CrudioEntityInstance";
-import CrudioTable from "../../src/CrudioTable";
+import CrudioDataModel from "../src/CrudioDataModel";
+import CrudioEntityInstance from "../src/CrudioEntityInstance";
+import CrudioTable from "../src/CrudioTable";
 import config from "./config/hasura-config";
 
 describe("Create datamodel", () => {
@@ -142,7 +142,7 @@ describe("Create datamodel", () => {
 		config.datamodel = "datamodel/datamodel.json";
 		const db = CrudioDataModel.FromJson(config, true);
 
-		db.Save("test/unit/output/fake.flat.json");
+		db.Save("test/output/fake.flat.json");
 
 		const users: CrudioEntityInstance[] = db.GetTable("Users").DataRows;
 		const organizations: CrudioEntityInstance[] = db.GetTable("Organisations").DataRows;

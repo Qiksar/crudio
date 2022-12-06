@@ -1356,7 +1356,7 @@ export default class CrudioDataModel {
 			loop = typeof value === "string" && value.includes("[") && value.includes("]");
 		} while (loop);
 
-		if (typeof fieldValue === "string" && fieldValue.trim()[0] === "{") {
+		if (typeof fieldValue === "string" && fieldValue.trim()[0] === "`") {
 			return this.ExecuteFunction(fieldValue, entity);
 		}
 
@@ -1374,15 +1374,19 @@ export default class CrudioDataModel {
 	 */
 	private ExecuteFunction(code: string, entity: CrudioEntityInstance): any {
 		code = code.trim();
-		if (code[0] != "{" || code[code.length - 1] != "}") {
-			throw `ExecuteFunction for entity '${entity.EntityDefinition.Name}' code must be wrapped in { }`;
+		if (code[0] != "`" || code[code.length - 1] != "`") {
+			throw `ExecuteFunction for entity '${entity.EntityDefinition.Name}' code must be wrapped in \` \``;
 		}
 
 		code = code.substring(1, code.length - 2).trim();
 
+		try {
 		const result = eval(code);
-
 		return result;
+		}
+		catch(e){
+			throw `ExecuteFunction - dynamic execution of code:\r\n${code}\r\n\r\nfailed with error: \r\n${e}`;
+		}
 	}
 
 	/**

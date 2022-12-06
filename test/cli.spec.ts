@@ -1,4 +1,4 @@
-import CrudioCLI from "../../src/CrudioCLI";
+import CrudioCLI from "../src/CrudioCLI";
 describe("Test command line options", () => {
     
     test("Should parse the command line arguments", () => {
