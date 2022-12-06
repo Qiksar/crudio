@@ -186,5 +186,9 @@ describe("Create datamodel", () => {
 	test("Execute stream", () => {
 		config.datamodel = "datamodel/datamodel.json";
 		const repo = CrudioDataModel.FromJson(config, true);
+
+		const sites: CrudioEntityInstance[] = repo.GetTable("DeviceSites").DataRows;
+		const types: CrudioEntityInstance[] = repo.GetTable("DeviceTypes").DataRows;
+		const devices: CrudioEntityInstance[] = repo.GetTable("Devices").DataRows;
 	});
 });

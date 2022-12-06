@@ -1661,9 +1661,10 @@ export default class CrudioDataModel {
 		// if we are, for example, requesting User[3] then we need to ensure the Users array for the Organisation has
 		// at least 3 entities. If not we just create enough entities to fill the array up to the required index value
 		if (parent_array.length < row_index + 1) {
+			const global_table = this.GetTableForEntityName(entity_definition.Name);
+			
 			while (parent_array.length < row_index + 1) {
 				const new_entity = this.CreateEntityInstance(entity_definition);
-				const global_table = this.GetTableForEntityName(entity_definition.Name);
 
 				// add the new entity to the global table
 				global_table.DataRows.push(new_entity);
