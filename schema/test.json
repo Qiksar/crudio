@@ -441,7 +441,7 @@
             "name": "temperatures",
             "parentEntity": "Device",
             "createEntity": "DeviceReading",
-            "for": {
+            "loop": {
                 "range": {
                     "name": "years_ago",
                     "list": [
@@ -453,14 +453,14 @@
                         "[years_ago_0]"
                     ]
                 },
-                "for": {
+                "loop": {
                     "range": {
                         "name": "day_of_year",
                         "min": 0,
                         "max": 365,
                         "increment": 1
                     },
-                    "for": {
+                    "loop": {
                         "range": {
                             "name": "hour_of_day",
                             "min": 0,

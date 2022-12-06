@@ -239,7 +239,7 @@
 				"createEntity": {
 					"type": "string"
 				},
-				"for": {
+				"loop": {
 					"$ref": "#/definitions/for_loop"
 				}
 			},
@@ -247,7 +247,7 @@
 				"name",
 				"parentEntity",
 				"createEntity",
-				"for"
+				"loop"
 			]
 		}
 	},
