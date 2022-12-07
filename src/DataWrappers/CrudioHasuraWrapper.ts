@@ -189,7 +189,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
 			var column = CrudioUtils.ToColumnId(r.FromColumn);
-			instructions.table_column_definitions += `"${column}" uuid,`; // TODO if required NOT NULL
+			instructions.table_column_definitions += `"${column}" uuid,`; 
 			instructions.table_field_list.push(column);
 		});
 

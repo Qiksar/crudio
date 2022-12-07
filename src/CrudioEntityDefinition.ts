@@ -158,7 +158,7 @@ export default class CrudioEntityDefinition {
 		this.max_row_count = value;
 	}
 
-	/**	 
+	/**
 	 * Maximum number of rows or generator to use to acquire unique values
 	 * @date 14/08/2022 - 13:17:54
 	 *
@@ -168,6 +168,17 @@ export default class CrudioEntityDefinition {
 	public get MaxRowCount(): string | number {
 		return this.max_row_count as number;
 	}
+
+	/**
+	 * Configure the point at which triggers execute
+	 * creating : execute triggers for the entity when it is being created
+	 * streaming : execute triggers for the entity when streams are being generated
+	 * @date 07/12/2022 - 06:32:56
+	 *
+	 * @public
+	 * @type {("off" | "creating" | "streaming")}
+	 */
+	public triggers: "off" | "creating" | "streaming";
 
 	/**
 	 * Snippets imported to enable short-hand inclusion of pre-defined fields
@@ -285,7 +296,7 @@ export default class CrudioEntityDefinition {
 	 * @returns {boolean}
 	 */
 	HasUniqueValue(field_name: string, value: string): boolean {
-		value = value.toLowerCase().trim()
+		value = value.toLowerCase().trim();
 		return this.unique_keys_values[field_name].indexOf(value) >= 0;
 	}
 

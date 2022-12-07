@@ -17,6 +17,13 @@
 						"integer"
 					]
 				},
+				"triggers": {
+					"enum": [
+						"off",
+						"creating",
+						"streaming"
+					]
+				},
 				"inherits": {
 					"description": "a string containing the name of an entity, or an array of strings specifying multiple entities from which to inherit fields",
 					"type": [

@@ -487,6 +487,7 @@ export default class CrudioDataModel {
 	private CreateEntityDefinition(entityDefinition: ICrudioEntityDefinition, entityname: string): void {
 		var entityType: CrudioEntityDefinition = this.CreateEntityType(entityname, entityDefinition.abstract, false);
 		entityType.MaxRowCount = entityDefinition.count;
+		entityType.triggers = entityDefinition.triggers;
 
 		if (!entityDefinition.abstract && entityType.MaxRowCount == undefined) entityType.MaxRowCount = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 
@@ -1050,19 +1051,22 @@ export default class CrudioDataModel {
 	 * @private
 	 */
 	private FillTable(table: CrudioTable): void {
-		var records: CrudioEntityInstance[] = [];
 		var count = 0;
 		var values: string[] = [];
-		const generator: string = table.EntityDefinition.MaxRowCount as string;
+		const generator_name: string = table.EntityDefinition.MaxRowCount as string;
 
+		table.DataRows = [];
+
+		// in the schema, the count attribute determines how many records to create.
+		// if a string value is used, the record count is the number of entries in a generator
 		if (typeof table.EntityDefinition.MaxRowCount === "string") {
-			const g = this.GetGenerator(generator.replace(/\[|\]/g, ""));
+			const generator = this.GetGenerator(generator_name.replace(/\[|\]/g, ""));
 
-			if (!g) {
-				throw `FillTable '${table.TableName}' - requesting undefined generator '${generator}'. Has the generated been defined or included?`;
+			if (!generator) {
+				throw `FillTable '${table.TableName}' - requesting undefined generator '${generator_name}'. Has the generated been defined or included?`;
 			}
 
-			const v = g.values;
+			const v = generator.values;
 			values = v.split(";").filter(f => f && f.length > 0);
 			count = values.length;
 
@@ -1075,7 +1079,10 @@ export default class CrudioDataModel {
 			count = CrudioDataModel.DefaultNumberOfRowsToGenerate;
 		}
 
-		const field = table.EntityDefinition.fields.filter(f => f.fieldOptions.generator === generator)[0];
+		const field = table.EntityDefinition.fields.filter(f => f.fieldOptions.generator === generator_name)[0];
+
+		// process triggers if they are configured to execute when the entity is being created
+		const triggers = table.EntityDefinition.triggers === "creating";
 
 		for (var c = 0; c < count; c++) {
 			const entity = this.CreateEntityInstance(table.EntityDefinition);
@@ -1084,11 +1091,12 @@ export default class CrudioDataModel {
 				entity.DataValues[field.fieldName] = values[c];
 			}
 
-			records.push(entity);
-			this.ProcessTriggersForEntity(entity);
-		}
+			if (triggers) {
+				this.ProcessTriggersForEntity(entity);
+			}
 
-		table.DataRows = records;
+			table.DataRows.push(entity);
+		}
 	}
 
 	/**
@@ -1381,10 +1389,9 @@ export default class CrudioDataModel {
 		code = code.substring(1, code.length - 2).trim();
 
 		try {
-		const result = eval(code);
-		return result;
-		}
-		catch(e){
+			const result = eval(code);
+			return result;
+		} catch (e) {
 			throw `ExecuteFunction - dynamic execution of code:\r\n${code}\r\n\r\nfailed with error: \r\n${e}`;
 		}
 	}
@@ -1431,21 +1438,22 @@ export default class CrudioDataModel {
 				case "timestamp":
 					const ts = new Date(Date.now()).toISOString().replace("Z", "");
 					return ts;
+			}
 
-				case "years_ago_1":
-				case "years_ago_2":
-				case "years_ago_3":
-				case "years_ago_4":
-				case "years_ago_5":
-				case "years_ago_6":
-				case "years_ago_7":
-				case "years_ago_8":
-				case "years_ago_9":
-				case "years_ago_10":
-					const numOfYears = new Date().getFullYear() - parseInt(generator_values.replace("years_ago_", ""));
-					const generated_date = new Date(Date.now());
-					generated_date.setFullYear(numOfYears);
-					return generated_date.toISOString().replace("Z", "");
+			if (generator_values.startsWith("years_ago_")) {
+				const years = parseInt(generator_values.replace("years_ago_", ""));
+
+				return DateTime.now()
+					.plus(years * -1)
+					.toUTC()
+					.toString();
+			} else if (generator_values.startsWith("months_ago_")) {
+				const months = parseInt(generator_values.replace("months_ago_", ""));
+
+				return DateTime.now()
+					.plus(months * -1)
+					.toUTC()
+					.toString();
 			}
 		}
 
@@ -1666,7 +1674,7 @@ export default class CrudioDataModel {
 		// at least 3 entities. If not we just create enough entities to fill the array up to the required index value
 		if (parent_array.length < row_index + 1) {
 			const global_table = this.GetTableForEntityName(entity_definition.Name);
-			
+
 			while (parent_array.length < row_index + 1) {
 				const new_entity = this.CreateEntityInstance(entity_definition);
 
@@ -1793,7 +1801,16 @@ export default class CrudioDataModel {
 			}
 
 			obj = this.GetTable(p).DataRows;
+
+			if (!obj) {
+				throw `GetObjectFromPath '${path}' - failed to retrieve object at segment '${p}'`;
+			}
+
 			if (index >= 0) {
+				if (!obj[index]) {
+					throw `GetObjectFromPath '${path}' - failed to retrieve object at segment '${p}'`;
+				}
+
 				obj = obj[index].DataValues;
 			}
 		}
@@ -1836,7 +1853,7 @@ export default class CrudioDataModel {
 	 *
 	 * @private
 	 */
-	public async ExecuteStreams(dataWrapper: ICrudioDataWrapper): Promise<void> {
+	public async ExecuteStreams(dataWrapper: ICrudioDataWrapper | null): Promise<void> {
 		console.log();
 		console.log("Create streaming data and load into database tables...");
 
@@ -1871,13 +1888,20 @@ export default class CrudioDataModel {
 		const callback = (outputDefinition: any): void => {
 			// Assign generators from the stream definition into the entity definition
 			Object.keys(outputDefinition).map(k => {
-				const definitionField = entity_definition.GetField(k);
+				const definitionField = entity_definition.GetField(k, true);
 				definitionField.fieldOptions.generator = outputDefinition[k];
 			});
 
 			const entity = this.CreateEntityInstance(entity_definition);
+
 			this.ProcessTokensInEntity(entity);
 			this.ConnectChildEntityToParentEntity(entity, parent);
+
+			// process triggers if they are configured to execute when generating streaming data
+			if (entity_definition.triggers === "streaming") {
+				this.ProcessTriggersForEntity(entity);
+			}
+
 			childTable.DataRows.push(entity);
 		};
 
@@ -1903,8 +1927,10 @@ export default class CrudioDataModel {
 			}
 		}
 
-		await dataWrapper.InsertTableData(childTable, null);
-		childTable.DataRows = [];
+		if (dataWrapper) {
+			await dataWrapper.InsertTableData(childTable, null);
+			childTable.DataRows = [];
+		}
 	}
 
 	//#endregion

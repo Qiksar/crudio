@@ -1,6 +1,3 @@
-// tslint:disable: max-line-length
-// tslint:disable: no-unused-expression
-
 import CrudioDataModel from "../src/CrudioDataModel";
 import CrudioEntityInstance from "../src/CrudioEntityInstance";
 import CrudioTable from "../src/CrudioTable";
@@ -76,18 +73,33 @@ describe("Create datamodel", () => {
 
 		expect(() => repo.GetTable("Entitys")).toThrow();
 
-		const devicetype: CrudioTable = repo.GetTable("DeviceTypes");
-		const device: CrudioTable = repo.GetTable("Devices");
-		const site: CrudioTable = repo.GetTable("DeviceSites");
-		const readings: CrudioTable = repo.GetTable("DeviceReadings");
+		const deviceSites: CrudioTable = repo.GetTable("DeviceSites");
+		const devicetypes: CrudioTable = repo.GetTable("DeviceTypes");
+		let devices: CrudioTable = repo.GetTable("Devices");
+		let deviceReadings: CrudioTable = repo.GetTable("DeviceReadings");
 
-		expect(devicetype).not.toBeNull();
-		expect(device).not.toBeNull();
-		expect(site).not.toBeNull();
-		expect(readings).not.toBeNull();
-		expect(readings.DataRows[0].DataValues.Device).not.toBeNull();
-		expect(readings.DataRows[0].DataValues.Device.DeviceType).not.toBeNull();
-		expect(readings.DataRows[0].DataValues.Device.DeviceSite).not.toBeNull();
+		// triggers do not execute for IoT devices until the streaming phase
+		// assert that devices and readings have not been created, but sites and device types are present
+		// the trigger is configured on DeviceSite, so that appropriate devices can be assigned
+		expect(deviceSites).not.toBeNull();
+		expect(deviceSites.DataRows.length).toBeGreaterThan(0);
+
+		expect(devicetypes).not.toBeNull();
+		expect(devicetypes.DataRows.length).toBeGreaterThan(0);
+
+		expect(devices).not.toBeNull();
+		expect(devicetypes.DataRows.length).toBeGreaterThan(0);
+
+		expect(deviceReadings).not.toBeNull();
+		expect(deviceReadings.DataRows.length).toEqual(0);
+
+		repo.ExecuteStreams(null);
+		devices = repo.GetTable("Devices");
+		deviceReadings = repo.GetTable("DeviceReadings");
+
+		expect(deviceReadings.DataRows[0].DataValues.Device).not.toBeNull();
+		expect(deviceReadings.DataRows[0].DataValues.Device.DeviceType).not.toBeNull();
+		expect(deviceReadings.DataRows[0].DataValues.Device.DeviceSite).not.toBeNull();
 	});
 
 	test("Check for unique email addresses", () => {
@@ -181,14 +193,5 @@ describe("Create datamodel", () => {
 
 		const cohort: any = cohorts[0] as any;
 		expect(cohort.DataValues.Clients.length).toBeGreaterThan(0);
-	});
-
-	test("Execute stream", () => {
-		config.datamodel = "datamodel/datamodel.json";
-		const repo = CrudioDataModel.FromJson(config, true);
-
-		const sites: CrudioEntityInstance[] = repo.GetTable("DeviceSites").DataRows;
-		const types: CrudioEntityInstance[] = repo.GetTable("DeviceTypes").DataRows;
-		const devices: CrudioEntityInstance[] = repo.GetTable("Devices").DataRows;
 	});
 });

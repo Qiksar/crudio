@@ -72,6 +72,7 @@
 		"DeviceSite": {
 			"inherits": "Entity",
 			"count": "[device_site]",
+			"triggers": "creating",
 			"fields": {
 				"name": {
 					"generator": "[device_site]",
@@ -81,7 +82,7 @@
 		},
 		"Device": {
 			"inherits": "Entity",
-			"count": 10,
+			"count": 0,
 			"relationships": [
 				{
 					"type": "one",
@@ -95,8 +96,12 @@
 		},
 		"DeviceReading": {
 			"inherits": "Entity",
-			"count": 240,
+			"count": 0,
 			"fields": {
+				"timestamp": {
+					"type": "timestamp",
+					"name": "timestamp"
+				},
 				"value": {
 					"type": "jsonb",
 					"generator": "[?Device.DeviceType.name]"
@@ -109,5 +114,129 @@
 				}
 			]
 		}
-	}
+	},
+	"triggers": [
+		{
+			"entity": "DeviceSite",
+			"scripts": [
+				"Devices(0).DeviceType?name=temperature",
+				"Devices(1).DeviceType?name=humidity",
+				"Devices(2).DeviceType?name=windspeed",
+				"Devices(3).DeviceType?name=light"
+			]
+		}
+	],
+	"streams": [
+		{
+			"name": "temperature",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "temperature",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+							"value": "` ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) `"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "humidity",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "humidity",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+							"value": "` Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "windspeed",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "windspeed",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+							"value": "` Math.floor( ( ((Math.random() * 10) + 2) + (Math.random() * (365 - [day_of_year]))) + ( 100 / [hour_of_day] % 8 ) ) `"
+						}
+					}
+				}
+			}
+		}
+	]
 }

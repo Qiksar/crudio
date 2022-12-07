@@ -148,6 +148,7 @@ export interface ICrudioSchemaDefinition {
 	 * @type {?string[]}
 	 */
 	include?: string[];
+
 	/**
 	 * List of entities defined in the schema
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -155,6 +156,7 @@ export interface ICrudioSchemaDefinition {
 	 * @type {?CrudioEntityDefinition[]}
 	 */
 	entities?: CrudioEntityDefinition[];
+
 	/**
 	 * List of data generator groups, each group contains multiple generators
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -162,6 +164,7 @@ export interface ICrudioSchemaDefinition {
 	 * @type {?Record<string, unknown>}
 	 */
 	generators?: [];
+
 	/**
 	 * Reusable field definitions
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -169,6 +172,7 @@ export interface ICrudioSchemaDefinition {
 	 * @type {?{}}
 	 */
 	snippets?: {};
+
 	/**
 	 * Actions to execute when entities are created
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -176,6 +180,7 @@ export interface ICrudioSchemaDefinition {
 	 * @type {string[]}
 	 */
 	triggers?: ICrudioTrigger[];
+
 	/**
 	 * Actions to execute when entities are created
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -201,6 +206,7 @@ export interface ICrudioAssignment {
 	 * @type {string}
 	 */
 	target: string;
+
 	/**
 	 * Fields to set
 	 * @date 10/10/2022 - 21:11:54
@@ -380,6 +386,7 @@ export interface ICrudioField {
 	 * @type {string}
 	 */
 	fieldName: string;
+
 	/**
 	 * Data type
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -387,6 +394,7 @@ export interface ICrudioField {
 	 * @type {string}
 	 */
 	fieldType: string;
+
 	/**
 	 * Default value
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -394,6 +402,7 @@ export interface ICrudioField {
 	 * @type {?*}
 	 */
 	defaultValue?: any;
+
 	/**
 	 * Options for the field
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -419,6 +428,7 @@ export interface ICrudioEntityDefinition {
 	 * @type {string}
 	 */
 	name: string;
+
 	/**
 	 * Name of the data table
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -426,6 +436,7 @@ export interface ICrudioEntityDefinition {
 	 * @type {string}
 	 */
 	tableName: string;
+
 	/**
 	 * List of field definitions
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -433,6 +444,7 @@ export interface ICrudioEntityDefinition {
 	 * @type {ICrudioField[]}
 	 */
 	fields: ICrudioField[];
+
 	/**
 	 * List of relationships to other entities
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -448,6 +460,18 @@ export interface ICrudioEntityDefinition {
 	 * @type {number}
 	 */
 	count?: number;
+
+	/**
+	 * Configure the point at which triggers execute
+	 * creating : execute triggers for the entity when it is being created
+	 * streaming : execute triggers for the entity when streams are being generated
+	 * @date 07/12/2022 - 06:32:56
+	 *
+	 * @public
+	 * @type {("off" | "creating" | "streaming")}
+	 */
+	triggers?: "off" | "creating" | "streaming";
+
 	/**
 	 * Base entity to inherit fields from
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -455,6 +479,7 @@ export interface ICrudioEntityDefinition {
 	 * @type {string}
 	 */
 	inherits?: string;
+
 	/**
 	 * If abstract, a table will not be created for the entity
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -462,6 +487,7 @@ export interface ICrudioEntityDefinition {
 	 * @type {boolean}
 	 */
 	abstract?: boolean;
+
 	/**
 	 * Field definition snippets to import
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -487,6 +513,7 @@ export interface ISchemaRelationship {
 	 * @type {boolean}
 	 */
 	required: boolean;
+
 	/**
 	 * The name of the referencing table
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -494,6 +521,7 @@ export interface ISchemaRelationship {
 	 * @type {string}
 	 */
 	from: string;
+
 	/**
 	 * Refeferencing columns
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -501,6 +529,7 @@ export interface ISchemaRelationship {
 	 * @type {string}
 	 */
 	from_column: string;
+
 	/**
 	 * The name of the references table
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -508,6 +537,7 @@ export interface ISchemaRelationship {
 	 * @type {string}
 	 */
 	to: string;
+
 	/**
 	 * Referenced column
 	 * @date 7/18/2022 - 1:47:30 PM
@@ -523,6 +553,7 @@ export interface ISchemaRelationship {
 	 * @type {string}
 	 */
 	name: string;
+
 	/**
 	 * "one" for one to many
 	 * "many" for many to many
@@ -585,6 +616,7 @@ interface ISingularNamedRelationship {
 	 * @type {string}
 	 */
 	enumerate: string;
+
 	/**
 	 * The field to use as the lookup to acquire a related entity
 	 * @date 7/25/2022 - 10:45:41 AM
@@ -592,6 +624,7 @@ interface ISingularNamedRelationship {
 	 * @type {string}
 	 */
 	field: string;
+
 	/**
 	 * The values which are used to identify the actual related entities
 	 * For example, "HEAD OF IT;HEAD OF HR;HEAD OF SALES", identifying a list where only one user is to be assigned to the role
@@ -618,6 +651,7 @@ export interface ICrudioTrigger {
 	 * @type {string}
 	 */
 	entity: string;
+
 	/**
 	 * Instructions to execute
 	 * @date 8/2/2022 - 12:11:48 PM
@@ -643,6 +677,7 @@ export interface ICrudioGenerator {
 	 * @type {string}
 	 */
 	name: string;
+
 	/**
 	 * Configuration of how to build a data value
 	 * @date 8/2/2022 - 12:11:48 PM
@@ -652,27 +687,153 @@ export interface ICrudioGenerator {
 	values: string;
 }
 
+/**
+ * Configure data streaming generation
+ * @date 07/12/2022 - 07:23:08
+ *
+ * @export
+ * @interface ICrudioStream
+ * @typedef {ICrudioStream}
+ */
 export interface ICrudioStream {
+	/**
+	 * Name of the streaming process
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	name: string;
+
+	/**
+	 * The top level entity in the stream under which a child entity and its data stream are created
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	parentEntity: string;
+
+	/**
+	 * Key field of the parent entity to filter/limit instances under which child entities are created
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	key: string;
+
+	/**
+	 * Key value of the parent entity used in filtering
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	value: string;
+
+	/**
+	 * Name of the child entity type to place under each parent entity
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	createEntity: string;
+
+	/**
+	 * Nested loop definition
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {ICrudioForLoop}
+	 */
 	loop: ICrudioForLoop;
 }
 
+/**
+ * Loop which can create generator values, create entities and contain other nested loops
+ * @date 07/12/2022 - 07:23:08
+ *
+ * @export
+ * @interface ICrudioForLoop
+ * @typedef {ICrudioForLoop}
+ */
 export interface ICrudioForLoop {
+	/**
+	 * Nest loop configuration
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {ICrudioForLoop}
+	 */
 	loop: ICrudioForLoop;
+
+	/**
+	 * List of values to be assigned to generators
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {((string | number | Date)[])}
+	 */
 	list: (string | number | Date)[];
+
+	/**
+	 * Output type
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {(any | undefined)}
+	 */
 	output: any | undefined;
+
+	/**
+	 * Range for values to be used in the loop
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {ICrudioRange}
+	 */
 	range: ICrudioRange;
 }
 
+/**
+ * Range definition used in streaming data
+ * @date 07/12/2022 - 07:23:08
+ *
+ * @export
+ * @interface ICrudioRange
+ * @typedef {ICrudioRange}
+ */
 export interface ICrudioRange {
+	/**
+	 * Name of the definition
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {string}
+	 */
 	name: string;
+
+	/**
+	 * List of values used
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {unknown[]}
+	 */
 	list: unknown[];
+
+	/**
+	 * Minimum value allowed, if list is not configured
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {(number | Date)}
+	 */
 	min: number | Date;
+
+	/**
+	 * Maximum value allowed, if list is not configured
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {(number | Date)}
+	 */
 	max: number | Date;
+
+	/**
+	 * Value to be added on each loop iteration
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @type {number}
+	 */
 	increment: number;
 }
 
@@ -690,14 +851,23 @@ export interface ICrudioDataWrapper {
 	 * @date 13/10/2022 - 07:24:33
 	 */
 	CreateDatabaseSchema(): Promise<void>;
+
 	/**
 	 * Populate the database
 	 * @date 13/10/2022 - 07:24:33
 	 */
 	PopulateDatabaseTables(): Promise<void>;
 
+	/**
+	 * Description placeholder
+	 * @date 07/12/2022 - 07:23:08
+	 *
+	 * @param {CrudioTable} table
+	 * @param {(SqlInstructionList | null)} instructions
+	 * @returns {*}
+	 */
 	InsertTableData(table: CrudioTable, instructions: SqlInstructionList | null);
-	
+
 	/**
 	 * Close database connection and release resources
 	 * @date 13/10/2022 - 07:29:39
