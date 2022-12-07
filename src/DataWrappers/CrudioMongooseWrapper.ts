@@ -87,6 +87,7 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
 	 */
 	public async Close(): Promise<void> {
 		this.data_model.ReleaseModels();
+		await Mongoose.connections[0].dropDatabase;
 		await Mongoose.connection.close();
 	}
 
@@ -131,16 +132,16 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
 	}
 
 	/**
-     * Insert all data for specified table
-     * @date 29/11/2022 - 05:25:23
-     *
-     * @public
-     * @async
-     * @param {CrudioTable} table
-     * @param {SqlInstructionList} instructions
-     * @returns {Promise<void>}
-     */
-    public async InsertTableData(table: CrudioTable, instructions: SqlInstructionList): Promise<void> {
+	 * Insert all data for specified table
+	 * @date 29/11/2022 - 05:25:23
+	 *
+	 * @public
+	 * @async
+	 * @param {CrudioTable} table
+	 * @param {SqlInstructionList} instructions
+	 * @returns {Promise<void>}
+	 */
+	public async InsertTableData(table: CrudioTable, instructions: SqlInstructionList): Promise<void> {
 		return await this.PopulateDatabaseTable(table);
 	}
 

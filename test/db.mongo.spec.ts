@@ -9,21 +9,21 @@ import { DbConnect, DbDrop } from "./utils/in_memory_mongodb";
 // If in-memory MongoDB fails to launch, refer to the READ ME for further information.
 const in_memory = true;
 
-beforeAll(async () => {
+beforeEach(async () => {
     if (in_memory) {
         const uri = await DbConnect();
         config.dbconnection = uri;
     }
 });
 
-afterAll(async () => {
+afterEach(async () => {
     if (in_memory) {
         await DbDrop();
     }
 });
 
 describe("mongodb interaction", () => {
-    jest.setTimeout(120000);
+    jest.setTimeout(2400000);
 
     test("Populate MongoDB", async () => {
         const model: any = CrudioDataModel.FromJson(config, true);
@@ -35,8 +35,6 @@ describe("mongodb interaction", () => {
         await db.CreateDatabaseSchema();
         await db.PopulateDatabaseTables();
 		await model.ExecuteStreams(db);
-
-        await db.Close();
     });
 
     test("gets organisation with employees", async () => {
@@ -68,7 +66,5 @@ describe("mongodb interaction", () => {
         expect(william.Organisations.name).toEqual(arrow.name);
         expect(william.OrganisationRoles.length).toBeGreaterThan(0);
         expect(william.OrganisationDepartments.name?.length).toBeGreaterThan(0);
-
-        await db.Close();
     });
 });

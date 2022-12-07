@@ -57,7 +57,6 @@ export default class CrudioCLI {
 			.option("-w, --wipe", "Drop all tables in the schema if they already exist", true)
 			.option("-s, --schema <schema>", "Place tables in the nominated database schema", "crudio")
 			.option("-m, --datamodel <model_file>", "Data model definition file (JSON)")
-			.option("-i, --include <include_file>", "Merge an additional data model definition")
 			.option("-d, --diagram <output_file>", "Output a Mermaid diagram of the data model")
 			.option("-c, --dbconnection <uri>", "Database connection string for Mongoose", "mongodb://localhost")
 			.option("-t, --target <dbtype>", "m=MongoDB, p=postgres", "p")

@@ -241,7 +241,7 @@ export default class CrudioDataModel {
 	 * @param {ICrudioSchemaDefinition} data_model
 	 */
 	constructor(private data_model: ICrudioSchemaDefinition, private config: ICrudioConfig, autoPopulate = true) {
-		this.PreProcessDataModelDefinition(data_model, config.include);
+		this.PreProcessDataModelDefinition(data_model);
 
 		if (autoPopulate) {
 			this.FillDataTables();
@@ -286,7 +286,7 @@ export default class CrudioDataModel {
 	 * @private
 	 * @param {ICrudioSchemaDefinition} dataModel
 	 */
-	private PreProcessDataModelDefinition(dataModel: ICrudioSchemaDefinition, include: string = null): void {
+	private PreProcessDataModelDefinition(dataModel: ICrudioSchemaDefinition): void {
 		if (!dataModel.include) {
 			dataModel.include = [];
 		}
@@ -305,10 +305,6 @@ export default class CrudioDataModel {
 
 		if (!dataModel.streams) {
 			dataModel.streams = [];
-		}
-
-		if (include) {
-			dataModel.include = [include, ...dataModel.include];
 		}
 
 		dataModel.include.map((filename: any) => {
@@ -360,6 +356,10 @@ export default class CrudioDataModel {
 
 		if (input.assign) {
 			datamodel.assign = [...datamodel.assign, ...input.assign];
+		}
+
+		if (input.streams) {
+			datamodel.streams = [...datamodel.streams, ...input.streams];
 		}
 	}
 
@@ -669,15 +669,17 @@ export default class CrudioDataModel {
 	private ConnectOneToManyRelationships(): void {
 		const definitions = this.entityDefinitions.filter(e => !e.IsManyToManyJoin);
 
-		definitions.map(e => {
-			e.relationships
-				.filter(r => !r.DefaultTargetQuery && !e.IsManyToManyJoin)
-				.map(r => {
-					if (r.RelationshipType === "one") {
-						this.JoinOneToMany(r);
-					}
-				});
-		});
+		definitions
+			.filter(d => d.triggers !== "streaming")
+			.map(e => {
+				e.relationships
+					.filter(r => !r.DefaultTargetQuery && !e.IsManyToManyJoin)
+					.map(r => {
+						if (r.RelationshipType === "one") {
+							this.JoinOneToMany(r);
+						}
+					});
+			});
 	}
 
 	/**
@@ -707,7 +709,7 @@ export default class CrudioDataModel {
 			const row_num = index > targetTable.DataRows.length - 1 ? CrudioUtils.GetRandomNumber(0, targetTable.DataRows.length) : index++;
 			if (row_num < targetTable.DataRows.length) {
 				const targetRow = targetTable.DataRows[row_num];
-				this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
+				this.ConnectOneToManyRelationship(sourceRow, targetRow);
 			}
 		});
 	}
@@ -761,7 +763,7 @@ export default class CrudioDataModel {
 	 * @private
 	 */
 	private CreateManyToManyRow(joinTable: CrudioTable, source_id: string, target_id: string): void {
-		const row = this.CreateEntityInstance(joinTable.EntityDefinition);
+		const row = this.CreateEntityInstance(joinTable.EntityDefinition, "manytomany");
 
 		row.DataValues[CrudioUtils.ToColumnId(row.EntityDefinition.SourceRelationship.FromEntity)] = source_id;
 		row.DataValues[CrudioUtils.ToColumnId(row.EntityDefinition.SourceRelationship.ToEntity)] = target_id;
@@ -832,7 +834,7 @@ export default class CrudioDataModel {
 				const sourceRow = sourceRows[source_index++];
 
 				// connect the user from the organisation with the role
-				this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
+				this.ConnectOneToManyRelationship(sourceRow, targetRow);
 
 				sourceRow.skip = true;
 			});
@@ -849,7 +851,7 @@ export default class CrudioDataModel {
 				return f === value;
 			})[0];
 
-			this.ConnectChildEntityToParentEntity(sourceRow, targetRow);
+			this.ConnectOneToManyRelationship(sourceRow, targetRow);
 		});
 	}
 
@@ -863,7 +865,7 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} parentEntity
 	 * @param {CrudioTable} targetTable
 	 */
-	private ConnectChildEntityToParentEntity(childEntity: CrudioEntityInstance, parentEntity: CrudioEntityInstance): void {
+	private ConnectOneToManyRelationship(childEntity: CrudioEntityInstance, parentEntity: CrudioEntityInstance): void {
 		if (!childEntity) throw "Error: sourceRow must be specified";
 
 		if (!parentEntity) throw "Error: targetRow must be specified";
@@ -1085,7 +1087,7 @@ export default class CrudioDataModel {
 		const triggers = table.EntityDefinition.triggers === "creating";
 
 		for (var c = 0; c < count; c++) {
-			const entity = this.CreateEntityInstance(table.EntityDefinition);
+			const entity = this.CreateEntityInstance(table.EntityDefinition, "filltable");
 
 			if (field) {
 				entity.DataValues[field.fieldName] = values[c];
@@ -1143,7 +1145,7 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityDefinition} entityType
 	 * @returns {CrudioEntityInstance}
 	 */
-	private CreateEntityInstance(entityType: CrudioEntityDefinition): CrudioEntityInstance {
+	private CreateEntityInstance(entityType: CrudioEntityDefinition, reason: "manytomany" | "filltable" | "connectchild" | "streaming"): CrudioEntityInstance {
 		var entity: CrudioEntityInstance = entityType.CreateInstance();
 		this.SetupEntityGenerators(entity);
 		entity.DataValues[this.config.idField] = randomUUID();
@@ -1658,9 +1660,9 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} parent_entity
 	 * @param {string} field_name
 	 * @param {number} row_index
-	 * @param {CrudioEntityInstance} target_connection
+	 * @param {CrudioEntityInstance} childs_subobject
 	 */
-	private ConnectChildWithRelatedEntity(parent_entity: CrudioEntityInstance, field_name: string, row_index: number, target_connection: CrudioEntityInstance) {
+	private ConnectChildWithRelatedEntity(parent_entity: CrudioEntityInstance, field_name: string, row_index: number, childs_subobject: CrudioEntityInstance) {
 		// The organisation may not yet have a field for Users
 		if (!parent_entity.DataValues[field_name]) {
 			parent_entity.DataValues[field_name] = [];
@@ -1676,24 +1678,27 @@ export default class CrudioDataModel {
 			const global_table = this.GetTableForEntityName(entity_definition.Name);
 
 			while (parent_array.length < row_index + 1) {
-				const new_entity = this.CreateEntityInstance(entity_definition);
+				const child_tentity = this.CreateEntityInstance(entity_definition, "connectchild");
 
 				// add the new entity to the global table
-				global_table.DataRows.push(new_entity);
+				global_table.DataRows.push(child_tentity);
 
-				this.ConnectChildEntityToParentEntity(new_entity, parent_entity);
+				// after this the child points to its parent in a one to many parent <- child
+				this.ConnectOneToManyRelationship(child_tentity, parent_entity);
 
-				if (new_entity.EntityDefinition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
-					const joinTable = this.GetManyToManyTable(new_entity.EntityDefinition, target_connection.EntityDefinition);
-					this.CreateManyToManyRow(joinTable, new_entity.DataValues[this.config.idField], target_connection.DataValues[this.config.idField]);
+				if (child_tentity.EntityDefinition.HasManyToManyRelationship(childs_subobject.EntityDefinition)) {
+					const joinTable = this.GetManyToManyTable(child_tentity.EntityDefinition, childs_subobject.EntityDefinition);
+					this.CreateManyToManyRow(joinTable, child_tentity.DataValues[this.config.idField], childs_subobject.DataValues[this.config.idField]);
 				} else {
-					this.ConnectChildEntityToParentEntity(new_entity, target_connection);
+					// after this the subobject points to the child  in a one to many : child <- subobject
+					// this is like creating a new IoT device then adding it to the device type
+					this.ConnectOneToManyRelationship(child_tentity, childs_subobject);
 				}
 			}
-		} else if (entity_definition.HasManyToManyRelationship(target_connection.EntityDefinition)) {
+		} else if (entity_definition.HasManyToManyRelationship(childs_subobject.EntityDefinition)) {
 			const source = parent_array[row_index];
-			const joinTable = this.GetManyToManyTable(entity_definition, target_connection.EntityDefinition);
-			this.CreateManyToManyRow(joinTable, source.DataValues[this.config.idField], target_connection.DataValues[this.config.idField]);
+			const joinTable = this.GetManyToManyTable(entity_definition, childs_subobject.EntityDefinition);
+			this.CreateManyToManyRow(joinTable, source.DataValues[this.config.idField], childs_subobject.DataValues[this.config.idField]);
 		}
 
 		if (row_index > parent_array.length) {
@@ -1854,8 +1859,10 @@ export default class CrudioDataModel {
 	 * @private
 	 */
 	public async ExecuteStreams(dataWrapper: ICrudioDataWrapper | null): Promise<void> {
-		console.log();
-		console.log("Create streaming data and load into database tables...");
+		if (this.DataModel.streams.length > 0) {
+			console.log();
+			console.log("Create streaming data and load batches of rows into database tables...");
+		}
 
 		for (var i = 0; i < this.DataModel.streams.length; i++) {
 			const s = this.DataModel.streams[i];
@@ -1892,10 +1899,10 @@ export default class CrudioDataModel {
 				definitionField.fieldOptions.generator = outputDefinition[k];
 			});
 
-			const entity = this.CreateEntityInstance(entity_definition);
+			const entity = this.CreateEntityInstance(entity_definition, "streaming");
 
 			this.ProcessTokensInEntity(entity);
-			this.ConnectChildEntityToParentEntity(entity, parent);
+			this.ConnectOneToManyRelationship(entity, parent);
 
 			// process triggers if they are configured to execute when generating streaming data
 			if (entity_definition.triggers === "streaming") {

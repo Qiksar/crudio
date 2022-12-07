@@ -13,11 +13,16 @@ describe("Save datamodel", () => {
 		const db: ICrudioDataWrapper = new CrudioHasuraWrapper(config, datamodel);
 		expect(db).not.toBeNull;
 
+		try{
 		await db.CreateDatabaseSchema();
 		await db.PopulateDatabaseTables();
 		await datamodel.ExecuteStreams(db);
 
 		const tracker = new CrudioHasura(config, datamodel);
 		await tracker.Track();
+		}
+		catch(e){
+			throw e;
+		}
 	});
 });

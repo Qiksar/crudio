@@ -20,7 +20,7 @@
     "build:types": "tsc --skipLibCheck -p config/tsconfig.types.json",
     "clean": "rm -rf dist/*",
     "upgrade": "npx npm-check-updates -u && npm install",
-    "test": "jest --no-cache --runInBand",
+    "test": "jest --no-cache --runInBand --detectOpenHandles",
     "specific_test": "jest -t 'Execute stream'",
     "git_update": "git pull",
     "git_stage": "npm run build && npm run lint && npm run format && npm run test && git stage .",

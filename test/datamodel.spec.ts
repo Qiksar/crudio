@@ -67,41 +67,6 @@ describe("Create datamodel", () => {
 		expect(count).toEqual(0);
 	});
 
-	test("Load data model and include file", () => {
-		config.datamodel = "datamodel/blocks/iot.json";
-		const repo = CrudioDataModel.FromJson(config, true);
-
-		expect(() => repo.GetTable("Entitys")).toThrow();
-
-		const deviceSites: CrudioTable = repo.GetTable("DeviceSites");
-		const devicetypes: CrudioTable = repo.GetTable("DeviceTypes");
-		let devices: CrudioTable = repo.GetTable("Devices");
-		let deviceReadings: CrudioTable = repo.GetTable("DeviceReadings");
-
-		// triggers do not execute for IoT devices until the streaming phase
-		// assert that devices and readings have not been created, but sites and device types are present
-		// the trigger is configured on DeviceSite, so that appropriate devices can be assigned
-		expect(deviceSites).not.toBeNull();
-		expect(deviceSites.DataRows.length).toBeGreaterThan(0);
-
-		expect(devicetypes).not.toBeNull();
-		expect(devicetypes.DataRows.length).toBeGreaterThan(0);
-
-		expect(devices).not.toBeNull();
-		expect(devicetypes.DataRows.length).toBeGreaterThan(0);
-
-		expect(deviceReadings).not.toBeNull();
-		expect(deviceReadings.DataRows.length).toEqual(0);
-
-		repo.ExecuteStreams(null);
-		devices = repo.GetTable("Devices");
-		deviceReadings = repo.GetTable("DeviceReadings");
-
-		expect(deviceReadings.DataRows[0].DataValues.Device).not.toBeNull();
-		expect(deviceReadings.DataRows[0].DataValues.Device.DeviceType).not.toBeNull();
-		expect(deviceReadings.DataRows[0].DataValues.Device.DeviceSite).not.toBeNull();
-	});
-
 	test("Check for unique email addresses", () => {
 		config.datamodel = "datamodel/datamodel.json";
 		const repo = CrudioDataModel.FromJson(config, true);

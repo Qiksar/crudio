@@ -76,14 +76,6 @@ export interface ICrudioConfig {
 	datamodel: string;
 
 	/**
-	 * Name of a further JSON file to include with the main data model
-	 * @date 7/21/2022 - 1:47:19 PM
-	 *
-	 * @type {string}
-	 */
-	include?: string;
-
-	/**
 	 * Hold a URI type connection string
 	 * @date 10/10/2022 - 21:11:54
 	 *
