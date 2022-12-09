@@ -69,26 +69,4 @@ export default class CrudioField implements ICrudioField {
     this.fieldType = fieldType;
     this.fieldOptions = options;
   }
-
-  /**
-   * Get the database equivalent of the field's data type 
-   * https://www.postgresql.org/docs/current/datatype.html
-   * @date 7/18/2022 - 3:35:36 PM
-   *
-   * @public
-   * @readonly
-   * @type {string}
-   */
-  public get GetDatabaseFieldType() {
-    switch (this.fieldType.toLowerCase()) {
-      case "string":
-        return "text";
-
-      case "string":
-        return "text";
-
-      default:
-        return this.fieldType;
-    }
-  }
 }

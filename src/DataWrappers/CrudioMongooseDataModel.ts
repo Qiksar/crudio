@@ -3,7 +3,6 @@ import { ICrudioConfig } from "@/CrudioTypes";
 import CrudioDataModel from "@/CrudioDataModel";
 import CrudioRelationship from "@/CrudioRelationship";
 import CrudioTable from "@/CrudioTable";
-import { stringify } from "flatted";
 
 /**
  * Cache details of relationship between two tables
@@ -176,10 +175,8 @@ export default class CrudioMongooseDataModel {
 			case "boolean":
 				return "Boolean";
 
-			case "integer":
-				return "Number";
-
 			case "decimal":
+			case "integer":
 				return "Number";
 
 			case "timestamp":
@@ -187,10 +184,10 @@ export default class CrudioMongooseDataModel {
 				return "Date";
 
 			case "array":
-				return "Array;";
+				return "Array";
 
 			case "jsonb":
-				return "Map;";
+				return "Map";
 
 			default:
 				throw new Error(`'${fieldType}' has no assigned equivalent in Mongoose`);

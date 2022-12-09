@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
+import validate from "validator";
 
 import { ICrudioAssignment, ICrudioConfig, ICrudioDataWrapper, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioStream, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
@@ -1241,6 +1242,7 @@ export default class CrudioDataModel {
 
 				if (typeof field_value === "string" && field_value.indexOf("[") >= 0) {
 					const detokenised_value = this.ReplaceTokens(field_value, temporary_entity);
+
 					temporary_entity.DataValues[field_name] = detokenised_value;
 
 					if (typeof detokenised_value === "string" && detokenised_value.indexOf("[") >= 0) {
@@ -1310,7 +1312,7 @@ export default class CrudioDataModel {
 	 * @param {CrudioEntityInstance} entity
 	 * @returns {string}
 	 */
-	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance | null = null): string {
+	private ReplaceTokens(fieldValue: string, entity: CrudioEntityInstance | null = null): any {
 		do {
 			var tokens: string[] | null = fieldValue.match(/\[.*?\]+/g);
 			var value: any;
@@ -1367,7 +1369,13 @@ export default class CrudioDataModel {
 		} while (loop);
 
 		if (typeof fieldValue === "string" && fieldValue.trim()[0] === "`") {
-			return this.ExecuteFunction(fieldValue, entity);
+			const func_ret_val = this.ExecuteFunction(fieldValue, entity);
+
+			if (typeof func_ret_val !== "string" && isNaN(func_ret_val)) {
+				throw `ReplaceTokens: Custom code returned NaN\r\nCode: ${fieldValue}\r\nCheck that replacement of token values did not lead to a divide by 0 or syntax errors`;
+			}
+
+			return func_ret_val;
 		}
 
 		return fieldValue;
@@ -1584,14 +1592,13 @@ export default class CrudioDataModel {
 
 			const index_text = field_name.slice(bracket + 1, field_name.indexOf(")", bracket + 1));
 			const row_parts = index_text.split("-");
-			var row_start = Number(row_parts[0]);
-			var row_end: number;
 
-			row_end = row_parts.length == 2 ? Number(row_parts[1]) : (row_end = row_start);
-
-			if (row_start === NaN || row_end === NaN) {
+			if (isNaN(row_parts[0] as any) || (row_parts.length > 1 && isNaN(row_parts[1] as any))) {
 				throw new Error(`Error: Syntax error - invalid row index in ${script}`);
 			}
+
+			var row_start = Number.parseInt(row_parts[0]);
+			var row_end = row_parts.length == 2 ? Number(row_parts[1]) : (row_end = row_start);
 
 			row_index = row_start;
 
@@ -1797,12 +1804,13 @@ export default class CrudioDataModel {
 			if (start > 0) {
 				var end = p.indexOf(")");
 				var val = p.substring(start, end);
-				index = Number.parseInt(val);
-				p = p.substring(0, start - 1);
 
-				if (index === NaN) {
+				if (isNaN(val as any)) {
 					throw new Error(`Error: failed to find a numeric index for ${p} in '${path}'`);
 				}
+
+				index = Number.parseInt(val);
+				p = p.substring(0, start - 1);
 			}
 
 			obj = this.GetTable(p).DataRows;

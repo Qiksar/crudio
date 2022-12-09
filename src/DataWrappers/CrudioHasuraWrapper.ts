@@ -175,7 +175,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 		// The list of columns goes into the INSERT statement
 		entity.fields.map((f: CrudioField) => {
 			if (f.fieldName != entity.KeyField.fieldName) {
-				instructions.table_column_definitions += `"${f.fieldName}" ${f.GetDatabaseFieldType} ${f.fieldOptions.isUnique ? "UNIQUE" : ""} ${f.fieldOptions.isRequired ? "NOT NULL" : ""},
+				instructions.table_column_definitions += `"${f.fieldName}" ${this.GetDatabaseFieldType(f)} ${f.fieldOptions.isUnique ? "UNIQUE" : ""} ${f.fieldOptions.isRequired ? "NOT NULL" : ""},
 				`;
 
 				if (f.defaultValue) {
@@ -189,7 +189,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 		// add foreign keys to insert columns for one to many
 		entity.OneToManyRelationships.map(r => {
 			var column = CrudioUtils.ToColumnId(r.FromColumn);
-			instructions.table_column_definitions += `"${column}" uuid,`; 
+			instructions.table_column_definitions += `"${column}" uuid,`;
 			instructions.table_field_list.push(column);
 		});
 
@@ -309,5 +309,30 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 		`;
 
 		return sql;
+	}
+
+	/**
+	 * Get the database equivalent of the field's data type
+	 * https://www.postgresql.org/docs/current/datatype.html
+	 * @date 7/18/2022 - 3:35:36 PM
+	 *
+	 * @public
+	 * @readonly
+	 * @type {string}
+	 */
+	private GetDatabaseFieldType(field: CrudioField): string {
+		switch (field.fieldType.toLowerCase()) {
+			case "string":
+				return "text";
+
+			// specific handling of decimal types for postgres
+			case "number":
+			case "decimal":
+				return "numeric";
+
+			// use integer, jsonb etc. 
+			default:
+				return field.fieldType;
+		}
 	}
 }

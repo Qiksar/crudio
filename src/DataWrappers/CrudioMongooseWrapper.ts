@@ -188,7 +188,8 @@ export default class CrudioMongooseWrapper implements ICrudioDataWrapper {
 				var row = new model(values);
 				const result = await row.save();
 			} catch (e) {
-				console.log("Failed to save", values, "\n\n", e);
+				console.log("Failed to save", values, "\n\n");
+				//console.log("Exception:\n\n", e);
 			}
 		}
 	}

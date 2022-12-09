@@ -22,6 +22,7 @@ describe("Save datamodel", () => {
 		await tracker.Track();
 		}
 		catch(e){
+			console.log(e);
 			throw e;
 		}
 	});
