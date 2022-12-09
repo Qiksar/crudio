@@ -8,20 +8,19 @@ describe("Save datamodel", () => {
 	jest.setTimeout(120000);
 
 	test("Populate PostgreSQL and track in Hasura", async () => {
-		const datamodel = CrudioDataModel.FromJson(config, true);
+		try {
+			const datamodel = CrudioDataModel.FromJson(config, true);
 
-		const db: ICrudioDataWrapper = new CrudioHasuraWrapper(config, datamodel);
-		expect(db).not.toBeNull;
+			const db: ICrudioDataWrapper = new CrudioHasuraWrapper(config, datamodel);
+			expect(db).not.toBeNull;
 
-		try{
-		await db.CreateDatabaseSchema();
-		await db.PopulateDatabaseTables();
-		await datamodel.ExecuteStreams(db);
+			await db.CreateDatabaseSchema();
+			await db.PopulateDatabaseTables();
+			await datamodel.ExecuteStreams(db);
 
-		const tracker = new CrudioHasura(config, datamodel);
-		await tracker.Track();
-		}
-		catch(e){
+			const tracker = new CrudioHasura(config, datamodel);
+			await tracker.Track();
+		} catch (e) {
 			console.log(e);
 			throw e;
 		}

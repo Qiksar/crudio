@@ -1371,8 +1371,8 @@ export default class CrudioDataModel {
 		if (typeof fieldValue === "string" && fieldValue.trim()[0] === "`") {
 			const func_ret_val = this.ExecuteFunction(fieldValue, entity);
 
-			if (typeof func_ret_val !== "string" && isNaN(func_ret_val)) {
-				throw `ReplaceTokens: Custom code returned NaN\r\nCode: ${fieldValue}\r\nCheck that replacement of token values did not lead to a divide by 0 or syntax errors`;
+			if (func_ret_val === null || (typeof func_ret_val !== "string" && isNaN(func_ret_val))) {
+				throw `ReplaceTokens: Custom code returned null or NaN\r\nCode: ${fieldValue}\r\nCheck that replacement of token values did not lead to a divide by 0 or syntax errors`;
 			}
 
 			return func_ret_val;
@@ -1912,6 +1912,10 @@ export default class CrudioDataModel {
 			this.ProcessTokensInEntity(entity);
 			this.ConnectOneToManyRelationship(entity, parent);
 
+			if (isNaN(entity.DataValues.value)) {
+				console.log("ouch");
+			}
+
 			// process triggers if they are configured to execute when generating streaming data
 			if (entity_definition.triggers === "streaming") {
 				this.ProcessTriggersForEntity(entity);
@@ -1942,8 +1946,14 @@ export default class CrudioDataModel {
 			}
 		}
 
+		const bad = childTable.DataRows.filter(r => isNaN(r.DataValues.value));
+
 		if (dataWrapper) {
-			await dataWrapper.InsertTableData(childTable, null);
+			try {
+				await dataWrapper.InsertTableData(childTable, null);
+			} catch (e) {
+				throw e;
+			}
 			childTable.DataRows = [];
 		}
 	}

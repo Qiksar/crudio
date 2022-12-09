@@ -272,7 +272,7 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 					insert_value = datavalue.replaceAll("'", "''").trim();
 				}
 
-				values += `${insert_value ? "'" + insert_value + "'" : "NULL"},`;
+				values += `${insert_value !== null && insert_value !== undefined ? "'" + insert_value + "'" : "NULL"},`;
 			});
 
 			values = values.substring(0, values.length - 1);
@@ -328,9 +328,9 @@ export default class CrudioHasuraWrapper implements ICrudioDataWrapper {
 			// specific handling of decimal types for postgres
 			case "number":
 			case "decimal":
-				return "numeric";
+				return "double precision";
 
-			// use integer, jsonb etc. 
+			// use integer, jsonb etc.
 			default:
 				return field.fieldType;
 		}

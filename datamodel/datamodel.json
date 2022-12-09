@@ -421,7 +421,8 @@
 					"name": "timestamp"
 				},
 				"value": {
-					"type": "decimal"
+					"type": "decimal",
+					"required": true
 				}
 			},
 			"relationships": [

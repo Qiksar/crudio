@@ -1,6 +1,6 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.29.1",
+  "version": "0.29.2",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "dist/cjs/crudio_cli.js",
   "main": "dist/cjs/crudio_cli.js",
@@ -21,7 +21,7 @@
     "clean": "rm -rf dist/*",
     "upgrade": "npx npm-check-updates -u && npm install",
     "test": "jest --no-cache --runInBand --detectOpenHandles",
-    "specific_test": "jest -t 'Execute stream'",
+    "specific_test": "jest --no-cache --runInBand --detectOpenHandles -t 'Populate PostgreSQL'",
     "git_update": "git pull",
     "git_stage": "npm run build && npm run lint && npm run format && npm run test && git stage .",
     "lint": "eslint --ext .js,.ts,.vue ./",
