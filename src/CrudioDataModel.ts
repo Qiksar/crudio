@@ -1453,15 +1453,33 @@ export default class CrudioDataModel {
 			if (generator_values.startsWith("years_ago_")) {
 				const years = parseInt(generator_values.replace("years_ago_", ""));
 
-				return DateTime.now()
-					.plus(years * -1)
+				const date = DateTime.now()
+					.plus({ years: years * -1 })
 					.toUTC()
 					.toString();
+
+				return date;
 			} else if (generator_values.startsWith("months_ago_")) {
 				const months = parseInt(generator_values.replace("months_ago_", ""));
 
 				return DateTime.now()
-					.plus(months * -1)
+					.plus({ months: months * -1 })
+					.toUTC()
+					.toString();
+			} else if (generator_values.startsWith("years_ahead_")) {
+				const years = parseInt(generator_values.replace("years_ago_", ""));
+
+				const date = DateTime.now()
+					.plus({ years: years })
+					.toUTC()
+					.toString();
+
+				return date;
+			} else if (generator_values.startsWith("months_ahead_")) {
+				const months = parseInt(generator_values.replace("months_ago_", ""));
+
+				return DateTime.now()
+					.plus({ months: months })
 					.toUTC()
 					.toString();
 			}
