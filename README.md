@@ -4,7 +4,7 @@
 <table>
   <tr>
     <td> <img src="https://user-images.githubusercontent.com/45703746/182263014-7a817506-4c50-4418-8d77-06ccb61a6438.png"></td>
-    <td> <h1>Crudio</h1> Prototype Faster</td>
+    <td> <h1>Crudio</h1> Test Thoroughly Prototype Faster</td>
     <td> 
     <ul>
     <li> <b>F</b>lexible data generation for <b>prototypes</b> </li>
