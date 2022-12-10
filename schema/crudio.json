@@ -224,19 +224,32 @@
 			]
 		},
 		"stream": {
-			"description": "a stream which creates a number of outputs for a specified entity",
+			"description": "streams create a collection of child entities beneath a parent entity using nested loops to control values of generators used in the data creation process",
 			"type": "object",
 			"properties": {
 				"name": {
+					"description": "unique name of the stream definition",
 					"type": "string"
 				},
 				"parentEntity": {
+					"description": "the parent entity type which will have a one to many relationship reference from the child entity",
+					"examples": [
+						"Device"
+					],
 					"type": "string"
 				},
 				"key": {
+					"description": "path to a field on the parent entity which is used to filter which parent entities are used in the stream",
+					"examples": [
+						"DeviceType.name - the stream navigates in the Device object (as the parent entity), finds the DeviceType field on the Device object, and compares the 'name' field  with the 'value' attribute defined in the stream"
+					],
 					"type": "string"
 				},
 				"value": {
+					"description": "the value of the field on the parent entity used for filtering purposes",
+					"examples": [
+						"temperature_sensor"
+					],
 					"type": [
 						"string",
 						"number",
@@ -244,6 +257,10 @@
 					]
 				},
 				"createEntity": {
+					"description": "the child entity to be created and attached to the parent entity",
+					"examples": [
+						"DeviceReading"
+					],
 					"type": "string"
 				},
 				"loop": {
