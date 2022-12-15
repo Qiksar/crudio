@@ -73,3 +73,21 @@ services:
     command:
       - graphql-engine
       - serve
+
+
+  cube:
+    image: cubejs/cube
+    container_name: cube
+    volumes:
+      - ./cube_conf:/cube/conf
+    ports:
+      - "4040:4000"
+    environment:
+      - CUBEJS_DEV_MODE=true
+      - CUBEJS_DB_TYPE=postgres
+      - CUBEJS_DB_HOST=db
+      - CUBEJS_DB_NAME=postgres
+      - CUBEJS_DB_USER=postgres
+      - CUBEJS_DB_PASS=crudio
+    depends_on:
+      - db

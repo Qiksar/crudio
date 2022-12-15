@@ -1,6 +1,7 @@
 # local files
 repo/scratch/*
 .local
+cube_conf
 
 # Output files
 test/unit/output/*
