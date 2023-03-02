@@ -2,7 +2,6 @@ import * as fs from "fs";
 import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
-import validate from "validator";
 
 import { ICrudioAssignment, ICrudioConfig, ICrudioDataWrapper, ICrudioEntityDefinition, ICrudioFieldOptions, ICrudioGenerator, ICrudioSchemaDefinition, ICrudioStream, ICrudioTrigger, ISchemaRelationship } from "./CrudioTypes";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";

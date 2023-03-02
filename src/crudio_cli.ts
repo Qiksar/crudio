@@ -10,173 +10,199 @@ import CrudioHasura from "./CrudioHasura";
 import { ICrudioConfig } from "./CrudioTypes";
 import CrudioMongooseWrapper from "./DataWrappers/CrudioMongooseWrapper";
 
-const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
+const manifest_file =
+  "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
 const Fetch = async (url: string, output_path: string): Promise<void> => {
-	var result: AxiosResponse;
+  var result: AxiosResponse;
 
-	try {
-		result = await axios.get(url);
-	} catch (e) {
-		console.log(`Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`);
-	}
+  try {
+    result = await axios.get(url);
+  } catch (e) {
+    console.log(
+      `Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`
+    );
+  }
 
-	var text = typeof result.data === "object" ? JSON.stringify(result.data) : result.data;
+  var text =
+    typeof result.data === "object" ? JSON.stringify(result.data) : result.data;
 
-	const parts = url.replace("https://", "").split("/");
-	const filename = parts[parts.length - 1];
-	const outFile: string = output_path + "/" + filename;
+  const parts = url.replace("https://", "").split("/");
+  const filename = parts[parts.length - 1];
+  const outFile: string = output_path + "/" + filename;
 
-	fs.writeFileSync(outFile, text);
-	if (outFile.toLowerCase().endsWith("sh")) {
-		await fs.chmod(outFile, 0o777, e => {
-			if (e) throw e;
-		});
-	}
+  fs.writeFileSync(outFile, text);
+  if (outFile.toLowerCase().endsWith("sh")) {
+    await fs.chmod(outFile, 0o777, (e) => {
+      if (e) throw e;
+    });
+  }
 };
 
 const Init = async (config: any): Promise<void> => {
-	console.log("Initialise new Crudio project in: " + config.project);
-	console.log("");
+  console.log("Initialise new Crudio project in: " + config.project);
+  console.log("");
 
-	if (fs.existsSync(config.project)) {
-		console.error("Folder already exists, can not continue");
-		return;
-	}
+  if (fs.existsSync(config.project)) {
+    console.error("Folder already exists, can not continue");
+    return;
+  }
 
-	fs.mkdirSync(config.project);
+  fs.mkdirSync(config.project);
 
-	if (config.verbose) {
-		console.log();
-		console.log("Created folder: " + config.project);
-	}
+  if (config.verbose) {
+    console.log();
+    console.log("Created folder: " + config.project);
+  }
 
-	if (config.verbose) {
-		console.log();
-		console.log("Created folder: " + config.project);
-		console.log("Fetch manifest");
-	}
+  if (config.verbose) {
+    console.log();
+    console.log("Created folder: " + config.project);
+    console.log("Fetch manifest");
+  }
 
-	fs.mkdirSync(config.project + "/datamodel");
+  fs.mkdirSync(config.project + "/datamodel");
 
-	var result: AxiosResponse = await axios.get(manifest_file);
-	var manifest = result.data as string[];
+  var result: AxiosResponse = await axios.get(manifest_file);
+  var manifest = result.data as string[];
 
-	for (var i = 0; i < manifest.length; i++) {
-		const file: any = manifest[i];
+  for (var i = 0; i < manifest.length; i++) {
+    const file: any = manifest[i];
 
-		if (config.verbose) {
-			console.log("Fetch: " + file.source);
-		}
+    if (config.verbose) {
+      console.log("Fetch: " + file.source);
+    }
 
-		await Fetch(file.source, file.location == "." ? config.project : config.project + "/" + file.location);
-	}
+    await Fetch(
+      file.source,
+      file.location == "."
+        ? config.project
+        : config.project + "/" + file.location
+    );
+  }
 
-	console.log();
-	console.log("Project setup complete. Remember to edit the docker-compose file and set correct ports to avoid conflicts between projects.");
+  console.log();
+  console.log(
+    "Project setup complete. Remember to edit the docker-compose file and set correct ports to avoid conflicts between projects."
+  );
 };
 
 setTimeout(async () => {
-	const cli = new CrudioCLI(process.argv);
-	const config: ICrudioConfig = cli.Config;
+  const cli = new CrudioCLI(process.argv);
 
-	if (config.verbose) {
-		console.log("Verbose option enabled");
-		console.log();
-		console.log("Configuration:");
-		console.log(config);
-		console.log();
-	}
+  console.log("CRUDIO");
+  console.log("------");
+  console.log();
 
-	if (config.project) {
-		await Init(config);
-		return;
-	}
+  const config: ICrudioConfig = cli.Config;
 
-	if (config.datamodel === undefined) {
-		console.error("Error: data model not specified. Use the -m or --datamodel option to specify a definition file (e.g. datamodel.json). Use -h to view options.");
-		return;
-	}
+  if (config.verbose) {
+    console.log("Verbose option enabled");
+    console.log();
+    console.log("Configuration:");
+    console.log(config);
+    console.log();
+  }
 
-	console.log(`Loading Crudio data model definition from: "${config.datamodel}"`);
-	console.log();
+  if (config.project) {
+    await Init(config);
+    return;
+  }
 
-	const datamodel = CrudioDataModel.FromJson(config, true);
-	console.log("Data model definition loaded");
+  if (config.datamodel === undefined) {
+    console.error(
+      "Error: data model not specified. Use the -m or --datamodel option to specify a definition file (e.g. datamodel.json). Use -h to view options."
+    );
+    return;
+  }
 
-	console.log("Data model populated");
+  console.log(
+    `Loading Crudio data model definition from: "${config.datamodel}"`
+  );
+  console.log();
 
-	if (config.diagram) {
-		console.log(`Output diagram to ${config.diagram}`);
+  const datamodel = CrudioDataModel.FromJson(config, true);
+  console.log("Data model definition loaded");
 
-		const diagram = datamodel.ToMermaid();
+  console.log("Data model populated");
 
-		fs.writeFileSync(config.diagram, diagram);
-	}
+  if (config.diagram) {
+    console.log(`Output diagram to ${config.diagram}`);
 
-	if (config.target === "m") {
-		await PopulateMongoose(config, datamodel);
-	} else if (config.target === "p") {
-		await PopulatePostgres(config, datamodel);
-	} else {
-		throw "--target options must be 'p' for PostgreSQL or 'm' for MongoDB";
-	}
+    const diagram = datamodel.ToMermaid();
 
-	console.log();
-	console.log("Crudio complete!");
+    fs.writeFileSync(config.diagram, diagram);
+  }
+
+  if (config.target === "m") {
+    await PopulateMongoose(config, datamodel);
+  } else if (config.target === "p") {
+    await PopulatePostgres(config, datamodel);
+  } else {
+    throw "--target options must be 'p' for PostgreSQL or 'm' for MongoDB";
+  }
+
+  console.log();
+  console.log("Crudio complete!");
 }, 100);
 
 async function PopulatePostgres(config, datamodel) {
-	console.log("Populating PostgreSQL tables with data...");
+  console.log("Populating PostgreSQL tables with data...");
 
-	const db = new CrudioHasuraWrapper(config, datamodel);
+  const db = new CrudioHasuraWrapper(config, datamodel);
 
-	console.log(`Creating empty database schema ${config.schema}...`);
-	await db.CreateDatabaseSchema();
+  if (config.wipe) {
+    console.log(`Creating database schema ${config.schema}...`);
+    await db.CreateDatabaseSchema();
+  }
 
-	console.log();
-	console.log("Populating tables with data...");
-	console.log();
+  console.log();
+  console.log("Populating tables with data...");
+  console.log();
 
-	await db.PopulateDatabaseTables();
+  await db.PopulateDatabaseTables();
 
-	console.log();
-	console.log("Database tables loaded with structured data.");
+  console.log();
+  console.log("Database tables loaded with structured data.");
 
-	// Create streaming data
-	await datamodel.ExecuteStreams(db);
-	console.log("Database tables loaded with streaming data.");
-	
-	await db.Close();
+  // Create streaming data
+  await datamodel.ExecuteStreams(db);
+  console.log("Database tables loaded with streaming data.");
 
-	console.log();
-	console.log("Database has been loaded.");
-	console.log();
-	console.log("Setup Hasura tracking...");
-	const tracker = new CrudioHasura(config, datamodel);
-	await tracker.Track();
+  await db.Close();
+
+  console.log();
+  console.log("Database has been loaded.");
+  console.log();
+  console.log("Setup Hasura tracking...");
+  const tracker = new CrudioHasura(config, datamodel);
+  await tracker.Track();
 }
 
 async function PopulateMongoose(config, datamodel) {
-	console.log("Populating MongoDB using Mongoose...");
+  console.log("Populating MongoDB using Mongoose...");
 
-	const db = new CrudioMongooseWrapper(config, datamodel);
+  const db = new CrudioMongooseWrapper(config, datamodel);
 
-	console.log("Populating tables with data...");
-	console.log();
+  console.log("Populating tables with data...");
+  console.log();
 
-	await db.CreateDatabaseSchema();
-	await db.PopulateDatabaseTables();
-	
-	console.log();
-	console.log("Database tables loaded with structured data.");
+  if (config.wipe) {
+    console.log(`Creating database schema ${config.schema}...`);
+    await db.CreateDatabaseSchema();
+  }
 
-	// Create streaming data
-	await datamodel.ExecuteStreams(db);
-	console.log("Database tables loaded with streaming data.");
+  await db.PopulateDatabaseTables();
 
-	await db.Close();
+  console.log();
+  console.log("Database tables loaded with structured data.");
 
-	console.log();
-	console.log("Database has been loaded.");
+  // Create streaming data
+  await datamodel.ExecuteStreams(db);
+  console.log("Database tables loaded with streaming data.");
+
+  await db.Close();
+
+  console.log();
+  console.log("Database has been loaded.");
 }
