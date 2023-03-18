@@ -1,10 +1,11 @@
-import CrudioDataModel from "../CrudioDataModel";
-import CrudioField from "../CrudioField";
-import CrudioTable from "../CrudioTable";
-import { ICrudioConfig, ICrudioDataWrapper } from "../CrudioTypes";
-import CrudioEntityDefinition from "../CrudioEntityDefinition";
-import CrudioHasura from "../CrudioHasura";
-import CrudioUtils from "../CrudioUtils";
+import CrudioDataModel from "../datamodel/CrudioDataModel";
+import CrudioField from "../datamodel/CrudioField";
+import CrudioTable from "../datamodel/CrudioTable";
+import { ICrudioDataWrapper } from "../types/ICrudioDataWrapper";
+import { ICrudioConfig } from "../types/ICrudioConfig";
+import CrudioEntityDefinition from "../datamodel/CrudioEntityDefinition";
+import CrudioHasura from "./CrudioHasura";
+import CrudioUtils from "../utils/CrudioUtils";
 import { SqlInstructionList } from "./SqlInstructionList";
 
 /**

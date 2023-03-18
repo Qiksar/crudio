@@ -1,9 +1,10 @@
-import CrudioDataModel from "@/CrudioDataModel";
-import CrudioEntityDefinition from "@/CrudioEntityDefinition";
-import CrudioField from "@/CrudioField";
-import CrudioRelationship from "@/CrudioRelationship";
-import CrudioTable from "@/CrudioTable";
-import { ICrudioDataWrapper, ICrudioConfig } from "@/CrudioTypes";
+import CrudioDataModel from "@/datamodel/CrudioDataModel";
+import CrudioEntityDefinition from "@/datamodel/CrudioEntityDefinition";
+import CrudioField from "@/datamodel/CrudioField";
+import CrudioRelationship from "@/datamodel/CrudioRelationship";
+import CrudioTable from "@/datamodel/CrudioTable";
+import { ICrudioDataWrapper } from "@/types/ICrudioDataWrapper";
+import { ICrudioConfig } from "@/types/ICrudioConfig";
 import Mongoose, { Model } from "mongoose";
 import CrudioMongooseDataModel from "./CrudioMongooseDataModel";
 import { SqlInstructionList } from "./SqlInstructionList";

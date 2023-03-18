@@ -1,8 +1,8 @@
 import axios from "axios";
-import CrudioDataModel from "./CrudioDataModel";
-import CrudioRelationship from "./CrudioRelationship";
-import CrudioUtils from "./CrudioUtils";
-import { ICrudioConfig } from "./CrudioTypes";
+import CrudioDataModel from "../datamodel/CrudioDataModel";
+import CrudioRelationship from "../datamodel/CrudioRelationship";
+import CrudioUtils from "../utils/CrudioUtils";
+import { ICrudioConfig } from "../types/ICrudioConfig";
 
 /**
  * Simple interface to Hasura GraphQL API
@@ -21,7 +21,7 @@ export default class CrudioHasura {
 	 * @param {ICrudioConfig} config
 	 * @param {CrudioDataModel} datamodel
 	 */
-	constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) { }
+	constructor(private config: ICrudioConfig, private datamodel: CrudioDataModel) {}
 
 	/**
 	 * Track all tables and relationships in the data model
@@ -61,8 +61,8 @@ export default class CrudioHasura {
 					},
 					configuration: {
 						custom_name: this.TrackedTableName(table_name),
-					}
-				}
+					},
+				},
 			};
 
 			await this.ExecuteGraphqlCommand("/v1/metadata", query);

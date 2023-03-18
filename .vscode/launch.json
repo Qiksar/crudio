@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/dist/cjs/crudio_cli.js",
+            "program": "${workspaceFolder}/dist/cjs/cli/crudio_cli.js",
             "args": ["-v","-m","datamodel/datamodel.json"],
             "outFiles": [
                 "${workspaceFolder}/**/*.js"

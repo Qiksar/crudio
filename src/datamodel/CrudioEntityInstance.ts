@@ -1,5 +1,5 @@
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
-import { ICrudioConfig } from "./CrudioTypes";
+import { ICrudioConfig } from "../types/ICrudioConfig";
 
 /**
  * A data object populated with generated field values, equivalent to a row in a database

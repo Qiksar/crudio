@@ -4,11 +4,11 @@ import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
-import CrudioHasuraWrapper from "./DataWrappers/CrudioHasuraWrapper";
-import CrudioDataModel from "./CrudioDataModel";
-import CrudioHasura from "./CrudioHasura";
-import { ICrudioConfig } from "./CrudioTypes";
-import CrudioMongooseWrapper from "./DataWrappers/CrudioMongooseWrapper";
+import CrudioHasuraWrapper from "../wrappers/CrudioHasuraWrapper";
+import CrudioDataModel from "../datamodel/CrudioDataModel";
+import CrudioHasura from "../wrappers/CrudioHasura";
+import { ICrudioConfig } from "../types/ICrudioConfig";
+import CrudioMongooseWrapper from "../wrappers/CrudioMongooseWrapper";
 
 const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
@@ -146,7 +146,7 @@ async function PopulatePostgres(config, datamodel) {
 	// Create streaming data
 	await datamodel.ExecuteStreams(db);
 	console.log("Database tables loaded with streaming data.");
-	
+
 	await db.Close();
 
 	console.log();
@@ -167,7 +167,7 @@ async function PopulateMongoose(config, datamodel) {
 
 	await db.CreateDatabaseSchema();
 	await db.PopulateDatabaseTables();
-	
+
 	console.log();
 	console.log("Database tables loaded with structured data.");
 

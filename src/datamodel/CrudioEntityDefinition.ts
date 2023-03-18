@@ -1,9 +1,10 @@
-import { ICrudioConfig, ICrudioFieldOptions } from "./CrudioTypes";
+import { ICrudioFieldOptions } from "../types/ICrudioFieldOptions";
+import { ICrudioConfig } from "../types/ICrudioConfig";
 
 import CrudioField from "./CrudioField";
 import CrudioEntityInstance from "./CrudioEntityInstance";
 import CrudioRelationship from "./CrudioRelationship";
-import CrudioUtils from "./CrudioUtils";
+import CrudioUtils from "../utils/CrudioUtils";
 import CrudioDataModel from "./CrudioDataModel";
 
 /**

@@ -1,4 +1,6 @@
-import { ICrudioForLoop, ICrudioRange, ICrudioStream } from "./CrudioTypes";
+import { ICrudioRange } from "../types/ICrudioRange";
+import { ICrudioForLoop } from "../types/ICrudioForLoop";
+import { ICrudioStream } from "../types/ICrudioStream";
 
 export class CrudioStream {
 	name: string;

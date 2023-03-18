@@ -1,0 +1,857 @@
+{
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+	"include": [
+		"datamodel/base.json"
+	],
+	"snippets": {
+		"id": {
+			"type": "uuid",
+			"name": "id",
+			"key": true,
+			"generator": "[uuid]"
+		},
+		"firstname": {
+			"type": "string",
+			"name": "firstname",
+			"generator": "[firstname]"
+		},
+		"lastname": {
+			"type": "string",
+			"name": "lastname",
+			"generator": "[lastname]"
+		},
+		"address": {
+			"type": "string",
+			"name": "address",
+			"generator": "[address]"
+		},
+		"email": {
+			"type": "string",
+			"name": "email",
+			"generator": "[email]"
+		}
+	},
+	"generators": [
+		{
+			"name": "title",
+			"values": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady;Prof;"
+		},
+		{
+			"name": "firstname",
+			"values": "Emma;Isabella;Emily;Madison;Ava;Olivia;Sophia;Abigail;Elizabeth;Chloe;Samantha;Addison;Natalie;Mia;Alexis;Alyssa;Hannah;Ashley;Ella;Sarah;Grace;Taylor;Brianna;Lily;Hailey;Anna;Victoria;Kayla;Lillian;Lauren;Kaylee;Allison;Savannah;Nevaeh;Gabriella;Sofia;Makayla;Avery;Riley;Julia;Leah;Aubrey;Jasmine;Audrey;Katherine;Morgan;Brooklyn;Destiny;Sydney;Alexa;Kylie;Brooke;Kaitlyn;Evelyn;Layla;Madeline;Kimberly;Zoe;Jessica;Peyton;Alexandra;Claire;Madelyn;Maria;Mackenzie;Arianna;Jocelyn;Amelia;Angelina;Trinity;Andrea;Maya;Valeria;Sophie;Rachel;Vanessa;Aaliyah;Mariah;Gabrielle;Katelyn;Ariana;Bailey;Camila;Jennifer;Melanie;Gianna;Charlotte;Paige;Autumn;Payton;Faith;Sara;Isabelle;Caroline;Genesis;Isabel;Mary;Zoey;Gracie;Megan;Haley;Mya;Michelle;Molly;Stephanie;Nicole;Jenna;Natalia;Sadie;Jada;Serenity;Lucy;Ruby;Eva;Kennedy;Rylee;Jayla;Naomi;Rebecca;Lydia;Daniela;Bella;Keira;Adriana;Lilly;Hayden;Miley;Katie;Jade;Jordan;Gabriela;Amy;Angela;Melissa;Valerie;Giselle;Diana;Amanda;Kate;Laila;Reagan;Jordyn;Kylee;Danielle;Briana;Marley;Leslie;Kendall;Catherine;Liliana;Mckenzie;Jacqueline;Ashlyn;Reese;Marissa;London;Juliana;Shelby;Cheyenne;Angel;Daisy;Makenzie;Miranda;Erin;Amber;Alana;Ellie;Breanna;Ana;Mikayla;Summer;Piper;Adrianna;Jillian;Sierra;Jayden;Sienna;Alicia;Lila;Margaret;Alivia;Brooklynn;Karen;Violet;Sabrina;Stella;Aniyah;Annabelle;Alexandria;Kathryn;Skylar;Aliyah;Delilah;Julianna;Kelsey;Khloe;Carly;Amaya;Mariana;Christina;Alondra;Tessa;Eliana;Bianca;Jazmin;Clara;Vivian;Josephine;Delaney;Scarlett;Elena;Cadence;Alexia;Maggie;Laura;Nora;Ariel;Elise;Nadia;Mckenna;Chelsea;Lyla;Alaina;Jasmin;Hope;Leila;Caitlyn;Cassidy;Makenna;Allie;Izabella;Eden;Callie;Haylee;Caitlin;Kendra;Karina;Kyra;Kayleigh;Addyson;Kiara;Jazmine;Karla;Camryn;Alina;Lola;Kyla;Kelly;Fatima;Tiffany;Kira;Crystal;Mallory;Esmeralda;Alejandra;Eleanor;Angelica;Jayda;Abby;Kara;Veronica;Carmen;Jamie;Ryleigh;Valentina;Allyson;Dakota;Kamryn;Courtney;Cecilia;Madeleine;Aniya;Alison;Esther;Heaven;Aubree;Lindsey;Leilani;Nina;Melody;Macy;Ashlynn;Joanna;Cassandra;Alayna;Kaydence;Madilyn;Aurora;Heidi;Emerson;Kimora;Madalyn;Erica;Josie;Katelynn;Guadalupe;Harper;Ivy;Lexi;Camille;Savanna;Dulce;Daniella;Lucia;Emely;Joselyn;Kiley;Kailey;Miriam;Cynthia;Rihanna;Georgia;Rylie;Harmony;Kiera;Kyleigh;Monica;Bethany;Kaylie;Cameron;Teagan;Cora;Brynn;Ciara;Genevieve;Alice;Maddison;Eliza;Tatiana;Jaelyn;Erika;Ximena;April;Marely;Julie;Danica;Presley;Brielle;Julissa;Angie;Iris;Brenda;Hazel;Rose;Malia;Shayla;Fiona;Phoebe;Nayeli;Paola;Kaelyn;Selena;Audrina;Rebekah;Carolina;Janiyah;Michaela;Penelope;Janiya;Anastasia;Adeline;Ruth;Sasha;Denise;Holly;Madisyn;Hanna;Tatum;Marlee;Nataly;Helen;Janelle;Lizbeth;Serena;Anya;Jaslene;Kaylin;Jazlyn;Nancy;Lindsay;Desiree;Hayley;Itzel;Imani;Madelynn;Asia;Kadence;Madyson;Talia;Jane;Kayden;Annie;Amari;Bridget;Raegan;Jadyn;Celeste;Jimena;Luna;Yasmin;Emilia;Annika;Estrella;Sarai;Lacey;Ayla;Alessandra;Willow;Nyla;Dayana;Lilah;Lilliana;Natasha;Hadley;Harley;Priscilla;Claudia;Allisson;Baylee;Brenna;Brittany;Skyler;Fernanda;Danna;Melany;Cali;Lia;Macie;Lyric;Logan;Gloria;Lana;Mylee;Cindy;Lilian;Amira;Anahi;Alissa;Anaya;Lena;Ainsley;Sandra;Noelle;Marisol;Meredith;Kailyn;Lesly;Johanna;Diamond;Evangeline;Juliet;Kathleen;Meghan;Paisley;Athena;Hailee;Rosa;Wendy;Emilee;Sage;Alanna;Elaina;Cara;Nia;Paris;Casey;Dana;Emery;Rowan;Aubrie;Kaitlin;Jaden;Kenzie;Kiana;Viviana;Norah;Lauryn;Perla;Amiyah;Alyson;Rachael;Shannon;Aileen;Miracle;Lillie;Danika;Heather;Kassidy;Taryn;Tori;Francesca;Kristen;Amya;Elle;Kristina;Cheyanne;Haylie;Patricia;Anne;Samara;Skye;Kali;America;Lexie;Parker;Halle;Londyn;Abbigail;Linda;Hallie;Saniya;Bryanna;Bailee;Jaylynn;Mckayla;Quinn;Jaelynn;Jaida;Caylee;Jaiden;Melina;Abril;Sidney;Kassandra;Elisabeth;Adalyn;Kaylynn;Mercedes;Yesenia;Elliana;Brylee;Dylan;Isabela;Ryan;Ashlee;Daphne;Kenya;Marina;Christine;Mikaela;Kaitlynn;Justice;Saniyah;Jaliyah;Ingrid;Marie;Natalee;Joy;Juliette;Simone;Adelaide;Krystal;Kennedi;Mila;Tamia;Addisyn;Aylin;Dayanara;Sylvia;Clarissa;Maritza;Virginia;Braelyn;Jolie;Jaidyn;Kinsley;Kirsten;Laney;Marilyn;Whitney;Janessa;Raquel;Anika;Kamila;Aria;Rubi;Adelyn;Amara;Ayanna;Teresa;Zariah;Kaleigh;Amani;Carla;Yareli;Gwendolyn;Paulina;Nathalie;Annabella;Jaylin;Tabitha;Deanna;Madalynn;Journey;Aiyana;Skyla;Yaretzi;Ada;Liana;Karlee;Jenny;Myla;Cristina;Myah;Lisa;Tania;Isis;Jayleen;Jordin;Arely;Azul;Helena;Aryanna;Jaqueline;Lucille;Destinee;Martha;Zoie;Arielle;Liberty;Marlene;Elisa;Isla;Noemi;Raven;Jessie;Aleah;Kailee;Kaliyah;Lilyana;Haven;Tara;Giana;Camilla;Maliyah;Irene;Carley;Maeve;Lea;Macey;Sharon;Alisha;Marisa;Jaylene;Kaya;Scarlet;Siena;Adyson;Maia;Shiloh;Tiana;Jaycee;Gisselle;Yazmin;Eve;Shyanne;Arabella;Sherlyn;Sariah;Amiya;Kiersten;Madilynn;Shania;Aleena;Finley;Kinley;Kaia;Aliya;Taliyah;Pamela;Yoselin;Ellen;Carlie;Monserrat;Jakayla;Reyna;Yaritza;Carolyn;Clare;Lorelei;Paula;Zaria;Gracelyn;Kasey;Regan;Alena;Angelique;Regina;Britney;Emilie;Mariam;Jaylee;Julianne;Greta;Elyse;Lainey;Kallie;Felicity;Zion;Aspen;Carlee;Annalise;Iliana;Larissa;Akira;Sonia;Catalina;Phoenix;Joslyn;Anabelle;Mollie;Susan;Judith;Destiney;Hillary;Janet;Katrina;Mareli;Ansley;Kaylyn;Alexus;Gia;Maci;Elsa;Stacy;Kaylen;Carissa;Haleigh;Lorena;Jazlynn;Milagros;Luz;Leanna;Renee;Shaniya;Charlie;Abbie;Cailyn;Cherish;Elsie;Jazmyn;Elaine;Emmalee;Luciana;Dahlia;Jamya;Belinda;Mariyah;Chaya;Dayami;Rhianna;Yadira;Aryana;Rosemary;Armani;Cecelia;Celia;Barbara;Cristal;Eileen;Rayna;Campbell;Amina;Aisha;Amirah;Ally;Araceli;Averie;Mayra;Sanaa;Patience;Leyla;Selah;Zara;Chanel;Kaiya;Keyla;Miah;Aimee;Giovanna;Amelie;Kelsie;Alisson;Angeline;Dominique;Adrienne;Brisa;Cierra;Paloma;Isabell;Precious;Alma;Charity;Jacquelyn;Janae;Frances;Shyla;Janiah;Kierra;Karlie;Annabel;Jacey;Karissa;Jaylah;Xiomara;Edith;Marianna;Damaris;Deborah;Jaylyn;Evelin;Mara;Olive;Ayana;India;Kendal;Kayley;Tamara;Briley;Charlee;Nylah;Abbey;Moriah;Saige;Savanah;Giada;Hana;Lizeth;Matilda;Ann;Jazlene;Gillian;Beatrice;Ireland;Karly;Mylie;Yasmine;Ashly;Kenna;Maleah;Corinne;Keely;Tanya;Tianna;Adalynn;Ryann;Salma;Areli;Karma;Shyann;Kaley;Theresa;Evie;Gina;Roselyn;Kaila;Jaylen;Natalya;Meadow;Rayne;Aliza;Yuliana;June;Lilianna;Nathaly;Ali;Alisa;Aracely;Belen;Tess;Jocelynn;Litzy;Makena;Abagail;Giuliana;Joyce;Libby;Lillianna;Thalia;Tia;Sarahi;Zaniyah;Kristin;Lorelai;Mattie;Taniya;Jaslyn;Gemma;Valery;Lailah;Mckinley;Micah;Deja;Frida;Brynlee;Jewel;Krista;Mira;Yamilet;Adison;Carina;Karli;Magdalena;Stephany;Charlize;Raelynn;Aliana;Cassie;Mina;Karley;Shirley;Marlie;Alani;Taniyah;Cloe;Sanai;Lina;Nola;Anabella;Dalia;Raina;Mariela;Ariella;Bria;Kamari;Monique;Ashleigh;Reina;Alia;Ashanti;Lara;Lilia;Justine;Leia;Maribel;Abigayle;Tiara;Alannah;Princess;Sydnee;Kamora;Paityn;Payten;Naima;Gretchen;Heidy;Nyasia;Livia;Marin;Shaylee;Maryjane;Laci;Nathalia;Azaria;Anabel;Chasity;Emmy;Izabelle;Denisse;Emelia;Mireya;Shea;Amiah;Dixie;Maren;Averi;Esperanza;Micaela;Selina;Alyvia;Chana;Avah;Donna;Kaylah;Ashtyn;Karsyn;Makaila;Shayna;Essence;Leticia;Miya;Rory;Desirae;Kianna;Laurel;Neveah;Amaris;Hadassah;Dania;Hailie;Jamiya;Kathy;Laylah;Riya;Diya;Carleigh;Iyana;Kenley;Sloane;Elianna;"
+		},
+		{
+			"name": "lastname",
+			"values": "Smith;Johnson;Williams;Brown;Jones;Garcia;Miller;Davis;Rodriguez;Martinez;Hernandez;Lopez;Gonzalez;Wilson;Anderson;Thomas;Taylor;Moore;Jackson;Martin;Lee;Perez;Thompson;White;Harris;Sanchez;Clark;Ramirez;Lewis;Robinson;Walker;Young;Allen;King;Wright;Scott;Torres;Nguyen;Hill;Flores;Green;Adams;Nelson;Baker;Hall;Rivera;Campbell;Mitchell;Carter;Roberts;Gomez;Phillips;Evans;Turner;Diaz;Parker;Cruz;Edwards;Collins;Reyes;Stewart;Morris;Morales;Murphy;Cook;Rogers;Gutierrez;Ortiz;Morgan;Cooper;Peterson;Bailey;Reed;Kelly;Howard;Ramos;Kim;Cox;Ward;Richardson;Watson;Brooks;Chavez;Wood;James;Bennett;Gray;Mendoza;Ruiz;Hughes;Price;Alvarez;Castillo;Sanders;Patel;Myers;Long;Ross;Foster;Jimenez;Powell;Jenkins;Perry;Russell;Sullivan;Bell;Coleman;Butler;Henderson;Barnes;Gonzales;Fisher;Vasquez;Simmons;Romero;Jordan;Patterson;Alexander;Hamilton;Graham;Reynolds;Griffin;Wallace;Moreno;West;Cole;Hayes;Bryant;Herrera;Gibson;Ellis;Tran;Medina;Aguilar;Stevens;Murray;Ford;Castro;Marshall;Owens;Harrison;Fernandez;Mcdonald;Woods;Washington;Kennedy;Wells;Vargas;Henry;Chen;Freeman;Webb;Tucker;Guzman;Burns;Crawford;Olson;Simpson;Porter;Hunter;Gordon;Mendez;Silva;Shaw;Snyder;Mason;Dixon;Munoz;Hunt;Hicks;Holmes;Palmer;Wagner;Black;Robertson;Boyd;Rose;Stone;Salazar;Fox;Warren;Mills;Meyer;Rice;Schmidt;Garza;Daniels;Ferguson;Nichols;Stephens;Soto;Weaver;Ryan;Gardner;Payne;Grant;Dunn;Kelley;Spencer;Hawkins;Arnold;Pierce;Vazquez;Hansen;Peters;Santos;Hart;Bradley;Knight;Elliott;Cunningham;Duncan;Armstrong;Hudson;Carroll;Lane;Riley;Andrews;Alvarado;Ray;Delgado;Berry;Perkins;Hoffman;Johnston;Matthews;Pena;Richards;Contreras;Willis;Carpenter;Lawrence;Sandoval;Guerrero;George;Chapman;Rios;Estrada;Ortega;Watkins;Greene;Nunez;Wheeler;Valdez;Harper;Burke;Larson;Santiago;Maldonado;Morrison;Franklin;Carlson;Austin;Dominguez;Carr;Lawson;Jacobs;Obrien;Lynch;Singh;Vega;Bishop;Montgomery;Oliver;Jensen;Harvey;Williamson;Gilbert;Dean;Sims;Espinoza;Howell;Li;Wong;Reid;Hanson;Le;Mccoy;Garrett;Burton;Fuller;Wang;Weber;Welch;Rojas;Lucas;Marquez;Fields;Park;Yang;Little;Banks;Padilla;Day;Walsh;Bowman;Schultz;Luna;Fowler;Mejia;Davidson;Acosta;Brewer;May;Holland;Juarez;Newman;Pearson;Curtis;Cortez;Douglas;Schneider;Joseph;Barrett;Navarro;Figueroa;Keller;Avila;Wade;Molina;Stanley;Hopkins;Campos;Barnett;Bates;Chambers;Caldwell;Beck;Lambert;Miranda;Byrd;Craig;Ayala;Lowe;Frazier;Powers;Neal;Leonard;Gregory;Carrillo;Sutton;Fleming;Rhodes;Shelton;Schwartz;Norris;Jennings;Watts;Duran;Walters;Cohen;Mcdaniel;Moran;Parks;Steele;Vaughn;Becker;Holt;Deleon;Barker;Terry;Hale;Leon;Hail;Benson;Haynes;Horton;Miles;Lyons;Pham;Graves;Bush;Thornton;Wolfe;Warner;Cabrera;Mckinney;Mann;Zimmerman;Dawson;Lara;Fletcher;Page;Mccarthy;Love;Robles;Cervantes;Solis;Erickson;Reeves;Chang;Klein;Salinas;Fuentes;Baldwin;Daniel;Simon;Velasquez;Hardy;Higgins;Aguirre;Lin;Cummings;Chandler;Sharp;Barber;Bowen;Ochoa;Dennis;Robbins;Liu;Ramsey;Francis;Griffith;Paul;Blair;Oconnor;Cardenas;Pacheco;Cross;Calderon;Quinn;Moss;Swanson;Chan;Rivas;Khan;Rodgers;Serrano;Fitzgerald;Rosales;Stevenson;Christensen;Manning;Gill;Curry;Mclaughlin;Harmon;Mcgee;Gross;Doyle;Garner;Newton;Burgess;Reese;Walton;Blake;Trujillo;Adkins;Brady;Goodman;Roman;Webster;Goodwin;Fischer;Huang;Potter;Delacruz;Montoya;Todd;Wu;Hines;Mullins;Castaneda;Malone;Cannon;Tate;Mack;Sherman;Hubbard;Hodges;Zhang;Guerra;Wolf;Valencia;Saunders;Franco;Rowe;Gallagher;Farmer;Hammond;Hampton;Townsend;Ingram;Wise;Gallegos;Clarke;Barton;Schroeder;Maxwell;Waters;Logan;Camacho;Strickland;Norman;Person;Colon;Parsons;Frank;Harrington;Glover;Osborne;Buchanan;Casey;Floyd;Patton;Ibarra;Ball;Tyler;Suarez;Bowers;Orozco;Salas;Cobb;Gibbs;Andrade;Bauer;Conner;Moody;Escobar;Mcguire;Lloyd;Mueller;Hartman;French;Kramer;Mcbride;Pope;Lindsey;Velazquez;Norton;Mccormick;Sparks;Flynn;Yates;Hogan;Marsh;Macias;Villanueva;Zamora;Pratt;Stokes;Owen;Ballard;Lang;Brock;Villarreal;Charles;Drake;Barrera;Cain;Patrick;Pineda;Burnett;Mercado;Santana;Shepherd;Bautista;Ali;Shaffer;Lamb;Trevino;Mckenzie;Hess;Beil;Olsen;Cochran;Morton;Nash;Wilkins;Petersen;Briggs;Shah;Roth;Nicholson;Holloway;Lozano;Rangel;Flowers;Hoover;Short;Arias;Mora;Valenzuela;Bryan;Meyers;Weiss;Underwood;Bass;Greer;Summers;Houston;Carson;Morrow;Clayton;Whitaker;Decker;Yoder;Collier;Zuniga;Carey;Wilcox;Melendez;Poole;Roberson;Larsen;Conley;Davenport;Copeland;Massey;Lam;Huff;Rocha;Cameron;Jefferson;Hood;Monroe;Anthony;Pittman;Huynh;Randall;Singleton;Kirk;Combs;Mathis;Christian;Skinner;Bradford;Richard;Galvan;Wall;Boone;Kirby;Wilkinson;Bridges;Bruce;Atkinson;Velez;Meza;Roy;Vincent;York;Hodge;Villa;Abbott;Allison;Tapia;Gates;Chase;Sosa;Sweeney;Farrell;Wyatt;Dalton;Horn;Barron;Phelps;Yu;Dickerson;Heath;Foley;Atkins;Mathews;Bonilla;Acevedo;Benitez;Zavala;Hensley;Glenn;Cisneros;Harrell;Shields;Rubio;Huffman;Choi;Boyer;Garrison;Arroyo;Bond;Kane;Hancock;Callahan;Dillon;Cline;Wiggins;Grimes;Arellano;Melton;Oneill;Savage;Ho;Beltran;Pitts;Parrish;Ponce;Rich;Booth;Koch;Golden;Ware;Brennan;Mcdowell;Marks;Cantu;Humphrey;Baxter;Sawyer;Clay;Tanner;Hutchinson;Kaur;Berg;Wiley;Gilmore;Russo;Villegas;Hobbs;Keith;Wilkerson;Ahmed;Beard;Mcclain;Montes;Mata;Rosario;Vang;Walter;Henson;Oneal;Mosley;Mcclure;Beasley;Stephenson;Snow;Huerta;Preston;Vance;Barry;Johns;Eaton;Blackwell;Dyer;Prince;Macdonald;Solomon;Guevara;Stafford;English;Hurst;Woodard;Cortes;Shannon;Kemp;Nolan;Mccullough;Merritt;Murillo;Moon;Salgado;Strong;Kline;Cordova;Barajas;Roach;Rosas;Winters;Jacobson;Lester;Knox;Bullock;Kerr;Leach;Meadows;Orr;Davila;Whitehead;Pruitt;Kent;Conway;Mckee;Barr;David;Dejesus;Marin;Berger;Mcintyre;Blankenship;Gaines;Palacios;Cuevas;Bartlett;Durham;Dorsey;Mccall;Odonnell;Stein;Browning;Stout;Lowery;Sloan;Mclean;Hendricks;Calhoun;Sexton;Chung;Gentry;Hull;Duarte;Ellison;Nielsen;Gillespie;Buck;Middleton;Sellers;Leblanc;Esparza;Hardin;Bradshaw;Mcintosh;Howe;Livingston;Frost;Glass;Morse;Knapp;Herman;Stark;Bravo;Noble;Spears;Weeks;Corona;Frederick;Buckley;Mcfarland;Hebert;Enriquez;Hickman;Quintero;Randolph;Schaefer;Walls;Trejo;House;Reilly;Pennington;Michael;Conrad;Giles;Benjamin;Crosby;Fitzpatrick;Donovan;Mays;Mahoney;Valentine;Raymond;Medrano;Hahn;Mcmillan;Small;Bentley;Felix;Peck;Lucero;Boyle;Hanna;Pace;Rush;Hurley;Harding;Mcconnell;Bernal;Nava;Ayers;Everett;Ventura;Avery;Pugh;Mayer;Bender;Shepard;Mcmahon;Landry;Case;Sampson;Moses;Magana;Blackburn;Dunlap;Gould;Duffy;Vaughan;Herring;Mckay;Espinosa;Rivers;Farley;Bernard;Ashley;Friedman;Potts;Truong;Costa;Correa;Blevins;Nixon;Clements;Fry;Delarosa;Best;Benton;Lugo;Portillo;Dougherty;Crane;Haley;Phan;Villalobos;Blanchard;Horne;Finley;Quintana;Lynn;Esquivel;Bean;Dodson;Mullen;Xiong;Hayden;Cano;Levy;Huber;Richmond;Moyer;Lim;Frye;Sheppard;Mccarty;Avalos;Booker;Waller;Parra;Woodward;Jaramillo;Krueger;Rasmussen;Brandt;Peralta;Donaldson;Stuart;Faulkner;Maynard;Galindo;Coffey;Estes;Sanford;Burch;Maddox;Vo;Oconnell;Vu;Andersen;Spence;Mcpherson;Church;Schmitt;Stanton;Leal;Cherry;Compton;Dudley;Sierra;Pollard;Alfaro;Hester;Proctor;Lu;Hinton;Novak;Good;Madden;Mccann;Terrell;Jarvis;Dickson;Reyna;Cantrell;Mayo;Branch;Hendrix;Rollins;Rowland;Whitney;Duke;Odom;Daugherty;Travis;Tang;Archer;"
+		},
+		{
+			"name": "fullname",
+			"values": "[title] [firstname] [lastname]"
+		},
+		{
+			"name": "address",
+			"values": "[house], [street] [streettype], [place], [state] [postcode]"
+		},
+		{
+			"name": "state",
+			"values": "WA;SA;NSW;VIC;NT;TAS;ACT;QLD;"
+		},
+		{
+			"name": "postcode",
+			"values": "1000;2000;3000;4000;5000;6000;7000;"
+		},
+		{
+			"name": "street",
+			"values": "Strawberry;Juniper;Blackberry;Carlton;Tall;Short;Narrow;Bradbury;Iceberg;Titanic;Elizabeth;Wide;Closed;Deadend;Cliffe;Jupiter;Saturn;Mars;Mercury;Venus;Luna;Pluto;Neptune;"
+		},
+		{
+			"name": "place",
+			"values": "Success;Hilarys;Carwoola;Kiara;Piara;Armidale;Coogee;North Beach;South Beach;Rockingham;Mandurah;Bunury;Collie;Ashfield;Northam;Redfern;Coobelup;Daisy;Poppy;Oaktree;Sycamore;Skylark;Bluebird;Pigeon;Seagull;Harbourside;"
+		},
+		{
+			"name": "streettype",
+			"values": "Road;Street;Way;Close;Pass;Highway;Parade;Loop;Avenue;Boulevard;Crescent;"
+		},
+		{
+			"name": "house",
+			"values": "1;2;3;4;5;6;7;8;9;10;101;305;32a;32b;32c;"
+		},
+		{
+			"name": "day",
+			"values": "1>28"
+		},
+		{
+			"name": "month",
+			"values": "1>12"
+		},
+		{
+			"name": "year",
+			"values": "1970>2021"
+		},
+		{
+			"name": "hour",
+			"values": "0>23"
+		},
+		{
+			"name": "minute",
+			"values": "0>59"
+		},
+		{
+			"name": "second",
+			"values": "0>59"
+		},
+		{
+			"name": "date",
+			"values": "[year]-[month]-[day]"
+		},
+		{
+			"name": "time",
+			"values": "[hour]:[minute]:[second]"
+		},
+		{
+			"name": "timestamp",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "birth_year",
+			"values": "1940>2000"
+		},
+		{
+			"name": "dob",
+			"values": "[birth_year]-[month]-[day]"
+		},
+		{
+			"name": "now",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "today",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "expiry_date",
+			"values": {
+				"datetime": {
+					"years-+": 5
+				}
+			}
+		},
+		{
+			"name": "uuid",
+			"values": "uuid"
+		},
+		{
+			"name": "positive_byte",
+			"values": "1>255"
+		},
+		{
+			"name": "byte",
+			"values": "0>255"
+		},
+		{
+			"name": "hex_digit",
+			"values": "0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F;"
+		},
+		{
+			"name": "hex",
+			"values": "[hex_digit][hex_digit]"
+		},
+		{
+			"name": "mac_address",
+			"values": "[hex]:[hex]:[hex]:[hex]:[hex]:[hex]"
+		},
+		{
+			"name": "ipaddress",
+			"values": "[positive_byte].[byte].[byte].[byte]"
+		},
+		{
+			"name": "ipv6address",
+			"values": "[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]"
+		},
+		{
+			"name": "server",
+			"values": "gmail;outlook;yahoo;microsoft;"
+		},
+		{
+			"name": "tld",
+			"values": "net;com;gov;org;co.uk;com.au;net.au;wa.gov.au;nsw.gov.au;"
+		},
+		{
+			"name": "department",
+			"values": "hr;finance;it;exec;sales;purchasing"
+		},
+		{
+			"name": "company_type",
+			"values": "Minerals;Psychologists;Physio;Designers;Laboratories;Cloud;Services;Airways;Hosting;Corp;Biz;PLC;Limited;Industries;Resources;Association;Group;Institute;School;University;College;Tech;Health;Food;Partners;Consulting;"
+		},
+		{
+			"name": "company_name",
+			"values": "Mega;Medi;Mini;Global;Betta;Uba;West;Space;Picta;Woodlane;Treslah;Zoox;Toyo;Playtoon;Yoogo;Bleepstah;Gastex;Peopl;Stayz;Getitnow;Shopez;Help4free;AssistMe;HelpYou;Communitexpro;GroupsMeetNow;AllForFree;Upcyclaz;Recyclaz;JunkToCashNow;WorkFromYahHome;MediGeniuz;DoctahSmart;QikBild;QikShop;QikBuy;Autohomeztek;Sensaz;Smart;"
+		},
+		{
+			"name": "organisation_name",
+			"values": "[company_name] [company_type]"
+		},
+		{
+			"name": "length",
+			"values": "10>100"
+		},
+		{
+			"name": "height",
+			"values": "100>250"
+		},
+		{
+			"name": "depth",
+			"values": "10>100"
+		},
+		{
+			"name": "volume",
+			"values": "100>2000"
+		},
+		{
+			"name": "weight",
+			"values": "20>200"
+		},
+		{
+			"name": "temperature",
+			"values": "-10>44"
+		},
+		{
+			"name": "humidity",
+			"values": "5>100"
+		},
+		{
+			"name": "light",
+			"values": "0>100"
+		},
+		{
+			"name": "windspeed",
+			"values": "5>110"
+		},
+		{
+			"name": "body_temperature",
+			"values": "36>44"
+		},
+		{
+			"name": "bp_dia",
+			"values": "75>110"
+		},
+		{
+			"name": "bp_sys",
+			"values": "115>200"
+		},
+		{
+			"name": "bptext",
+			"values": "[bp_sys]/[bp_dia]"
+		},
+		{
+			"name": "bp",
+			"isJson": true,
+			"values": "{'systolic':'[bp_sys]','diastolic':'[bp_dia]'}"
+		},
+		{
+			"name": "bpm",
+			"values": "50>150"
+		},
+		{
+			"name": "glucose",
+			"values": "5>20"
+		},
+		{
+			"name": "device_type",
+			"values": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature"
+		},
+		{
+			"name": "device_site",
+			"values": "westerlea housing complex;rose estate;diamond community center;administration building;"
+		},
+		{
+			"name": "email",
+			"values": "[!firstname].[!lastname]@[server].[tld]"
+		},
+		{
+			"name": "accreditation_expiry_date",
+			"values": {
+				"datetime": {
+					"years_lo": -10,
+					"years_hi": 10
+				}
+			}
+		},
+		{
+			"name": "cohort_title",
+			"values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
+		},
+		{
+			"name": "cohort_name",
+			"values": "[year] intake, [cohort_title]"
+		},
+		{
+			"name": "program_title",
+			"values": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk"
+		},
+		{
+			"name": "program_name",
+			"values": "[program_title] for [cohort_name]"
+		},
+		{
+			"name": "program_mission",
+			"values": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;"
+		},
+		{
+			"name": "survey1",
+			"values": "Measure;Assess;Understand;"
+		},
+		{
+			"name": "survey2",
+			"values": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;"
+		},
+		{
+			"name": "survey_name",
+			"values": "[survey1] [survey2] of the [cohort_name] community"
+		},
+		{
+			"name": "tag",
+			"values": "food;online shopping;investing;retirement;youth unemployment;education;finance;health;technology;property;art;music;3D printing;makers;coworking;community;electronics;machine learning;cyber security;employment;psychology;child health;aged care;disability services;accessibility;"
+		},
+		{
+			"name": "article_subject",
+			"values": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;"
+		},
+		{
+			"name": "article_line1",
+			"values": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;"
+		},
+		{
+			"name": "article_line2",
+			"values": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;"
+		},
+		{
+			"name": "article_person",
+			"values": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;"
+		},
+		{
+			"name": "article_said",
+			"values": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;"
+		},
+		{
+			"name": "article_line5",
+			"values": "Until next time, adios;See you next time;We will be back with more news soon"
+		},
+		{
+			"name": "article",
+			"values": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]"
+		},
+		{
+			"name": "employee_email",
+			"values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+		},
+		{
+			"name": "organisation_role",
+			"values": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
+		},
+		{
+			"name": "organisation_department",
+			"values": "IT;HR;Finance;Sales;Engineering;Marketing;Board"
+		}
+	],
+	"entities": {
+		"Entity": {
+			"abstract": true,
+			"snippets": [
+				"id"
+			],
+			"fields": {
+				"created": {
+					"required": true,
+					"type": "timestamp",
+					"name": "created",
+					"generator": "[timestamp]"
+				},
+				"deleted": {
+					"type": "timestamp",
+					"name": "deleted"
+				}
+			}
+		},
+		"Lookup": {
+			"abstract": true,
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"required": true,
+					"type": "string",
+					"unique": true
+				},
+				"value": {
+					"type": "string"
+				}
+			}
+		},
+		"Organisation": {
+			"count": 10,
+			"triggers": "creating",
+			"inherits": [
+				"Entity"
+			],
+			"fields": {
+				"accreditation_expiry": {
+					"type": "timestamp",
+					"generator": "[accreditation_expiry_date]"
+				},
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_name]"
+				},
+				"address": {
+					"generator": "[address]"
+				},
+				"email": {
+					"generator": "contact@[!~name].com"
+				}
+			}
+		},
+		"OrganisationDepartment": {
+			"count": "[organisation_department]",
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_department]"
+				}
+			}
+		},
+		"OrganisationRole": {
+			"count": "[organisation_role]",
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[organisation_role]"
+				}
+			}
+		},
+		"Person": {
+			"abstract": true,
+			"inherits": "Entity",
+			"snippets": [
+				"firstname",
+				"lastname",
+				"address",
+				"email"
+			],
+			"fields": {
+				"dob": {
+					"type": "timestamp",
+					"name": "dob",
+					"generator": "[dob]"
+				},
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[height]"
+				},
+				"weight": {
+					"type": "integer",
+					"name": "weight",
+					"generator": "[weight]"
+				}
+			}
+		},
+		"Employee": {
+			"count": 0,
+			"inherits": "Person",
+			"fields": {
+				"email": {
+					"unique": true,
+					"generator": "[employee_email]"
+				},
+				"license_expiry": {
+					"type": "timestamp",
+					"generator": "[expiry_date]"
+				}
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Organisation"
+				},
+				{
+					"type": "one",
+					"to": "OrganisationDepartment"
+				},
+				{
+					"type": "many",
+					"to": "OrganisationRole"
+				}
+			]
+		},
+		"User": {
+			"count": 10,
+			"inherits": "Person",
+			"fields": {
+				"email": {
+					"unique": true,
+					"generator": "[email]"
+				}
+			}
+		},
+		"Program": {
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"required": true,
+					"unique": true,
+					"generator": "[program_name]"
+				},
+				"mission": {
+					"generator": "[program_mission]"
+				}
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Organisation"
+				}
+			]
+		},
+		"Cactus": {
+			"inherits": "Entity",
+			"fields": {
+				"height": {
+					"type": "integer",
+					"name": "height",
+					"generator": "[length]"
+				}
+			}
+		},
+		"Cohort": {
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[cohort_name]"
+				}
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Program"
+				}
+			]
+		},
+		"Survey": {
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[survey_name]"
+				}
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Program"
+				}
+			]
+		},
+		"Client": {
+			"inherits": "Person",
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Cohort"
+				}
+			]
+		},
+		"Tag": {
+			"count": "[tag]",
+			"inherits": "Entity",
+			"fields": {
+				"name": {
+					"unique": true,
+					"required": true,
+					"generator": "[tag]"
+				}
+			}
+		},
+		"Blog": {
+			"count": 20,
+			"inherits": "Entity",
+			"fields": {
+				"article": {
+					"generator": "[article]"
+				},
+				"published_date": {
+					"type": "timestamp",
+					"name": "published_date",
+					"generator": "[timestamp]"
+				}
+			},
+			"relationships": [
+				{
+					"to": "Tag",
+					"type": "many",
+					"count": 2,
+					"fields": {
+						"published_date": {
+							"type": "timestamp",
+							"generator": "[timestamp]"
+						},
+						"priority": {
+							"type": "integer",
+							"generator": "[1>10]"
+						}
+					}
+				},
+				{
+					"to": "User",
+					"type": "one",
+					"name": "Author"
+				}
+			]
+		},
+		"DeviceType": {
+			"inherits": "Entity",
+			"count": "[device_type]",
+			"fields": {
+				"name": {
+					"generator": "[device_type]",
+					"unique": true
+				}
+			}
+		},
+		"DeviceSite": {
+			"inherits": "Entity",
+			"count": "[device_site]",
+			"triggers": "creating",
+			"fields": {
+				"name": {
+					"generator": "[device_site]",
+					"unique": true
+				}
+			}
+		},
+		"Device": {
+			"inherits": "Entity",
+			"count": 0,
+			"triggers": "streaming",
+			"relationships": [
+				{
+					"type": "one",
+					"to": "DeviceType"
+				},
+				{
+					"type": "one",
+					"to": "DeviceSite"
+				}
+			]
+		},
+		"DeviceReading": {
+			"inherits": "Entity",
+			"count": 0,
+			"fields": {
+				"timestamp": {
+					"type": "timestamp",
+					"name": "timestamp"
+				},
+				"value": {
+					"type": "decimal",
+					"required": true
+				}
+			},
+			"relationships": [
+				{
+					"type": "one",
+					"to": "Device"
+				}
+			]
+		}
+	},
+	"triggers": [
+		{
+			"entity": "Organisation",
+			"scripts": [
+				"Employees(0).OrganisationRole?name=CEO",
+				"Employees(0).OrganisationRole?name=Staff",
+				"Employees(0).OrganisationDepartment?name=Board",
+				"Employees(1).OrganisationRole?name=CFO",
+				"Employees(1).OrganisationRole?name=Staff",
+				"Employees(1).OrganisationDepartment?name=Board",
+				"Employees(2).OrganisationRole?name=COO",
+				"Employees(2).OrganisationRole?name=Staff",
+				"Employees(2).OrganisationDepartment?name=Board",
+				"Employees(3).OrganisationRole?name=Head of Sales",
+				"Employees(3).OrganisationRole?name=Staff",
+				"Employees(3).OrganisationDepartment?name=Sales",
+				"Employees(4).OrganisationRole?name=Head of HR",
+				"Employees(4).OrganisationRole?name=Staff",
+				"Employees(4).OrganisationDepartment?name=HR",
+				"Employees(5).OrganisationRole?name=Head of Marketing",
+				"Employees(5).OrganisationRole?name=Staff",
+				"Employees(5).OrganisationDepartment?name=Marketing",
+				"Employees(6).OrganisationRole?name=Head of Finance",
+				"Employees(6).OrganisationRole?name=Staff",
+				"Employees(6).OrganisationDepartment?name=Finance",
+				"Employees(7-10).OrganisationRole?name=Staff",
+				"Employees(7-10).OrganisationDepartment?name=Sales",
+				"Employees(11-20).OrganisationRole?name=Staff",
+				"Employees(11-20).OrganisationDepartment?name=Marketing",
+				"Employees(21-30).OrganisationRole?name=Staff",
+				"Employees(21-30).OrganisationDepartment?name=HR",
+				"Employees(31-40).OrganisationRole?name=Staff",
+				"Employees(31-40).OrganisationDepartment?name=IT",
+				"Employees(41-46).OrganisationRole?name=Staff",
+				"Employees(41-46).OrganisationDepartment?name=Finance"
+			]
+		},
+		{
+			"entity": "DeviceSite",
+			"scripts": [
+				"Devices(0).DeviceType?name=temperature",
+				"Devices(1).DeviceType?name=humidity",
+				"Devices(2).DeviceType?name=windspeed",
+				"Devices(3).DeviceType?name=light"
+			]
+		}
+	],
+	"assign": [
+		{
+			"target": "Organisations(0).Employees(0)",
+			"fields": {
+				"firstname": "William",
+				"lastname": "Tell"
+			}
+		},
+		{
+			"target": "Organisations(0)",
+			"fields": {
+				"name": "Arrow Corporation"
+			}
+		},
+		{
+			"target": "Organisations(1)",
+			"fields": {
+				"name": "Bowing Services"
+			}
+		}
+	],
+	"streams": [
+		{
+			"name": "temperature",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "temperature",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "",
+							"value": "` ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_da` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `y]) ) `"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "humidity",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "humidity",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+							"value": "` Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "windspeed",
+			"parentEntity": "Devices",
+			"key": "DeviceType.name",
+			"value": "windspeed",
+			"createEntity": "DeviceReadings",
+			"loop": {
+				"range": {
+					"name": "years_ago",
+					"list": [
+						"[years_ago_2]",
+						"[years_ago_1]"
+					]
+				},
+				"loop": {
+					"range": {
+						"name": "day_of_year",
+						"type": "date",
+						"min": 0,
+						"max": 365,
+						"increment": 1
+					},
+					"loop": {
+						"range": {
+							"name": "hour_of_day",
+							"min": 0,
+							"max": 23,
+							"increment": 1
+						},
+						"output": {
+							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+							"value": "` Math.floor( ( ((Math.random() * 10) + 2) + (Math.random() * (365 - [day_of_year]))) + ( 100 / [hour_of_day]+1 % 8 ) ) `"
+						}
+					}
+				}
+			}
+		}
+	]
+}
