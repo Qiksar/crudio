@@ -7,7 +7,7 @@
  * @typedef {ICrudioFieldOptions}
  */
 
-export interface ICrudioFieldOptions {
+export default interface ICrudioFieldOptions {
 	/**
 	 * Indicates field is the primary key
 	 * @date 7/18/2022 - 1:47:30 PM

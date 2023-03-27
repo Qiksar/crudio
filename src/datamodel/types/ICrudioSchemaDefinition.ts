@@ -1,7 +1,7 @@
-import CrudioEntityDefinition from "../datamodel/CrudioEntityDefinition";
-import { ICrudioStream } from "./ICrudioStream";
-import { ICrudioTrigger } from "./ICrudioTrigger";
-import { ICrudioAssignment } from "./ICrudioAssignment";
+import CrudioEntityDefinition from "../definition/CrudioEntityDefinition";
+import ICrudioStream from "./ICrudioStream";
+import ICrudioTrigger from "./ICrudioTrigger";
+import ICrudioAssignment from "./ICrudioAssignment";
 
 /**
  * Defines the data model to be generated
@@ -12,7 +12,7 @@ import { ICrudioAssignment } from "./ICrudioAssignment";
  * @typedef {ICrudioSchemaDefinition}
  */
 
-export interface ICrudioSchemaDefinition {
+export default interface ICrudioSchemaDefinition {
 	/**
 	 * List of hard code assignments
 	 * @date 8/2/2022 - 12:11:48 PM

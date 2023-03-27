@@ -1,4 +1,4 @@
-import { ICrudioForLoop } from "./ICrudioForLoop";
+import ICrudioForLoop from "./ICrudioForLoop";
 
 /**
  * Configure data streaming generation
@@ -9,7 +9,7 @@ import { ICrudioForLoop } from "./ICrudioForLoop";
  * @typedef {ICrudioStream}
  */
 
-export interface ICrudioStream {
+export default interface ICrudioStream {
 	/**
 	 * Name of the streaming process
 	 * @date 07/12/2022 - 07:23:08

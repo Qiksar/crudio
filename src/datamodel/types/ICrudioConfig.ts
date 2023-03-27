@@ -7,7 +7,7 @@
  * @typedef {ICrudioConfig}
  */
 
-export interface ICrudioConfig {
+export default interface ICrudioConfig {
 	/**
 	 * Base configuration
 	 * @date 13/10/2022 - 07:24:33

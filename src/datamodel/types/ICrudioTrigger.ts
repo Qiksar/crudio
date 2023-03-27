@@ -7,7 +7,7 @@
  * @typedef {ICrudioTrigger}
  */
 
-export interface ICrudioTrigger {
+export default interface ICrudioTrigger {
 	/**
 	 * Name of the entity definition
 	 * @date 8/2/2022 - 12:11:48 PM

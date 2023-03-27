@@ -1,12 +1,12 @@
-import CrudioDataModel from "../datamodel/CrudioDataModel";
-import CrudioField from "../datamodel/CrudioField";
-import CrudioTable from "../datamodel/CrudioTable";
-import { ICrudioDataWrapper } from "../types/ICrudioDataWrapper";
-import { ICrudioConfig } from "../types/ICrudioConfig";
-import CrudioEntityDefinition from "../datamodel/CrudioEntityDefinition";
+import ICrudioDataWrapper from "../datamodel/types/ICrudioDataWrapper";
+import ICrudioConfig from "../datamodel/types/ICrudioConfig";
+import CrudioDataModel from "../datamodel/definition/CrudioDataModel";
+import CrudioField from "../datamodel/definition/CrudioField";
+import CrudioEntityDefinition from "../datamodel/definition/CrudioEntityDefinition";
+import CrudioTable from "../datamodel/generation/CrudioTable";
 import CrudioHasura from "./CrudioHasura";
 import CrudioUtils from "../utils/CrudioUtils";
-import { SqlInstructionList } from "./SqlInstructionList";
+import SqlInstructionList from "./SqlInstructionList";
 
 /**
  * Data management wrapper which interfaces with the database through the Hasura Grapql interface

@@ -7,7 +7,7 @@
  * @typedef {ICrudioAssignment}
  */
 
-export interface ICrudioAssignment {
+export default interface ICrudioAssignment {
 	/**
 	 * Target specification
 	 * @date 10/10/2022 - 21:11:54

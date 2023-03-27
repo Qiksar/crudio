@@ -1,58 +1,7 @@
-import { ICrudioRange } from "../types/ICrudioRange";
-import { ICrudioForLoop } from "../types/ICrudioForLoop";
-import { ICrudioStream } from "../types/ICrudioStream";
+import ICrudioRange from "../types/ICrudioRange";
+import ICrudioForLoop from "../types/ICrudioForLoop";
 
-export class CrudioStream {
-	name: string;
-	parentEntity: string;
-	key: string;
-	value: any;
-	createEntity: string;
-	loop: CrudioForLoop;
-
-	constructor(private context: Record<string, unknown>, definition: ICrudioStream) {
-		this.name = definition.name;
-		this.parentEntity = definition.parentEntity;
-		this.createEntity = definition.createEntity;
-
-		if (this.parentEntity === undefined) {
-			throw `CrudioStream: stream '${this.name} - missing 'parentEntity' attribute`;
-		}
-
-		if (this.createEntity === undefined) {
-			throw `CrudioStream: stream '${this.name} - missing 'createEntity' attribute`;
-		}
-
-		if (this.createEntity === undefined) {
-			throw `CrudioStream: stream '${this.name} - missing 'createEntity' attribute`;
-		}
-
-		this.key = definition.key;
-		this.value = definition.value;
-
-		if (this.key === undefined && this.value !== undefined) {
-			throw `CrudioStream: stream '${this.name} - 'value' is specified, but 'key' has not been specified. To filter the parent entity, both attributes must be specified`;
-		}
-
-		if (this.value === undefined && this.key !== undefined) {
-			throw `CrudioStream: stream '${this.name} - 'key' is specified, but 'value' has not been specified. To filter the parent entity, both attributes must be specified`;
-		}
-
-		if (definition.loop) {
-			this.loop = new CrudioForLoop(definition.loop);
-		} else {
-			throw `CrudioStream: stream '${this.name} - missing 'loop' specification`;
-		}
-	}
-
-	Execute(cb: (output_entity: any) => void): void {
-		this.loop.Execute(this.context, output_entity => {
-			cb(output_entity);
-		});
-	}
-}
-
-export class CrudioForLoop {
+export default class CrudioForLoop {
 	loop: CrudioForLoop;
 	index = 0;
 	current_value: string | number | Date;
@@ -95,7 +44,6 @@ export class CrudioForLoop {
 
 				default:
 					//"Date"
-
 					let date = (this.current_value as Date).valueOf();
 					date += this.range.increment;
 					this.current_value = date;

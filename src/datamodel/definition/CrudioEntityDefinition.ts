@@ -1,11 +1,12 @@
-import { ICrudioFieldOptions } from "../types/ICrudioFieldOptions";
-import { ICrudioConfig } from "../types/ICrudioConfig";
+import ICrudioFieldOptions from "../types/ICrudioFieldOptions";
+import ICrudioConfig from "../types/ICrudioConfig";
 
 import CrudioField from "./CrudioField";
-import CrudioEntityInstance from "./CrudioEntityInstance";
+import CrudioEntityInstance from "../generation/CrudioEntityInstance";
 import CrudioRelationship from "./CrudioRelationship";
-import CrudioUtils from "../utils/CrudioUtils";
+import CrudioUtils from "../../utils/CrudioUtils";
 import CrudioDataModel from "./CrudioDataModel";
+import ICrudioFacet from "../types/ICrudioFacet";
 
 /**
  * Entity definition, the concrete form of an entity schema
@@ -16,7 +17,7 @@ import CrudioDataModel from "./CrudioDataModel";
  * @class CrudioEntityType
  * @typedef {CrudioEntityDefinition}
  */
-export default class CrudioEntityDefinition {
+export default class CrudioEntityDefinition implements ICrudioFacet {
 	//#region Properties
 
 	/**
@@ -27,6 +28,7 @@ export default class CrudioEntityDefinition {
 	 * @type {string}
 	 */
 	private name: string;
+
 	/**
 	 * Get name of entity definition
 	 * @date 7/27/2022 - 7:58:39 PM

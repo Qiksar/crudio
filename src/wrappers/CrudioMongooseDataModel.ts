@@ -1,8 +1,8 @@
 import Mongoose, { model } from "mongoose";
-import { ICrudioConfig } from "@/types/ICrudioConfig";
-import CrudioDataModel from "@/datamodel/CrudioDataModel";
-import CrudioRelationship from "@/datamodel/CrudioRelationship";
-import CrudioTable from "@/datamodel/CrudioTable";
+import ICrudioConfig from "@/datamodel/types/ICrudioConfig";
+import CrudioDataModel from "@/datamodel/definition/CrudioDataModel";
+import CrudioRelationship from "@/datamodel/definition/CrudioRelationship";
+import CrudioTable from "@/datamodel/generation/CrudioTable";
 
 /**
  * Cache details of relationship between two tables

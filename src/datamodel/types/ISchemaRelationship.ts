@@ -1,4 +1,4 @@
-import { ISingularNamedRelationship } from "./ISingularNamedRelationship";
+import ISingularNamedRelationship from "./ISingularNamedRelationship";
 
 /**
  * Defines relationships between entities
@@ -9,7 +9,7 @@ import { ISingularNamedRelationship } from "./ISingularNamedRelationship";
  * @typedef {ISchemaRelationship}
  */
 
-export interface ISchemaRelationship {
+export default interface ISchemaRelationship {
 	/**
 	 * Indicates that the foreign key must have a value
 	 * @date 7/31/2022 - 8:41:55 AM

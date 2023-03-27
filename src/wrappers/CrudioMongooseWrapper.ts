@@ -1,13 +1,13 @@
-import CrudioDataModel from "@/datamodel/CrudioDataModel";
-import CrudioEntityDefinition from "@/datamodel/CrudioEntityDefinition";
-import CrudioField from "@/datamodel/CrudioField";
-import CrudioRelationship from "@/datamodel/CrudioRelationship";
-import CrudioTable from "@/datamodel/CrudioTable";
-import { ICrudioDataWrapper } from "@/types/ICrudioDataWrapper";
-import { ICrudioConfig } from "@/types/ICrudioConfig";
+import ICrudioDataWrapper from "@/datamodel/types/ICrudioDataWrapper";
+import ICrudioConfig from "@/datamodel/types/ICrudioConfig";
+import CrudioDataModel from "@/datamodel/definition/CrudioDataModel";
+import CrudioEntityDefinition from "@/datamodel/definition/CrudioEntityDefinition";
+import CrudioField from "../datamodel/definition/CrudioField";
+import CrudioRelationship from "@/datamodel/definition/CrudioRelationship";
+import CrudioTable from "@/datamodel/generation/CrudioTable";
 import Mongoose, { Model } from "mongoose";
 import CrudioMongooseDataModel from "./CrudioMongooseDataModel";
-import { SqlInstructionList } from "./SqlInstructionList";
+import SqlInstructionList from "./SqlInstructionList";
 
 /**
  * Provide basic data insertion capabilities to populate a database

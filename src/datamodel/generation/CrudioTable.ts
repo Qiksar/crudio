@@ -1,5 +1,6 @@
-import CrudioEntityDefinition from "./CrudioEntityDefinition";
+import CrudioEntityDefinition from "../definition/CrudioEntityDefinition";
 import CrudioEntityInstance from "./CrudioEntityInstance";
+import ICrudioFacet from "../types/ICrudioFacet";
 
 /**
  * Data object which contains all of the data entities (database rows) generated for an entity type
@@ -9,7 +10,7 @@ import CrudioEntityInstance from "./CrudioEntityInstance";
  * @class CrudioTable
  * @typedef {CrudioTable}
  */
-export default class CrudioTable {
+export default class CrudioTable implements ICrudioFacet {
 	//#region Properties
 
 	/**
@@ -20,6 +21,18 @@ export default class CrudioTable {
 	 * @type {string}
 	 */
 	private tableName: string = "";
+
+	/**
+	 * Object name
+	 * @date 26/03/2023 - 12:29:29
+	 *
+	 * @readonly
+	 * @type {string}
+	 */
+	get Name(): string {
+		return this.TableName;
+	}
+
 	/**
 	 * Name of the table
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -39,6 +52,7 @@ export default class CrudioTable {
 	 * @type {string}
 	 */
 	private entityDefinition: CrudioEntityDefinition;
+
 	/**
 	 * Name of the entity definition used for this table
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -49,6 +63,7 @@ export default class CrudioTable {
 	public get EntityDefinition(): CrudioEntityDefinition {
 		return this.entityDefinition;
 	}
+
 	/**
 	 * Maximum number of rows
 	 * @date 7/18/2022 - 2:29:00 PM
@@ -57,6 +72,7 @@ export default class CrudioTable {
 	 * @type {number}
 	 */
 	public maxRowCount: number = 0;
+
 	/**
 	 * Maximum number of rows
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -67,6 +83,7 @@ export default class CrudioTable {
 	public get MaxRowCount(): number {
 		return this.maxRowCount;
 	}
+
 	/**
 	 * Maximum number of rows
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -86,6 +103,7 @@ export default class CrudioTable {
 	 * @type {CrudioEntityInstance[]}
 	 */
 	private dataRows: CrudioEntityInstance[] = [];
+
 	/**
 	 * Array of entity instances populated with data
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -96,6 +114,7 @@ export default class CrudioTable {
 	public get DataRows(): CrudioEntityInstance[] {
 		return this.dataRows;
 	}
+
 	/**
 	 * Array of entity instances populated
 	 * @date 7/26/2022 - 12:43:42 PM
@@ -127,7 +146,7 @@ export default class CrudioTable {
 	 * Remove all existing rows of data
 	 * @date 7/18/2022 - 2:29:00 PM
 	 */
-	clear() {
+	Clear() {
 		this.DataRows = [];
 	}
 
@@ -137,7 +156,7 @@ export default class CrudioTable {
 	 *
 	 * @param {CrudioEntityInstance} instance
 	 */
-	append(instance: CrudioEntityInstance) {
+	AddRecord(instance: CrudioEntityInstance) {
 		this.DataRows.push(instance);
 	}
 }

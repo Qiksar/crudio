@@ -1,8 +1,8 @@
 import axios from "axios";
-import CrudioDataModel from "../datamodel/CrudioDataModel";
-import CrudioRelationship from "../datamodel/CrudioRelationship";
+import CrudioDataModel from "../datamodel/definition/CrudioDataModel";
+import CrudioRelationship from "../datamodel/definition/CrudioRelationship";
 import CrudioUtils from "../utils/CrudioUtils";
-import { ICrudioConfig } from "../types/ICrudioConfig";
+import ICrudioConfig from "../datamodel/types/ICrudioConfig";
 
 /**
  * Simple interface to Hasura GraphQL API

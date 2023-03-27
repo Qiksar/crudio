@@ -7,7 +7,7 @@
  * @typedef {ICrudioRange}
  */
 
-export interface ICrudioRange {
+export default interface ICrudioRange {
 	/**
 	 * Name of the definition
 	 * @date 07/12/2022 - 07:23:08

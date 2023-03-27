@@ -7,7 +7,7 @@
  * @typedef {ICrudioGenerator}
  */
 
-export interface ICrudioGenerator {
+export default interface ICrudioGenerator {
 	/**
 	 * Name of the generator
 	 * @date 8/2/2022 - 12:11:48 PM

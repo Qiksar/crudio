@@ -1,5 +1,6 @@
-import { ISchemaRelationship } from "../types/ISchemaRelationship";
-import { ICrudioConfig } from "../types/ICrudioConfig";
+import ISchemaRelationship from "../types/ISchemaRelationship";
+import ICrudioConfig from "../types/ICrudioConfig";
+import ICrudioFacet from "../types/ICrudioFacet";
 
 /**
  * An instance of a relationship between two entities
@@ -9,7 +10,7 @@ import { ICrudioConfig } from "../types/ICrudioConfig";
  * @class CrudioEntityRelationship
  * @typedef {CrudioRelationship}
  */
-export default class CrudioRelationship {
+export default class CrudioRelationship implements ICrudioFacet {
 	/**
 	 * Creates an instance of CrudioEntityRelationship.
 	 * @date 7/18/2022 - 2:14:01 PM
@@ -35,6 +36,10 @@ export default class CrudioRelationship {
 				relationship.count = 1;
 			}
 		}
+	}
+
+	get Name(): string {
+		return this.FromEntity + "_" + this.ToEntity;
 	}
 
 	/**

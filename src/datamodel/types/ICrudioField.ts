@@ -1,4 +1,4 @@
-import { ICrudioFieldOptions } from "./ICrudioFieldOptions";
+import ICrudioFieldOptions from "./ICrudioFieldOptions";
 
 /**
  * Field schema definition
@@ -9,7 +9,7 @@ import { ICrudioFieldOptions } from "./ICrudioFieldOptions";
  * @typedef {ICrudioField}
  */
 
-export interface ICrudioField {
+export default interface ICrudioField {
 	/**
 	 * Name of field
 	 * @date 7/18/2022 - 1:47:30 PM

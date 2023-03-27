@@ -6,7 +6,7 @@
  * @typedef {SqlInstructionList}
  */
 
-export class SqlInstructionList {
+export default class SqlInstructionList {
 	/**
 	 * List of fields on the current table
 	 * @date 7/18/2022 - 1:46:23 PM

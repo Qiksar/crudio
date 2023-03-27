@@ -1,5 +1,5 @@
-import CrudioTable from "../datamodel/CrudioTable";
-import { SqlInstructionList } from "../wrappers/SqlInstructionList";
+import CrudioTable from "../generation/CrudioTable";
+import SqlInstructionList from "../../wrappers/SqlInstructionList";
 
 /**
  * Base interface for data management
@@ -10,7 +10,7 @@ import { SqlInstructionList } from "../wrappers/SqlInstructionList";
  * @typedef {ICrudioDataWrapper}
  */
 
-export interface ICrudioDataWrapper {
+export default interface ICrudioDataWrapper {
 	/**
 	 * Create the target internal database model and manifest the schema in the target database
 	 * @date 13/10/2022 - 07:24:33

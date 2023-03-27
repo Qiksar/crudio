@@ -3,23 +3,23 @@ import { stringify } from "flatted";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 
-import { ICrudioDataWrapper } from "../types/ICrudioDataWrapper";
-import { ICrudioStream } from "../types/ICrudioStream";
-import { ICrudioGenerator } from "../types/ICrudioGenerator";
-import { ICrudioTrigger } from "../types/ICrudioTrigger";
-import { ISchemaRelationship } from "../types/ISchemaRelationship";
-import { ICrudioEntityDefinition } from "../types/ICrudioEntityDefinition";
-import { ICrudioFieldOptions } from "../types/ICrudioFieldOptions";
-import { ICrudioAssignment } from "../types/ICrudioAssignment";
-import { ICrudioSchemaDefinition } from "../types/ICrudioSchemaDefinition";
-import { ICrudioConfig } from "../types/ICrudioConfig";
+import ICrudioDataWrapper from "../types/ICrudioDataWrapper";
+import ICrudioStream from "../types/ICrudioStream";
+import ICrudioGenerator from "../types/ICrudioGenerator";
+import ICrudioTrigger from "../types/ICrudioTrigger";
+import ISchemaRelationship from "../types/ISchemaRelationship";
+import ICrudioEntityDefinition from "../types/ICrudioEntityDefinition";
+import ICrudioFieldOptions from "../types/ICrudioFieldOptions";
+import ICrudioAssignment from "../types/ICrudioAssignment";
+import ICrudioSchemaDefinition from "../types/ICrudioSchemaDefinition";
+import ICrudioConfig from "../types/ICrudioConfig";
 import CrudioEntityDefinition from "./CrudioEntityDefinition";
-import CrudioEntityInstance from "./CrudioEntityInstance";
+import CrudioEntityInstance from "../generation/CrudioEntityInstance";
 import CrudioField from "./CrudioField";
 import CrudioRelationship from "./CrudioRelationship";
-import CrudioTable from "./CrudioTable";
-import CrudioUtils from "../utils/CrudioUtils";
-import { CrudioJson } from "../utils/CrudioJson";
+import CrudioTable from "../generation/CrudioTable";
+import CrudioUtils from "../../utils/CrudioUtils";
+import { CrudioJson } from "../../utils/CrudioJson";
 import { CrudioStream } from "./CrudioStream";
 
 /**

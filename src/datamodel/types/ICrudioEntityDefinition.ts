@@ -1,5 +1,5 @@
-import { ICrudioField } from "./ICrudioField";
-import { ISchemaRelationship } from "./ISchemaRelationship";
+import ICrudioField from "./ICrudioField";
+import ISchemaRelationship from "./ISchemaRelationship";
 
 /**
  * Entity schema
@@ -10,7 +10,7 @@ import { ISchemaRelationship } from "./ISchemaRelationship";
  * @typedef {ICrudioEntityDefinition}
  */
 
-export interface ICrudioEntityDefinition {
+export default interface ICrudioEntityDefinition {
 	/**
 	 * Name of the schema
 	 * @date 7/18/2022 - 1:47:30 PM

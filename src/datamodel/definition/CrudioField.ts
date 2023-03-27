@@ -1,5 +1,6 @@
-import { ICrudioField } from "../types/ICrudioField";
-import { ICrudioFieldOptions } from "../types/ICrudioFieldOptions";
+import ICrudioField from "../types/ICrudioField";
+import ICrudioFieldOptions from "../types/ICrudioFieldOptions";
+import ICrudioFacet from "../types/ICrudioFacet";
 
 /**
  * Concrete instance of a field definition
@@ -10,7 +11,7 @@ import { ICrudioFieldOptions } from "../types/ICrudioFieldOptions";
  * @typedef {CrudioField}
  * @implements {ICrudioField}
  */
-export default class CrudioField implements ICrudioField {
+export default class CrudioField implements ICrudioField, ICrudioFacet {
 	/**
 	 * Name of field
 	 * @date 7/18/2022 - 3:35:36 PM
@@ -19,6 +20,7 @@ export default class CrudioField implements ICrudioField {
 	 * @type {string}
 	 */
 	public fieldName: string;
+
 	/**
 	 * Type of field
 	 * @date 7/18/2022 - 3:35:36 PM
@@ -27,6 +29,7 @@ export default class CrudioField implements ICrudioField {
 	 * @type {string}
 	 */
 	public fieldType: string;
+
 	/**
 	 * Default value
 	 * @date 7/18/2022 - 3:35:36 PM
@@ -35,6 +38,7 @@ export default class CrudioField implements ICrudioField {
 	 * @type {?*}
 	 */
 	public defaultValue?: any;
+
 	/**
 	 * Options applied to field
 	 * @date 7/18/2022 - 3:35:36 PM
@@ -64,5 +68,9 @@ export default class CrudioField implements ICrudioField {
 		this.fieldName = fieldName;
 		this.fieldType = fieldType;
 		this.fieldOptions = options;
+	}
+
+	get Name(): string {
+		return this.fieldName;
 	}
 }

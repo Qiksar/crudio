@@ -1,4 +1,4 @@
-import { ICrudioRange } from "./ICrudioRange";
+import ICrudioRange from "./ICrudioRange";
 
 /**
  * Loop which can create generator values, create entities and contain other nested loops
@@ -9,7 +9,7 @@ import { ICrudioRange } from "./ICrudioRange";
  * @typedef {ICrudioForLoop}
  */
 
-export interface ICrudioForLoop {
+export default interface ICrudioForLoop {
 	/**
 	 * Nest loop configuration
 	 * @date 07/12/2022 - 07:23:08

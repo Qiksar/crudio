@@ -7,7 +7,7 @@
  * @typedef {ISingularNamedRelationship}
  */
 
-export interface ISingularNamedRelationship {
+export default interface ISingularNamedRelationship {
 	/**
 	 * @date 7/25/2022 - 10:45:41 AM
 	 *
