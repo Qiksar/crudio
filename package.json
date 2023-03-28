@@ -1,12 +1,12 @@
 {
   "name": "@qiksar/crudio",
-  "version": "0.29.8",
+  "version": "0.29.9",
   "description": "Rapidly create rich meaningful test data to accelerate your prototyping and testing processes",
   "bin": "dist/cjs/cli/crudio_cli.js",
   "main": "dist/cjs/cli/crudio_cli.js",
   "typings": "dist/types/index.d.ts",
   "author": "Chris Nurse",
-  "license": "GPL-3.0-only",
+  "license": "CC BY-NC 4.0",
   "scripts": {
     "Load_Postgres": "cat ./tools/load_pg.sh | bash",
     "Load_Mongo": "cat ./tools/load_mongo.sh | bash",
@@ -36,7 +36,11 @@
     "mongodb-memory-server": "^8.9.3",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.8.2",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0"
   },
   "dependencies": {
     "axios": "^0.21.3",
