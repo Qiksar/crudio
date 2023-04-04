@@ -1,0 +1,185 @@
+{
+	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+	"generators": [
+		{
+			"name": "title",
+			"values": "Dr;Mr;Miss;Mrs;Ms;Sir;Lady;Prof;"
+		},
+		{
+			"name": "firstname",
+			"values": "Trâm;Linh;Mai;Thảo;Thuỳ;Huyền;Hà;Hương;Yến;Thiên;Vy;Minh;Ngọc;Lan;Diễm;Hằng;Nga;Khánh;Thi;Hoàng;Hồng;Ánh;Uyên;Thục;Hiền;Linh;Anh;Bích;Thúy;Vân;An;Nguyệt;Ngân;Tuyết;Thanh;Ngọc;Tâm;Hạnh;Đan;Thanh;Oanh;Quỳnh;Duyên;Phương;Tú;Yến;Tuyền;Hồng;Thu;Tâm;Nguyên;Tuyết;Phương;Phượng;Huyền;Lương;Thùy;Đông;Cẩm;Quỳnh;Mỹ;Hòa;Trang;Bình;Nhi;Dung;Mỹ;Nhung;Cúc;Như;Thiện;Kim;Hải;Sương;Sơn;Thanh;Đình;Gia;Lan;Bảo;Dung;Mộng;Anh;Cẩm;Châu;Thắm;Tín;Linh;Đức;Lợi;Giang;Quang;Thành;Khanh;Nam;Ngô;Hùng;Nguyên;Hưng;Dũng;Quyền;Thiện"
+		},
+		{
+			"name": "lastname",
+			"values": "Nguyễn;Trần;Lê;Phạm;Hoàng;Huỳnh;Phan;Vũ;Võ;Đặng;Bùi;Đỗ;Hồ;Ngô;Dương;Lý;Đào;Trịnh;Lương;Đinh;Trương;Đoàn;Vương;Đặng;Cao;Phùng;Đinh;Bạch;Hà;Đoàn;Đinh;Đinh;Lục;Bành;Phó;Phùng;Tạ;Vĩnh;Tôn;Vương;Từ;Tống;Hàn;Lục;Lưu;Chu;Cung;Bình;Châu;Chương;Đỗ;Đống;Đồng;Đổng;Ho;Hàn;Hứa;Hướng;Khương;Kiều;Kim;Kỷ;Lê;Lỗ;Lục;Mã;Mai;Mang;Mâu;Mộc;Mục;Nghiêm;Nhạc;Nông;Ông;Ong;Ổng;Ống;Ông;Ông;Phùng;Quách;Quản;Quang;Quyền;Quỳnh;Sa;Sử;Sơn;Tào;Tăng;Tân;Thạch;Thái;Thân;Thi;Thiều;Thiệu;Thúy;Thường;Tiết;Tiêu;Tô;Tôn;Tông;Tống;Từ;Uông;Văn;Vi;Viên"
+		},
+		{
+			"name": "fullname",
+			"values": "[title] [firstname] [lastname]"
+		},
+		{
+			"name": "address",
+			"values": "[house], [street] [streettype], [place], [state] [postcode]"
+		},
+		{
+			"name": "state",
+			"values": "WA;SA;NSW;VIC;NT;TAS;ACT;QLD;"
+		},
+		{
+			"name": "postcode",
+			"values": "1000;2000;3000;4000;5000;6000;7000;"
+		},
+		{
+			"name": "street",
+			"values": "Nguyễn Trãi;Lê Duẩn;Nguyễn Chí Thanh;Đinh Tiên Hoàng;Bà Triệu;Trần Hưng Đạo;Lê Lợi;Tôn Đức Thắng;Hai Bà Trưng;Hùng Vương;Phan Chu Trinh;Lương Ngọc Quyến;Lý Thái Tổ;Bạch Đằng;Phạm Ngọc Thạch;Tô Hiến Thành;Hoàng Diệu;Võ Văn Kiệt;Hàng Bài;Láng Hạ;Nguyễn Thị Định;Trần Quang Khải;Phạm Hồng Thái;Trương Định;Ngô Gia Tự;Trần Phú;Hòe Nhai;Vĩnh Hưng;Hàm Long;Thái Hà;Lê Văn Sỹ;Lê Quý Đôn;Trần Huy Liệu;Lê Quang Đạo;Văn Cao;Lê Thanh Nghị;Trần Đăng Ninh;Hàng Trống;Trương Định;Văn Miếu;Hàng Trống;Trần Bình Trọng;Hàng Điếu;Điện Biên Phủ;Xã Đàn;Lê Thanh Nghị;Phó Đức Chính;Phan Văn Trường;Tây Sơn;Nguyễn Hữu Cảnh;Nguyễn Đình Thi;Nguyễn Trãi;Phố Huế;Vũ Trọng Phụng;Nguyễn Văn Trỗi;Hồ Tùng Mậu;Nguyễn Đình Thi;Trần Đại Nghĩa;Trần Phú;Bạch Mai;Lê Trọng Tấn;Tân Mai;Tân Lập;Nguyễn Cảnh Dị;Hà Huy Tập;Đại Cồ Việt;Cầu Giấy;Lý Thường Kiệt;Hạ Long;Võ Chí Công;Hoàng Hoa Thám;Cao Bá Quát;Lê Văn Lương;Tôn Thất Tùng;Định Công Thượng;Đỗ Quang;Hàng Gà;Nguyễn Khắc Nhu;Nguyễn Thị Định;Ngọc Khánh;Hòa Mã;Lương Yên;Hàm Long;Phan Chu Trinh;Võng Thị;Trần Phúc Lộc;Trần Khánh Dư;Nguyễn Thái Học;Bạch Mai;Nguyễn Trãi;Đặng Văn Ngữ"
+		},
+		{
+			"name": "place",
+			"values": "An Giang;Bà Rịa-Vũng Tàu;Bắc Giang;Bắc Kạn;Bạc Liêu;Bắc Ninh;Bến Tre;Bình Định;Bình Dương;Bình Phước;Bình Thuận;Cà Mau;Cao Bằng;Đắk Lắk;Đắk Nông;Điện Biên;Đồng Nai;Đồng Tháp;Gia Lai;Hà Giang"
+		},
+		{
+			"name": "streettype",
+			"values": "Đường;Phố;Đường;Ngõ;Đường đi;Đường cao tốc;Diễu hành;Vòng xoay;Đại lộ;Đại lộ;"
+		},
+		{
+			"name": "house",
+			"values": "1;2;3;4;5;6;7;8;9;10;101;305;32a;32b;32c;"
+		},
+		{
+			"name": "day",
+			"values": "1>28"
+		},
+		{
+			"name": "month",
+			"values": "1>12"
+		},
+		{
+			"name": "year",
+			"values": "1970>2021"
+		},
+		{
+			"name": "hour",
+			"values": "0>23"
+		},
+		{
+			"name": "minute",
+			"values": "0>59"
+		},
+		{
+			"name": "second",
+			"values": "0>59"
+		},
+		{
+			"name": "date",
+			"values": "[year]-[month]-[day]"
+		},
+		{
+			"name": "time",
+			"values": "[hour]:[minute]:[second]"
+		},
+		{
+			"name": "timestamp",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "birth_year",
+			"values": "1940>2000"
+		},
+		{
+			"name": "dob",
+			"values": "[birth_year]-[month]-[day]"
+		},
+		{
+			"name": "now",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "today",
+			"values": "[timestamp]"
+		},
+		{
+			"name": "expiry_date",
+			"values": {
+				"datetime": {
+					"years-+": 5
+				}
+			}
+		},
+		{
+			"name": "uuid",
+			"values": "uuid"
+		},
+		{
+			"name": "positive_byte",
+			"values": "1>255"
+		},
+		{
+			"name": "byte",
+			"values": "0>255"
+		},
+		{
+			"name": "hex_digit",
+			"values": "0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F;"
+		},
+		{
+			"name": "hex",
+			"values": "[hex_digit][hex_digit]"
+		},
+		{
+			"name": "mac_address",
+			"values": "[hex]:[hex]:[hex]:[hex]:[hex]:[hex]"
+		},
+		{
+			"name": "ipaddress",
+			"values": "[positive_byte].[byte].[byte].[byte]"
+		},
+		{
+			"name": "ipv6address",
+			"values": "[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]:[hex][hex]"
+		},
+		{
+			"name": "server",
+			"values": "gmail;outlook;yahoo;microsoft;"
+		},
+		{
+			"name": "tld",
+			"values": "net;com;gov;org;co.uk;com.vn;net.vn;wa.gov.vn;nsw.gov.vn;"
+		},
+		{
+			"name": "department",
+			"values": "hr;finance;it;exec;sales;purchasing"
+		},
+		{
+			"name": "company_type",
+			"values": "Dầu khí;Khai thác mỏ;Y tế;Công nghệ thông tin;Điện tử;Thực phẩm;Nông nghiệp;Giao thông vận tải;Xây dựng;Kiến trúc;Thiết kế;Quảng cáo;Bất động sản;Tài chính;Bảo hiểm;Thời trang;Truyền thông;Du lịch;Năng lượng tái tạo;Giáo dục"
+		},
+		{
+			"name": "company_name",
+			"values": "Khát vọng;Tương lai;Lạc quan;Sáng tạo;Phát triển;Đổi mới;Triển vọng;Vị thế;Thành công;Thịnh vượng;Tiến bộ;Hạnh phúc;Cơ hội;Lý tưởng;Thành tựu;Năng động;Năng lực;Động lực;Hưởng lợi;Cộng đồng;Tinh thần;Trí tuệ;Tầm nhìn;Sức mạnh;Hợp tác;Sáng kiến;Sáng lập;Sáng suốt;Sự nghiệp;Sự tiến bộ;Sự tự tin;Thế giới;Thiện chí;Thiết thực;Thiết yếu;Thuyết phục;Tiềm năng;Tinh tế;Tình thương;Tinh thần;Tư duy;Tự do;Tự tin;Tự trọng;Tầm cỡ;Tầm quan trọng;Tầm tầm;Tín nhiệm"
+		},
+		{
+			"name": "organisation_name",
+			"values": "[company_name] [company_type]"
+		},
+		{
+			"name": "length",
+			"values": "10>100"
+		},
+		{
+			"name": "height",
+			"values": "100>250"
+		},
+		{
+			"name": "depth",
+			"values": "10>100"
+		},
+		{
+			"name": "volume",
+			"values": "100>2000"
+		},
+		{
+			"name": "weight",
+			"values": "20>200"
+		}
+	]
+}
