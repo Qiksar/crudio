@@ -77,7 +77,7 @@ services:
 
   cube:
     image: cubejs/cube
-    container_name: cube
+    container_name: crudio_cube
     volumes:
       - ./cube_conf:/cube/conf
     ports:

@@ -4,28 +4,24 @@ import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
 
 import CrudioCLI from "./CrudioCLI";
-import CrudioHasuraWrapper from "./DataWrappers/CrudioHasuraWrapper";
-import CrudioDataModel from "./CrudioDataModel";
-import CrudioHasura from "./CrudioHasura";
-import { ICrudioConfig } from "./CrudioTypes";
-import CrudioMongooseWrapper from "./DataWrappers/CrudioMongooseWrapper";
+import CrudioHasuraWrapper from "../wrappers/CrudioHasuraWrapper";
+import CrudioDataModel from "../datamodel/definition/CrudioDataModel";
+import CrudioHasuraTracker from "../wrappers/CrudioHasuraTracker";
+import ICrudioConfig from "../datamodel/types/ICrudioConfig";
+import CrudioMongooseWrapper from "../wrappers/CrudioMongooseWrapper";
 
-const manifest_file =
-  "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
+const manifest_file = "https://raw.githubusercontent.com/Qiksar/crudio/main/tools/init/manifest.json";
 
 const Fetch = async (url: string, output_path: string): Promise<void> => {
-  var result: AxiosResponse;
+  let result: AxiosResponse;
 
   try {
     result = await axios.get(url);
   } catch (e) {
-    console.log(
-      `Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`
-    );
+    console.log(`Failed to fetch ${url} Status: ${result.status} - ${result.statusText}`);
   }
 
-  var text =
-    typeof result.data === "object" ? JSON.stringify(result.data) : result.data;
+  const text = typeof result.data === "object" ? JSON.stringify(result.data) : result.data;
 
   const parts = url.replace("https://", "").split("/");
   const filename = parts[parts.length - 1];
@@ -33,7 +29,7 @@ const Fetch = async (url: string, output_path: string): Promise<void> => {
 
   fs.writeFileSync(outFile, text);
   if (outFile.toLowerCase().endsWith("sh")) {
-    await fs.chmod(outFile, 0o777, (e) => {
+    await fs.chmod(outFile, 0o777, e => {
       if (e) throw e;
     });
   }
@@ -63,28 +59,21 @@ const Init = async (config: any): Promise<void> => {
 
   fs.mkdirSync(config.project + "/datamodel");
 
-  var result: AxiosResponse = await axios.get(manifest_file);
-  var manifest = result.data as string[];
+  const result: AxiosResponse = await axios.get(manifest_file);
+  const manifest = result.data as string[];
 
-  for (var i = 0; i < manifest.length; i++) {
+  for (let i = 0; i < manifest.length; i++) {
     const file: any = manifest[i];
 
     if (config.verbose) {
       console.log("Fetch: " + file.source);
     }
 
-    await Fetch(
-      file.source,
-      file.location == "."
-        ? config.project
-        : config.project + "/" + file.location
-    );
+    await Fetch(file.source, file.location == "." ? config.project : config.project + "/" + file.location);
   }
 
   console.log();
-  console.log(
-    "Project setup complete. Remember to edit the docker-compose file and set correct ports to avoid conflicts between projects."
-  );
+  console.log("Project setup complete. Remember to edit the docker-compose file and set correct ports to avoid conflicts between projects.");
 };
 
 setTimeout(async () => {
@@ -110,15 +99,11 @@ setTimeout(async () => {
   }
 
   if (config.datamodel === undefined) {
-    console.error(
-      "Error: data model not specified. Use the -m or --datamodel option to specify a definition file (e.g. datamodel.json). Use -h to view options."
-    );
+    console.error("Error: data model not specified. Use the -m or --datamodel option to specify a definition file (e.g. datamodel.json). Use -h to view options.");
     return;
   }
 
-  console.log(
-    `Loading Crudio data model definition from: "${config.datamodel}"`
-  );
+  console.log(`Loading Crudio data model definition from: "${config.datamodel}"`);
   console.log();
 
   const datamodel = CrudioDataModel.FromJson(config, true);
@@ -175,7 +160,7 @@ async function PopulatePostgres(config, datamodel) {
   console.log("Database has been loaded.");
   console.log();
   console.log("Setup Hasura tracking...");
-  const tracker = new CrudioHasura(config, datamodel);
+  const tracker = new CrudioHasuraTracker(config, datamodel);
   await tracker.Track();
 }
 

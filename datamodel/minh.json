@@ -1,0 +1,147 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+  "include": ["datamodel/base.json"],
+  "generators": [
+    {
+      "name": "subject_type",
+      "values": "English;Math;Art;Science;History;Music;Geography;Physical Education;Drama;Biology;Chemistry;Physics;Information Technology;Foreign Languages;Social Studies;Technology;Philosophy;Graphic Design;Literature;Algebra;Geometry"
+    },
+    {
+      "name": "subject_level",
+      "values": "Beginner;Intermitiate;Advanced"
+    },
+    {
+      "name": "grade",
+      "values": "A+;A;A-;B+;B;B-;C+;C;C-;D+;D;D-;E+;E;E-;F+;F"
+    },
+    {
+      "name": "school_type",
+      "values": "Private;Public"
+    },
+    {
+      "name": "school_level",
+      "values": "Kindergarten;Primary;Highschool"
+    },
+    {
+      "name": "school_name",
+      "values": "school 1;school 2"
+    },
+    {
+      "name": "teacher_email",
+      "values": "[!~firstname].[!~lastname]@[!~School.name].com"
+    },
+    {
+      "name": "student_email",
+      "values": "[!~firstname].[!~lastname]@student.[!~School.name].com"
+    }
+  ],
+  "entities": {
+    "School": {
+      "count": 5,
+      "inherits": ["Entity"],
+      "fields": {
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[school_name]"
+        },
+        "address": {
+          "generator": "[address]"
+        },
+        "email": {
+          "generator": "contact@[!~name].com"
+        }
+      }
+    },
+    "Person": {
+      "abstract": true,
+      "inherits": "Entity",
+      "snippets": ["firstname", "lastname", "address", "email"],
+      "fields": {
+        "dob": {
+          "type": "timestamp",
+          "name": "dob",
+          "generator": "[dob]"
+        },
+        "height": {
+          "type": "integer",
+          "name": "height",
+          "generator": "[height]"
+        },
+        "weight": {
+          "type": "integer",
+          "name": "weight",
+          "generator": "[weight]"
+        }
+      }
+    },
+    "Subject": {
+      "count": 30,
+      "inherits": ["Entity"],
+      "fields": {
+        "type": {
+          "generator": "[subject_type]"
+        },
+        "level": {
+          "generator": "[subject_level]"
+        },
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[!~subject_level] [!~subject_type]"
+        }
+      }
+    },
+    "Teacher": {
+      "count": 10,
+      "inherits": "Person",
+      "fields": {
+        "email": {
+          "unique": true,
+          "generator": "[teacher_email]"
+        },
+        "license_expiry": {
+          "type": "timestamp",
+          "generator": "[expiry_date]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "School"
+        },
+        {
+          "type": "many",
+          "to": "Subject"
+        }
+      ]
+    },
+    "Student": {
+      "count": 100,
+      "inherits": "Person",
+      "fields": {
+        "email": {
+          "unique": true,
+          "generator": "[student_email]"
+        },
+        "license_expiry": {
+          "type": "timestamp",
+          "generator": "[expiry_date]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "School"
+        },
+        {
+          "type": "many",
+          "to": "Subject"
+        }
+      ]
+    }
+  },
+  "triggers": [],
+  "assign": [],
+  "streams": []
+}

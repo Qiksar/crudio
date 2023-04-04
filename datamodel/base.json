@@ -1,4 +1,4 @@
 {
-	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
-	"include": ["datamodel/base_snippets.json", "datamodel/base_entity.json", "datamodel/base_generators.json"]
+  "$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+  "include": ["datamodel/base_snippets.json", "datamodel/base_entity.json", "datamodel/base_generators.json"]
 }

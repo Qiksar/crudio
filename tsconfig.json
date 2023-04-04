@@ -21,11 +21,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "tests/**/*.spec.ts",
-    "src/DataWrappers/CrudioHasuraWrapper.ts"
-  ],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "tests/**/*.spec.ts", "src/wrappers/CrudioHasuraWrapper.ts"],
   "exclude": ["node_modules", "lib"]
 }
