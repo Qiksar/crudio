@@ -8,19 +8,19 @@
  */
 
 export default interface ICrudioAssignment {
-	/**
-	 * Target specification
-	 * @date 10/10/2022 - 21:11:54
-	 *
-	 * @type {string}
-	 */
-	target: string;
+  /**
+   * Target specification
+   * @date 10/10/2022 - 21:11:54
+   *
+   * @type {string}
+   */
+  target: string;
 
-	/**
-	 * Fields to set
-	 * @date 10/10/2022 - 21:11:54
-	 *
-	 * @type {Record<string, unknown>}
-	 */
-	fields: Record<string, unknown>;
+  /**
+   * Fields to set
+   * @date 10/10/2022 - 21:11:54
+   *
+   * @type {Record<string, unknown>}
+   */
+  fields: Record<string, unknown>;
 }

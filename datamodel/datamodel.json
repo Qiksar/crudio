@@ -1,617 +1,594 @@
 {
-	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
-	"include": [
-		"datamodel/base.json"
-	],
-	"generators": [
-		{
-			"name": "temperature",
-			"values": "-10>44"
-		},
-		{
-			"name": "humidity",
-			"values": "5>100"
-		},
-		{
-			"name": "light",
-			"values": "0>100"
-		},
-		{
-			"name": "windspeed",
-			"values": "5>110"
-		},
-		{
-			"name": "body_temperature",
-			"values": "36>44"
-		},
-		{
-			"name": "bp_dia",
-			"values": "75>110"
-		},
-		{
-			"name": "bp_sys",
-			"values": "115>200"
-		},
-		{
-			"name": "bptext",
-			"values": "[bp_sys]/[bp_dia]"
-		},
-		{
-			"name": "bp",
-			"isJson": true,
-			"values": "{'systolic':'[bp_sys]','diastolic':'[bp_dia]'}"
-		},
-		{
-			"name": "bpm",
-			"values": "50>150"
-		},
-		{
-			"name": "glucose",
-			"values": "5>20"
-		},
-		{
-			"name": "device_type",
-			"values": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature"
-		},
-		{
-			"name": "device_site",
-			"values": "westerlea housing complex;rose estate;diamond community center;administration building;"
-		},
-		{
-			"name": "email",
-			"values": "[!firstname].[!lastname]@[server].[tld]"
-		},
-		{
-			"name": "accreditation_expiry_date",
-			"values": {
-				"datetime": {
-					"years_lo": -10,
-					"years_hi": 10
-				}
-			}
-		},
-		{
-			"name": "cohort_title",
-			"values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
-		},
-		{
-			"name": "cohort_name",
-			"values": "[year] intake, [cohort_title]"
-		},
-		{
-			"name": "program_title",
-			"values": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk"
-		},
-		{
-			"name": "program_name",
-			"values": "[program_title] for [cohort_name]"
-		},
-		{
-			"name": "program_mission",
-			"values": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;"
-		},
-		{
-			"name": "survey1",
-			"values": "Measure;Assess;Understand;"
-		},
-		{
-			"name": "survey2",
-			"values": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;"
-		},
-		{
-			"name": "survey_name",
-			"values": "[survey1] [survey2] of the [cohort_name] community"
-		},
-		{
-			"name": "tag",
-			"values": "food;online shopping;investing;retirement;youth unemployment;education;finance;health;technology;property;art;music;3D printing;makers;coworking;community;electronics;machine learning;cyber security;employment;psychology;child health;aged care;disability services;accessibility;"
-		},
-		{
-			"name": "article_subject",
-			"values": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;"
-		},
-		{
-			"name": "article_line1",
-			"values": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;"
-		},
-		{
-			"name": "article_line2",
-			"values": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;"
-		},
-		{
-			"name": "article_person",
-			"values": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;"
-		},
-		{
-			"name": "article_said",
-			"values": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;"
-		},
-		{
-			"name": "article_line5",
-			"values": "Until next time, adios;See you next time;We will be back with more news soon"
-		},
-		{
-			"name": "article",
-			"values": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]"
-		},
-		{
-			"name": "employee_email",
-			"values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
-		},
-		{
-			"name": "organisation_role",
-			"values": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
-		},
-		{
-			"name": "organisation_department",
-			"values": "IT;HR;Finance;Sales;Engineering;Marketing;Board"
-		}
-	],
-	"entities": {
-		"Organisation": {
-			"count": 10,
-			"triggers": "creating",
-			"inherits": [
-				"Entity"
-			],
-			"fields": {
-				"accreditation_expiry": {
-					"type": "timestamp",
-					"generator": "[accreditation_expiry_date]"
-				},
-				"name": {
-					"required": true,
-					"unique": true,
-					"generator": "[organisation_name]"
-				},
-				"address": {
-					"generator": "[address]"
-				},
-				"email": {
-					"generator": "contact@[!~name].com"
-				}
-			}
-		},
-		"OrganisationDepartment": {
-			"count": "[organisation_department]",
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"required": true,
-					"unique": true,
-					"generator": "[organisation_department]"
-				}
-			}
-		},
-		"OrganisationRole": {
-			"count": "[organisation_role]",
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"required": true,
-					"unique": true,
-					"generator": "[organisation_role]"
-				}
-			}
-		},
-		"Person": {
-			"abstract": true,
-			"inherits": "Entity",
-			"snippets": [
-				"firstname",
-				"lastname",
-				"address",
-				"email"
-			],
-			"fields": {
-				"dob": {
-					"type": "timestamp",
-					"name": "dob",
-					"generator": "[dob]"
-				},
-				"height": {
-					"type": "integer",
-					"name": "height",
-					"generator": "[height]"
-				},
-				"weight": {
-					"type": "integer",
-					"name": "weight",
-					"generator": "[weight]"
-				}
-			}
-		},
-		"Employee": {
-			"count": 0,
-			"inherits": "Person",
-			"fields": {
-				"email": {
-					"unique": true,
-					"generator": "[employee_email]"
-				},
-				"license_expiry": {
-					"type": "timestamp",
-					"generator": "[expiry_date]"
-				}
-			},
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Organisation"
-				},
-				{
-					"type": "one",
-					"to": "OrganisationDepartment"
-				},
-				{
-					"type": "many",
-					"to": "OrganisationRole"
-				}
-			]
-		},
-		"User": {
-			"count": 10,
-			"inherits": "Person",
-			"fields": {
-				"email": {
-					"unique": true,
-					"generator": "[email]"
-				}
-			}
-		},
-		"Program": {
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"required": true,
-					"unique": true,
-					"generator": "[program_name]"
-				},
-				"mission": {
-					"generator": "[program_mission]"
-				}
-			},
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Organisation"
-				}
-			]
-		},
-		"Cactus": {
-			"inherits": "Entity",
-			"fields": {
-				"height": {
-					"type": "integer",
-					"name": "height",
-					"generator": "[length]"
-				}
-			}
-		},
-		"Cohort": {
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"unique": true,
-					"required": true,
-					"generator": "[cohort_name]"
-				}
-			},
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Program"
-				}
-			]
-		},
-		"Survey": {
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"unique": true,
-					"required": true,
-					"generator": "[survey_name]"
-				}
-			},
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Program"
-				}
-			]
-		},
-		"Client": {
-			"inherits": "Person",
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Cohort"
-				}
-			]
-		},
-		"Tag": {
-			"count": "[tag]",
-			"inherits": "Entity",
-			"fields": {
-				"name": {
-					"unique": true,
-					"required": true,
-					"generator": "[tag]"
-				}
-			}
-		},
-		"Blog": {
-			"count": 20,
-			"inherits": "Entity",
-			"fields": {
-				"article": {
-					"generator": "[article]"
-				},
-				"published_date": {
-					"type": "timestamp",
-					"name": "published_date",
-					"generator": "[timestamp]"
-				}
-			},
-			"relationships": [
-				{
-					"to": "Tag",
-					"type": "many",
-					"count": 2,
-					"fields": {
-						"published_date": {
-							"type": "timestamp",
-							"generator": "[timestamp]"
-						},
-						"priority": {
-							"type": "integer",
-							"generator": "[1>10]"
-						}
-					}
-				},
-				{
-					"to": "User",
-					"type": "one",
-					"name": "Author"
-				}
-			]
-		},
-		"DeviceType": {
-			"inherits": "Entity",
-			"count": "[device_type]",
-			"fields": {
-				"name": {
-					"generator": "[device_type]",
-					"unique": true
-				}
-			}
-		},
-		"DeviceSite": {
-			"inherits": "Entity",
-			"count": "[device_site]",
-			"triggers": "creating",
-			"fields": {
-				"name": {
-					"generator": "[device_site]",
-					"unique": true
-				}
-			}
-		},
-		"Device": {
-			"inherits": "Entity",
-			"count": 0,
-			"triggers": "streaming",
-			"relationships": [
-				{
-					"type": "one",
-					"to": "DeviceType"
-				},
-				{
-					"type": "one",
-					"to": "DeviceSite"
-				}
-			]
-		},
-		"DeviceReading": {
-			"inherits": "Entity",
-			"count": 0,
-			"fields": {
-				"timestamp": {
-					"type": "timestamp",
-					"name": "timestamp"
-				},
-				"value": {
-					"type": "decimal",
-					"required": true
-				}
-			},
-			"relationships": [
-				{
-					"type": "one",
-					"to": "Device"
-				}
-			]
-		}
-	},
-	"triggers": [
-		{
-			"entity": "Organisation",
-			"scripts": [
-				"Employees(0).OrganisationRole?name=CEO",
-				"Employees(0).OrganisationRole?name=Staff",
-				"Employees(0).OrganisationDepartment?name=Board",
-				"Employees(1).OrganisationRole?name=CFO",
-				"Employees(1).OrganisationRole?name=Staff",
-				"Employees(1).OrganisationDepartment?name=Board",
-				"Employees(2).OrganisationRole?name=COO",
-				"Employees(2).OrganisationRole?name=Staff",
-				"Employees(2).OrganisationDepartment?name=Board",
-				"Employees(3).OrganisationRole?name=Head of Sales",
-				"Employees(3).OrganisationRole?name=Staff",
-				"Employees(3).OrganisationDepartment?name=Sales",
-				"Employees(4).OrganisationRole?name=Head of HR",
-				"Employees(4).OrganisationRole?name=Staff",
-				"Employees(4).OrganisationDepartment?name=HR",
-				"Employees(5).OrganisationRole?name=Head of Marketing",
-				"Employees(5).OrganisationRole?name=Staff",
-				"Employees(5).OrganisationDepartment?name=Marketing",
-				"Employees(6).OrganisationRole?name=Head of Finance",
-				"Employees(6).OrganisationRole?name=Staff",
-				"Employees(6).OrganisationDepartment?name=Finance",
-				"Employees(7-10).OrganisationRole?name=Staff",
-				"Employees(7-10).OrganisationDepartment?name=Sales",
-				"Employees(11-20).OrganisationRole?name=Staff",
-				"Employees(11-20).OrganisationDepartment?name=Marketing",
-				"Employees(21-30).OrganisationRole?name=Staff",
-				"Employees(21-30).OrganisationDepartment?name=HR",
-				"Employees(31-40).OrganisationRole?name=Staff",
-				"Employees(31-40).OrganisationDepartment?name=IT",
-				"Employees(41-46).OrganisationRole?name=Staff",
-				"Employees(41-46).OrganisationDepartment?name=Finance"
-			]
-		},
-		{
-			"entity": "DeviceSite",
-			"scripts": [
-				"Devices(0).DeviceType?name=temperature",
-				"Devices(1).DeviceType?name=humidity",
-				"Devices(2).DeviceType?name=windspeed",
-				"Devices(3).DeviceType?name=light"
-			]
-		}
-	],
-	"assign": [
-		{
-			"target": "Organisations(0).Employees(0)",
-			"fields": {
-				"firstname": "William",
-				"lastname": "Tell"
-			}
-		},
-		{
-			"target": "Organisations(0)",
-			"fields": {
-				"name": "Arrow Corporation"
-			}
-		},
-		{
-			"target": "Organisations(1)",
-			"fields": {
-				"name": "Bowing Services"
-			}
-		}
-	],
-	"streams": [
-		{
-			"name": "temperature",
-			"parentEntity": "Devices",
-			"key": "DeviceType.name",
-			"value": "temperature",
-			"createEntity": "DeviceReadings",
-			"loop": {
-				"range": {
-					"name": "years_ago",
-					"list": [
-						"[years_ago_2]",
-						"[years_ago_1]"
-					]
-				},
-				"loop": {
-					"range": {
-						"name": "day_of_year",
-						"type": "date",
-						"min": 0,
-						"max": 365,
-						"increment": 1
-					},
-					"loop": {
-						"range": {
-							"name": "hour_of_day",
-							"min": 0,
-							"max": 23,
-							"increment": 1
-						},
-						"output": {
-							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
-							"value": "` ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) `"
-						}
-					}
-				}
-			}
-		},
-		{
-			"name": "humidity",
-			"parentEntity": "Devices",
-			"key": "DeviceType.name",
-			"value": "humidity",
-			"createEntity": "DeviceReadings",
-			"loop": {
-				"range": {
-					"name": "years_ago",
-					"list": [
-						"[years_ago_2]",
-						"[years_ago_1]"
-					]
-				},
-				"loop": {
-					"range": {
-						"name": "day_of_year",
-						"type": "date",
-						"min": 0,
-						"max": 365,
-						"increment": 1
-					},
-					"loop": {
-						"range": {
-							"name": "hour_of_day",
-							"min": 0,
-							"max": 23,
-							"increment": 1
-						},
-						"output": {
-							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
-							"value": "` Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
-						}
-					}
-				}
-			}
-		},
-		{
-			"name": "windspeed",
-			"parentEntity": "Devices",
-			"key": "DeviceType.name",
-			"value": "windspeed",
-			"createEntity": "DeviceReadings",
-			"loop": {
-				"range": {
-					"name": "years_ago",
-					"list": [
-						"[years_ago_2]",
-						"[years_ago_1]"
-					]
-				},
-				"loop": {
-					"range": {
-						"name": "day_of_year",
-						"type": "date",
-						"min": 0,
-						"max": 365,
-						"increment": 1
-					},
-					"loop": {
-						"range": {
-							"name": "hour_of_day",
-							"min": 0,
-							"max": 23,
-							"increment": 1
-						},
-						"output": {
-							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
-							"value": "` Math.floor( ( ((Math.random() * 10) + 2) + (Math.random() * (365 - [day_of_year]))) + ( 100 / [hour_of_day]+1 % 8 ) ) `"
-						}
-					}
-				}
-			}
-		}
-	]
+  "$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
+  "include": ["datamodel/base.json"],
+  "generators": [
+    {
+      "name": "temperature",
+      "values": "-10>44"
+    },
+    {
+      "name": "humidity",
+      "values": "5>100"
+    },
+    {
+      "name": "light",
+      "values": "0>100"
+    },
+    {
+      "name": "windspeed",
+      "values": "5>110"
+    },
+    {
+      "name": "body_temperature",
+      "values": "36>44"
+    },
+    {
+      "name": "bp_dia",
+      "values": "75>110"
+    },
+    {
+      "name": "bp_sys",
+      "values": "115>200"
+    },
+    {
+      "name": "bptext",
+      "values": "[bp_sys]/[bp_dia]"
+    },
+    {
+      "name": "bp",
+      "isJson": true,
+      "values": "{'systolic':'[bp_sys]','diastolic':'[bp_dia]'}"
+    },
+    {
+      "name": "bpm",
+      "values": "50>150"
+    },
+    {
+      "name": "glucose",
+      "values": "5>20"
+    },
+    {
+      "name": "device_type",
+      "values": "temperature;humidity;light;windspeed;bp;bpm;glucose;body_temperature"
+    },
+    {
+      "name": "device_site",
+      "values": "westerlea housing complex;rose estate;diamond community center;administration building;"
+    },
+    {
+      "name": "email",
+      "values": "[!firstname].[!lastname]@[server].[tld]"
+    },
+    {
+      "name": "accreditation_expiry_date",
+      "values": {
+        "datetime": {
+          "years_lo": -10,
+          "years_hi": 10
+        }
+      }
+    },
+    {
+      "name": "cohort_title",
+      "values": "LGBTIQ,12-21yo;homeless women;unemployed youth;underemployed migrants;talented kids;bright spectrum;see me hear me"
+    },
+    {
+      "name": "cohort_name",
+      "values": "[year] intake, [cohort_title]"
+    },
+    {
+      "name": "program_title",
+      "values": "Well, well, well;Mind the gap;Better Tomorrow;Ahead Together;Three heads are better than two;Cocre8 the Future;New Hub;Includer Alert;Kowerk"
+    },
+    {
+      "name": "program_name",
+      "values": "[program_title] for [cohort_name]"
+    },
+    {
+      "name": "program_mission",
+      "values": "Very big mission, with lots of vision creating great impact;Small focussed mission, getting to the heart of the matter;Improving health and well-being in homeless populations;Improving mental health in underemployed youth;"
+    },
+    {
+      "name": "survey1",
+      "values": "Measure;Assess;Understand;"
+    },
+    {
+      "name": "survey2",
+      "values": "income;employment;mental health;homelessness;healthcare needs;transport needs;transport needs;"
+    },
+    {
+      "name": "survey_name",
+      "values": "[survey1] [survey2] of the [cohort_name] community"
+    },
+    {
+      "name": "tag",
+      "values": "food;online shopping;investing;retirement;youth unemployment;education;finance;health;technology;property;art;music;3D printing;makers;coworking;community;electronics;machine learning;cyber security;employment;psychology;child health;aged care;disability services;accessibility;"
+    },
+    {
+      "name": "article_subject",
+      "values": "Tip of the day;Weekly wrap;End of year summary;Hot news;Juicy gossip;Celebrity news;Science update;"
+    },
+    {
+      "name": "article_line1",
+      "values": "Welcome to the latest news;Here is another exciting update;Welcome back;It's been a while since we last provided an update, so here we go;"
+    },
+    {
+      "name": "article_line2",
+      "values": "Lots of things have happened;Not much has happened actually;It's been pretty quiet;Well, there has been lots of activity;"
+    },
+    {
+      "name": "article_person",
+      "values": "According to WOWZA Research;BAAHAA Technology said;UUBUU reported;MEGALABS told us;Robert Fancypants reported;Sandy Shores told us;Bob Tucket emailed to say;Tara Geekgirl has written in to say;"
+    },
+    {
+      "name": "article_said",
+      "values": "activity has increased;activity has decreased;activity levels are the same;things are the same;things are looking up;there is an upturn;there is a downturn;profits are up;profits are down;"
+    },
+    {
+      "name": "article_line5",
+      "values": "Until next time, adios;See you next time;We will be back with more news soon"
+    },
+    {
+      "name": "article",
+      "values": "[article_line1]. [article_line2]. [article_person] [article_said]. [article_line5]"
+    },
+    {
+      "name": "employee_email",
+      "values": "[!~firstname].[!~lastname]@[!~Organisation.name].com"
+    },
+    {
+      "name": "organisation_role",
+      "values": "Head of Marketing;Head of HR;Head of Finance;Head of Sales;CEO;COO;CFO;Staff;"
+    },
+    {
+      "name": "organisation_department",
+      "values": "IT;HR;Finance;Sales;Engineering;Marketing;Board"
+    }
+  ],
+  "entities": {
+    "Organisation": {
+      "count": 10,
+      "triggers": "creating",
+      "inherits": ["Entity"],
+      "fields": {
+        "accreditation_expiry": {
+          "type": "timestamp",
+          "generator": "[accreditation_expiry_date]"
+        },
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[organisation_name]"
+        },
+        "address": {
+          "generator": "[address]"
+        },
+        "email": {
+          "generator": "contact@[!~name].com"
+        }
+      }
+    },
+    "OrganisationDepartment": {
+      "count": "[organisation_department]",
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[organisation_department]"
+        }
+      }
+    },
+    "OrganisationRole": {
+      "count": "[organisation_role]",
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[organisation_role]"
+        }
+      }
+    },
+    "Person": {
+      "abstract": true,
+      "inherits": "Entity",
+      "snippets": ["firstname", "lastname", "address", "email"],
+      "fields": {
+        "dob": {
+          "type": "timestamp",
+          "name": "dob",
+          "generator": "[dob]"
+        },
+        "height": {
+          "type": "integer",
+          "name": "height",
+          "generator": "[height]"
+        },
+        "weight": {
+          "type": "integer",
+          "name": "weight",
+          "generator": "[weight]"
+        }
+      }
+    },
+    "Employee": {
+      "count": 0,
+      "inherits": "Person",
+      "fields": {
+        "email": {
+          "unique": true,
+          "generator": "[employee_email]"
+        },
+        "license_expiry": {
+          "type": "timestamp",
+          "generator": "[expiry_date]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        },
+        {
+          "type": "one",
+          "to": "OrganisationDepartment"
+        },
+        {
+          "type": "many",
+          "to": "OrganisationRole"
+        }
+      ]
+    },
+    "User": {
+      "count": 10,
+      "inherits": "Person",
+      "fields": {
+        "email": {
+          "unique": true,
+          "generator": "[email]"
+        }
+      }
+    },
+    "Program": {
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "required": true,
+          "unique": true,
+          "generator": "[program_name]"
+        },
+        "mission": {
+          "generator": "[program_mission]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Organisation"
+        }
+      ]
+    },
+    "Cactus": {
+      "inherits": "Entity",
+      "fields": {
+        "height": {
+          "type": "integer",
+          "name": "height",
+          "generator": "[length]"
+        }
+      }
+    },
+    "Cohort": {
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "unique": true,
+          "required": true,
+          "generator": "[cohort_name]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
+    },
+    "Survey": {
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "unique": true,
+          "required": true,
+          "generator": "[survey_name]"
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Program"
+        }
+      ]
+    },
+    "Client": {
+      "inherits": "Person",
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Cohort"
+        }
+      ]
+    },
+    "Tag": {
+      "count": "[tag]",
+      "inherits": "Entity",
+      "fields": {
+        "name": {
+          "unique": true,
+          "required": true,
+          "generator": "[tag]"
+        }
+      }
+    },
+    "Blog": {
+      "count": 20,
+      "inherits": "Entity",
+      "fields": {
+        "article": {
+          "generator": "[article]"
+        },
+        "published_date": {
+          "type": "timestamp",
+          "name": "published_date",
+          "generator": "[timestamp]"
+        }
+      },
+      "relationships": [
+        {
+          "to": "Tag",
+          "type": "many",
+          "count": 2,
+          "fields": {
+            "published_date": {
+              "type": "timestamp",
+              "generator": "[timestamp]"
+            },
+            "priority": {
+              "type": "integer",
+              "generator": "[1>10]"
+            }
+          }
+        },
+        {
+          "to": "User",
+          "type": "one",
+          "name": "Author"
+        }
+      ]
+    },
+    "DeviceType": {
+      "inherits": "Entity",
+      "count": "[device_type]",
+      "fields": {
+        "name": {
+          "generator": "[device_type]",
+          "unique": true
+        }
+      }
+    },
+    "DeviceSite": {
+      "inherits": "Entity",
+      "count": "[device_site]",
+      "triggers": "creating",
+      "fields": {
+        "name": {
+          "generator": "[device_site]",
+          "unique": true
+        }
+      }
+    },
+    "Device": {
+      "inherits": "Entity",
+      "count": 0,
+      "triggers": "streaming",
+      "relationships": [
+        {
+          "type": "one",
+          "to": "DeviceType"
+        },
+        {
+          "type": "one",
+          "to": "DeviceSite"
+        }
+      ]
+    },
+    "DeviceReading": {
+      "inherits": "Entity",
+      "count": 0,
+      "fields": {
+        "timestamp": {
+          "type": "timestamp",
+          "name": "timestamp"
+        },
+        "value": {
+          "type": "decimal",
+          "required": true
+        }
+      },
+      "relationships": [
+        {
+          "type": "one",
+          "to": "Device"
+        }
+      ]
+    }
+  },
+  "triggers": [
+    {
+      "entity": "Organisation",
+      "scripts": [
+        "Employees(0).OrganisationRole?name=CEO",
+        "Employees(0).OrganisationRole?name=Staff",
+        "Employees(0).OrganisationDepartment?name=Board",
+        "Employees(1).OrganisationRole?name=CFO",
+        "Employees(1).OrganisationRole?name=Staff",
+        "Employees(1).OrganisationDepartment?name=Board",
+        "Employees(2).OrganisationRole?name=COO",
+        "Employees(2).OrganisationRole?name=Staff",
+        "Employees(2).OrganisationDepartment?name=Board",
+        "Employees(3).OrganisationRole?name=Head of Sales",
+        "Employees(3).OrganisationRole?name=Staff",
+        "Employees(3).OrganisationDepartment?name=Sales",
+        "Employees(4).OrganisationRole?name=Head of HR",
+        "Employees(4).OrganisationRole?name=Staff",
+        "Employees(4).OrganisationDepartment?name=HR",
+        "Employees(5).OrganisationRole?name=Head of Marketing",
+        "Employees(5).OrganisationRole?name=Staff",
+        "Employees(5).OrganisationDepartment?name=Marketing",
+        "Employees(6).OrganisationRole?name=Head of Finance",
+        "Employees(6).OrganisationRole?name=Staff",
+        "Employees(6).OrganisationDepartment?name=Finance",
+        "Employees(7-10).OrganisationRole?name=Staff",
+        "Employees(7-10).OrganisationDepartment?name=Sales",
+        "Employees(11-20).OrganisationRole?name=Staff",
+        "Employees(11-20).OrganisationDepartment?name=Marketing",
+        "Employees(21-30).OrganisationRole?name=Staff",
+        "Employees(21-30).OrganisationDepartment?name=HR",
+        "Employees(31-40).OrganisationRole?name=Staff",
+        "Employees(31-40).OrganisationDepartment?name=IT",
+        "Employees(41-46).OrganisationRole?name=Staff",
+        "Employees(41-46).OrganisationDepartment?name=Finance"
+      ]
+    },
+    {
+      "entity": "DeviceSite",
+      "scripts": ["Devices(0).DeviceType?name=temperature", "Devices(1).DeviceType?name=humidity", "Devices(2).DeviceType?name=windspeed", "Devices(3).DeviceType?name=light"]
+    }
+  ],
+  "assign": [
+    {
+      "target": "Organisations(0).Employees(0)",
+      "fields": {
+        "firstname": "William",
+        "lastname": "Tell"
+      }
+    },
+    {
+      "target": "Organisations(0)",
+      "fields": {
+        "name": "Arrow Corporation"
+      }
+    },
+    {
+      "target": "Organisations(1)",
+      "fields": {
+        "name": "Bowing Services"
+      }
+    }
+  ],
+  "streams": [
+    {
+      "name": "temperature",
+      "parentEntity": "Devices",
+      "key": "DeviceType.name",
+      "value": "temperature",
+      "createEntity": "DeviceReadings",
+      "loop": {
+        "range": {
+          "name": "years_ago",
+          "list": ["[years_ago_2]", "[years_ago_1]"]
+        },
+        "loop": {
+          "range": {
+            "name": "day_of_year",
+            "type": "date",
+            "min": 0,
+            "max": 365,
+            "increment": 1
+          },
+          "loop": {
+            "range": {
+              "name": "hour_of_day",
+              "min": 0,
+              "max": 23,
+              "increment": 1
+            },
+            "output": {
+              "timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+              "value": "` ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) `"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "humidity",
+      "parentEntity": "Devices",
+      "key": "DeviceType.name",
+      "value": "humidity",
+      "createEntity": "DeviceReadings",
+      "loop": {
+        "range": {
+          "name": "years_ago",
+          "list": ["[years_ago_2]", "[years_ago_1]"]
+        },
+        "loop": {
+          "range": {
+            "name": "day_of_year",
+            "type": "date",
+            "min": 0,
+            "max": 365,
+            "increment": 1
+          },
+          "loop": {
+            "range": {
+              "name": "hour_of_day",
+              "min": 0,
+              "max": 23,
+              "increment": 1
+            },
+            "output": {
+              "timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+              "value": "` Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "windspeed",
+      "parentEntity": "Devices",
+      "key": "DeviceType.name",
+      "value": "windspeed",
+      "createEntity": "DeviceReadings",
+      "loop": {
+        "range": {
+          "name": "years_ago",
+          "list": ["[years_ago_2]", "[years_ago_1]"]
+        },
+        "loop": {
+          "range": {
+            "name": "day_of_year",
+            "type": "date",
+            "min": 0,
+            "max": 365,
+            "increment": 1
+          },
+          "loop": {
+            "range": {
+              "name": "hour_of_day",
+              "min": 0,
+              "max": 23,
+              "increment": 1
+            },
+            "output": {
+              "timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
+              "value": "` Math.floor( ( ((Math.random() * 10) + 2) + (Math.random() * (365 - [day_of_year]))) + ( 100 / [hour_of_day]+1 % 8 ) ) `"
+            }
+          }
+        }
+      }
+    }
+  ]
 }

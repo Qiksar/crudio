@@ -7,12 +7,12 @@
  * @typedef {ICrudioFacet}
  */
 export default interface ICrudioFacet {
-	/**
-	 * Object name
-	 * @date 26/03/2023 - 12:29:29
-	 *
-	 * @readonly
-	 * @type {string}
-	 */
-	get Name(): string;
+  /**
+   * Object name
+   * @date 26/03/2023 - 12:29:29
+   *
+   * @readonly
+   * @type {string}
+   */
+  get Name(): string;
 }

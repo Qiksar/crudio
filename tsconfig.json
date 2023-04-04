@@ -1,26 +1,26 @@
 {
-	"compilerOptions": {
-		"esModuleInterop": true,
-		"module": "CommonJS",
-		"target": "esnext",
-		"strict": true,
-		"strictNullChecks": false,
-		"noImplicitAny": false,
-		"jsx": "preserve",
-		"declaration": true /* Generates corresponding '.d.ts' file. */,
-		"outDir": "./dist" /* Redirect output structure to the directory. */,
-		"moduleResolution": "node",
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"allowSyntheticDefaultImports": true,
-		"strictPropertyInitialization": false,
-		"sourceMap": true,
-		"baseUrl": ".",
-		"types": ["jest", "node"],
-		"paths": {
-			"@/*": ["src/*"]
-		}
-	},
-	"include": ["src/**/*.ts", "tests/**/*.ts", "tests/**/*.spec.ts", "src/wrappers/CrudioHasuraWrapper.ts"],
-	"exclude": ["node_modules", "lib"]
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "CommonJS",
+    "target": "esnext",
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "jsx": "preserve",
+    "declaration": true /* Generates corresponding '.d.ts' file. */,
+    "outDir": "./dist" /* Redirect output structure to the directory. */,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": ["jest", "node"],
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "tests/**/*.spec.ts", "src/wrappers/CrudioHasuraWrapper.ts"],
+  "exclude": ["node_modules", "lib"]
 }

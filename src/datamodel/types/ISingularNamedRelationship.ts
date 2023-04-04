@@ -8,27 +8,27 @@
  */
 
 export default interface ISingularNamedRelationship {
-	/**
-	 * @date 7/25/2022 - 10:45:41 AM
-	 *
-	 * @type {string}
-	 */
-	enumerate: string;
+  /**
+   * @date 7/25/2022 - 10:45:41 AM
+   *
+   * @type {string}
+   */
+  enumerate: string;
 
-	/**
-	 * The field to use as the lookup to acquire a related entity
-	 * @date 7/25/2022 - 10:45:41 AM
-	 *
-	 * @type {string}
-	 */
-	field: string;
+  /**
+   * The field to use as the lookup to acquire a related entity
+   * @date 7/25/2022 - 10:45:41 AM
+   *
+   * @type {string}
+   */
+  field: string;
 
-	/**
-	 * The values which are used to identify the actual related entities
-	 * For example, "HEAD OF IT;HEAD OF HR;HEAD OF SALES", identifying a list where only one user is to be assigned to the role
-	 * @date 7/25/2022 - 10:45:41 AM
-	 *
-	 * @type {string}
-	 */
-	values: string;
+  /**
+   * The values which are used to identify the actual related entities
+   * For example, "HEAD OF IT;HEAD OF HR;HEAD OF SALES", identifying a list where only one user is to be assigned to the role
+   * @date 7/25/2022 - 10:45:41 AM
+   *
+   * @type {string}
+   */
+  values: string;
 }

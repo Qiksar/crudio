@@ -7,41 +7,43 @@
  */
 
 export default class SqlInstructionList {
-	/**
-	 * List of fields on the current table
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {{}}
-	 */
-	public table_field_list: string[] = [];
-	/**
-	 * SQL definitions for the columns on the current table
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public table_column_definitions: string = "";
-	/**
-	 * Concatenated version of field names
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public table_column_names: string = "";
+  /**
+   * List of fields on the current table
+   * @date 7/18/2022 - 1:46:23 PM
+   *
+   * @type {{}}
+   */
+  public table_field_list: string[] = [];
 
-	/**
-	 * SQL to create foreign key relationships for all tables
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public create_foreign_keys: string = "";
+  /**
+   * SQL definitions for the columns on the current table
+   * @date 7/18/2022 - 1:46:23 PM
+   *
+   * @type {string}
+   */
+  public table_column_definitions = "";
 
-	/**
-	 * SQL to insert data table values
-	 * @date 7/18/2022 - 1:46:23 PM
-	 *
-	 * @type {string}
-	 */
-	public insert_table_rows: string = "";
+  /**
+   * Concatenated version of field names
+   * @date 7/18/2022 - 1:46:23 PM
+   *
+   * @type {string}
+   */
+  public table_column_names = "";
+
+  /**
+   * SQL to create foreign key relationships for all tables
+   * @date 7/18/2022 - 1:46:23 PM
+   *
+   * @type {string}
+   */
+  public create_foreign_keys = "";
+
+  /**
+   * SQL to insert data table values
+   * @date 7/18/2022 - 1:46:23 PM
+   *
+   * @type {string}
+   */
+  public insert_table_rows = "";
 }

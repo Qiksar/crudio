@@ -10,35 +10,35 @@ import ICrudioFieldOptions from "./ICrudioFieldOptions";
  */
 
 export default interface ICrudioField {
-	/**
-	 * Name of field
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @type {string}
-	 */
-	fieldName: string;
+  /**
+   * Name of field
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {string}
+   */
+  fieldName: string;
 
-	/**
-	 * Data type
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @type {string}
-	 */
-	fieldType: string;
+  /**
+   * Data type
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {string}
+   */
+  fieldType: string;
 
-	/**
-	 * Default value
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @type {?*}
-	 */
-	defaultValue?: any;
+  /**
+   * Default value
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {?*}
+   */
+  defaultValue?: any;
 
-	/**
-	 * Options for the field
-	 * @date 7/18/2022 - 1:47:30 PM
-	 *
-	 * @type {ICrudioFieldOptions}
-	 */
-	fieldOptions?: ICrudioFieldOptions;
+  /**
+   * Options for the field
+   * @date 7/18/2022 - 1:47:30 PM
+   *
+   * @type {ICrudioFieldOptions}
+   */
+  fieldOptions?: ICrudioFieldOptions;
 }

@@ -10,35 +10,35 @@ import ICrudioRange from "./ICrudioRange";
  */
 
 export default interface ICrudioForLoop {
-	/**
-	 * Nest loop configuration
-	 * @date 07/12/2022 - 07:23:08
-	 *
-	 * @type {ICrudioForLoop}
-	 */
-	loop: ICrudioForLoop;
+  /**
+   * Nest loop configuration
+   * @date 07/12/2022 - 07:23:08
+   *
+   * @type {ICrudioForLoop}
+   */
+  loop: ICrudioForLoop;
 
-	/**
-	 * List of values to be assigned to generators
-	 * @date 07/12/2022 - 07:23:08
-	 *
-	 * @type {((string | number | Date)[])}
-	 */
-	list: (string | number | Date)[];
+  /**
+   * List of values to be assigned to generators
+   * @date 07/12/2022 - 07:23:08
+   *
+   * @type {((string | number | Date)[])}
+   */
+  list: (string | number | Date)[];
 
-	/**
-	 * Output type
-	 * @date 07/12/2022 - 07:23:08
-	 *
-	 * @type {(any | undefined)}
-	 */
-	output: any | undefined;
+  /**
+   * Output type
+   * @date 07/12/2022 - 07:23:08
+   *
+   * @type {(any | undefined)}
+   */
+  output: any | undefined;
 
-	/**
-	 * Range for values to be used in the loop
-	 * @date 07/12/2022 - 07:23:08
-	 *
-	 * @type {ICrudioRange}
-	 */
-	range: ICrudioRange;
+  /**
+   * Range for values to be used in the loop
+   * @date 07/12/2022 - 07:23:08
+   *
+   * @type {ICrudioRange}
+   */
+  range: ICrudioRange;
 }
