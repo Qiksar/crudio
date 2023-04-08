@@ -1,7 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
 	"include": [
-		"datamodel/base.vn.json"
+		"datamodel/base_vn.json"
 	],
 	"generators": [
 		{
