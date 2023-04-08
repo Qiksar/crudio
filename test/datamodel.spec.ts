@@ -7,11 +7,6 @@ import CrudioEntityInstance from "../src/datamodel/generation/CrudioEntityInstan
 describe("Create datamodel", () => {
   jest.setTimeout(120000);
 
-  test("load minh's model", () => {
-    config.datamodel = "datamodel/minh.json";
-    CrudioDataModel.FromJson(config, true);
-  });
-
   test("Find Arrow Corporation and William Tell then check assigned roles", () => {
     config.datamodel = "datamodel/datamodel.json";
     const repo = CrudioDataModel.FromJson(config, true);

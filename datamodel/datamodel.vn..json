@@ -1,7 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Qiksar/crudio/main/schema/crudio.json",
 	"include": [
-		"datamodel/base.json"
+		"datamodel/base.vn.json"
 	],
 	"generators": [
 		{
@@ -491,13 +491,13 @@
 		{
 			"target": "Organisations(0)",
 			"fields": {
-				"name": "Arrow Corporation"
+				"name": "VieTelco"
 			}
 		},
 		{
 			"target": "Organisations(1)",
 			"fields": {
-				"name": "Bowing Services"
+				"name": "NamSteelCo"
 			}
 		}
 	],
@@ -533,7 +533,7 @@
 						},
 						"output": {
 							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
-							"value": "` ( Math.floor(Math.random() * 10) ) +  8 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) `"
+							"value": "` ( Math.floor(Math.random() * 10) ) +  2 + ( [hour_of_day] <= 12 ? [hour_of_day] : (12 - [hour_of_day]) ) `"
 						}
 					}
 				}
@@ -570,7 +570,7 @@
 						},
 						"output": {
 							"timestamp": "` new Date( ([hour_of_day] * 3600000) + ([day_of_year] * 86400000) + new Date('[years_ago]').valueOf() ).toISOString().replace('Z', '') `",
-							"value": "` Math.floor( ( Math.random() * 50) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
+							"value": "` Math.floor( ( Math.random() * 70) + ( 100 / ([hour_of_day] + 1) % 20 ) ) `"
 						}
 					}
 				}
