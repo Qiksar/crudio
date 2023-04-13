@@ -1581,8 +1581,8 @@ export default class CrudioDataModel {
     const triggers = this.triggers[entityInstance.EntityDefinition.Name];
     if (!triggers) return;
 
-    triggers.map((s: any) => {
-      this.ExecuteTrigger(entityInstance, s);
+    triggers.map((trigger: any) => {
+      this.ExecuteTrigger(entityInstance, trigger);
     });
   }
 
@@ -1592,12 +1592,21 @@ export default class CrudioDataModel {
    *
    * @private
    * @param {CrudioEntityInstance} parent_entity
-   * @param {string} script
+   * @param {string} trigger
    */
-  private ExecuteTrigger(parent_entity: CrudioEntityInstance, script: string): void {
-    const query_index = script.indexOf("?");
-    const query = script.slice(query_index + 1);
-    const parts = script.slice(0, query_index).split(".");
+  private ExecuteTrigger(parent_entity: CrudioEntityInstance, trigger: string): void {
+    if (typeof trigger !== "string" || !trigger) {
+      throw new Error("Error: Syntax error - 'trigger' parameter must be a non-null string ')'");
+    }
+
+    const query_index = trigger.indexOf("?");
+    const query = trigger.slice(query_index + 1);
+    const parts = trigger.slice(0, query_index).split(".");
+
+    if (parts.length < 1) {
+      throw new Error(`Error: Syntax error - 'trigger' parameter does not provide a navigable path. trigger = '${trigger}'`);
+    }
+
     let field_name = parts[0];
     const entity_type = parts[1];
     let row_index = -1;
@@ -1605,16 +1614,17 @@ export default class CrudioDataModel {
     let row_end = 0;
 
     const bracket = field_name.indexOf("(");
+    // TODO: Use regex to better validate format of model values, e.g. for a trigger, ensuring ( ) are in correct sequence, not like this -> )( 
     if (bracket > -1) {
       if (field_name.indexOf(")") < 0) {
-        throw new Error(`Error: Syntax error - missing ')' in ${script}`);
+        throw new Error(`Error: Syntax error - missing ')' in ${trigger}`);
       }
 
       const index_text = field_name.slice(bracket + 1, field_name.indexOf(")", bracket + 1));
       const row_parts = index_text.split("-");
 
       if (isNaN(row_parts[0] as any) || (row_parts.length > 1 && isNaN(row_parts[1] as any))) {
-        throw new Error(`Error: Syntax error - invalid row index in ${script}`);
+        throw new Error(`Error: Syntax error - invalid row index in ${trigger}`);
       }
 
       row_start = Number.parseInt(row_parts[0]);
