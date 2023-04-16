@@ -31,7 +31,7 @@ People are terrible at creating data for testing and demonstration purposes. The
 
 ## Show me
 
-Cool! In two minutes, you will have a PostgreSQL database filled with demo data, and fully integrated with Hasura for a powerful GraphQL API and all you need to do is copy/paste this command in you linux shell (WSL2 for Windows). You also need NPX and Docker installed (see below for more help if you need it):
+Cool! In two minutes, you will have a PostgreSQL database filled with demo data, and fully integrated with Hasura for a powerful GraphQL API and all you need to do is copy/paste this command in to your linux shell (WSL2 for Windows). You also need NPX and Docker installed (see below for more help if you need it):
 
 ```sh
 wget -O - https://raw.githubusercontent.com/qiksar/crudio/main/tools/init.sh | bash
