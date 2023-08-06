@@ -12,14 +12,24 @@
         },
         "count": {
           "description": "integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
-          "type": ["string", "integer"]
+          "type": [
+            "string",
+            "integer"
+          ]
         },
         "triggers": {
-          "enum": ["off", "creating", "streaming"]
+          "enum": [
+            "off",
+            "creating",
+            "streaming"
+          ]
         },
         "inherits": {
           "description": "a string containing the name of an entity, or an array of strings specifying multiple entities from which to inherit fields",
-          "type": ["string", "array"],
+          "type": [
+            "string",
+            "array"
+          ],
           "items": {
             "type": "string"
           }
@@ -49,7 +59,10 @@
                 "type": "string"
               },
               "type": {
-                "enum": ["many", "one"]
+                "enum": [
+                  "many",
+                  "one"
+                ]
               },
               "to": {
                 "description": "name of the other entity which is connected in the relationship",
@@ -78,7 +91,10 @@
                 }
               }
             },
-            "required": ["to", "type"]
+            "required": [
+              "to",
+              "type"
+            ]
           }
         }
       }
@@ -110,7 +126,14 @@
         "type": {
           "description": "field type",
           "string": "string",
-          "enum": ["uuid", "string", "integer", "decimal", "timestamp", "jsonb"]
+          "enum": [
+            "uuid",
+            "string",
+            "integer",
+            "decimal",
+            "timestamp",
+            "jsonb"
+          ]
         }
       }
     },
@@ -131,7 +154,10 @@
           }
         }
       },
-      "required": ["name", "list"]
+      "required": [
+        "name",
+        "list"
+      ]
     },
     "range_numeric": {
       "dscription": "special generator used in a stream that provides incremental numeric values",
@@ -154,7 +180,12 @@
           "type": "number"
         }
       },
-      "required": ["name", "min", "max", "increment"]
+      "required": [
+        "name",
+        "min",
+        "max",
+        "increment"
+      ]
     },
     "range": {
       "oneOf": [
@@ -188,7 +219,9 @@
           "$ref": "#/definitions/entity_output"
         }
       },
-      "required": ["range"]
+      "required": [
+        "range"
+      ]
     },
     "stream": {
       "description": "streams create a collection of child entities beneath a parent entity using nested loops to control values of generators used in the data creation process",
@@ -200,32 +233,77 @@
         },
         "parentEntity": {
           "description": "the parent entity type which will have a one to many relationship reference from the child entity",
-          "examples": ["Device"],
+          "examples": [
+            "Device"
+          ],
           "type": "string"
         },
         "key": {
           "description": "path to a field on the parent entity which is used to filter which parent entities are used in the stream",
-          "examples": ["DeviceType.name - the stream navigates in the Device object (as the parent entity), finds the DeviceType field on the Device object, and compares the 'name' field  with the 'value' attribute defined in the stream"],
+          "examples": [
+            "DeviceType.name - the stream navigates in the Device object (as the parent entity), finds the DeviceType field on the Device object, and compares the 'name' field  with the 'value' attribute defined in the stream"
+          ],
           "type": "string"
         },
         "value": {
           "description": "the value of the field on the parent entity used for filtering purposes",
-          "examples": ["temperature_sensor"],
-          "type": ["string", "number", "integer"]
+          "examples": [
+            "temperature_sensor"
+          ],
+          "type": [
+            "string",
+            "number",
+            "integer"
+          ]
         },
         "createEntity": {
           "description": "the child entity to be created and attached to the parent entity",
-          "examples": ["DeviceReading"],
+          "examples": [
+            "DeviceReading"
+          ],
           "type": "string"
         },
         "loop": {
           "$ref": "#/definitions/for_loop"
         }
       },
-      "required": ["name", "parentEntity", "createEntity", "loop"]
+      "required": [
+        "name",
+        "parentEntity",
+        "createEntity",
+        "loop"
+      ]
     }
   },
   "properties": {
+    "documentation": {
+      "description": "provide a thumbnail graphic and summary documentation about the model",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Unique name of the model",
+          "type": "string"
+        },
+        "title": {
+          "description": "Title of the model",
+          "type": "string"
+        },
+        "description": {
+          "description": "Summary describing the model",
+          "type": "string"
+        },
+        "thumbnail": {
+          "description": "URL of a graphic to represent the model",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "title",
+        "description",
+        "thumbnail"
+      ]
+    },
     "include": {
       "description": "include other datamodels, which must be defined as JSON files and conform to the Crudio schema",
       "type": "array",
@@ -254,10 +332,16 @@
               "'[?fieldName]' choose a generator based on a field value, for example: '[?Device.DeviceType.name]'",
               "JSON Object"
             ],
-            "type": ["string", "object"]
+            "type": [
+              "string",
+              "object"
+            ]
           }
         },
-        "required": ["name", "values"]
+        "required": [
+          "name",
+          "values"
+        ]
       }
     },
     "snippets": {
@@ -282,14 +366,20 @@
         "properties": {
           "target": {
             "description": "path to the target object which is to be assigned values from 'fields'",
-            "examples": ["Organisation(0)", "Organisation(10).Users(3)"],
+            "examples": [
+              "Organisation(0)",
+              "Organisation(10).Users(3)"
+            ],
             "type": "string"
           },
           "fields": {
             "type": "object"
           }
         },
-        "required": ["target", "fields"]
+        "required": [
+          "target",
+          "fields"
+        ]
       }
     },
     "triggers": {
@@ -303,7 +393,9 @@
             "type": "string"
           },
           "scripts": {
-            "type": ["array"],
+            "type": [
+              "array"
+            ],
             "items": [
               {
                 "description": "instructions to execute",
@@ -317,7 +409,10 @@
             ]
           }
         },
-        "required": ["entity", "scripts"]
+        "required": [
+          "entity",
+          "scripts"
+        ]
       }
     },
     "streams": {
