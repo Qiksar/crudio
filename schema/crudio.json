@@ -6,6 +6,10 @@
       "description": "specifies an entity, its fields and relationships",
       "type": "object",
       "properties": {
+        "help": {
+          "description": "documentation descriving the purpose of the entity",
+          "type": "string"
+        },
         "abstract": {
           "description": "abstract entities provide inheritable fields and do not translate to database tables",
           "type": "boolean"
