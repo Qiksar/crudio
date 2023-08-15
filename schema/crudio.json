@@ -134,6 +134,22 @@
             "timestamp",
             "jsonb"
           ]
+        },
+        "help": {
+          "description": "Field specific documentation",
+          "type": "string"
+        },
+        "caption": {
+          "description": "Default caption to use in User Interface",
+          "type": "string"
+        },
+        "placeholder": {
+          "description": "Default placeholder text to use in User Interface",
+          "type": "string"
+        },
+        "sensitiveData": {
+          "description": "Indicates that the field contains sensitive data",
+          "type": "boolean"
         }
       }
     },
