@@ -157,7 +157,7 @@
         },
         "choices": {
           "description": "comma separated list of choices",
-          "type": "boolean"
+          "type": "string"
         },
         "multi_choice": {
           "description": "indicates multiple choices are allowed",
