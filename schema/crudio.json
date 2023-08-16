@@ -140,20 +140,61 @@
           ]
         },
         "help": {
-          "description": "Field specific documentation",
+          "description": "field specific documentation",
           "type": "string"
         },
         "caption": {
-          "description": "Default caption to use in User Interface",
+          "description": "default caption to use in User Interface",
           "type": "string"
         },
         "placeholder": {
-          "description": "Default placeholder text to use in User Interface",
+          "description": "default placeholder text to use in User Interface",
           "type": "string"
         },
-        "sensitiveData": {
-          "description": "Indicates that the field contains sensitive data",
+        "sensitive_data": {
+          "description": "indicates that the field contains sensitive data",
           "type": "boolean"
+        },
+        "choices": {
+          "description": "comma separated list of choices",
+          "type": "boolean"
+        },
+        "multi_choice": {
+          "description": "indicates multiple choices are allowed",
+          "type": "boolean"
+        },
+        "defaultValue": {
+          "description": "default value",
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "can_sort": {
+          "description": "indicates field can be used to sort lists",
+          "type": "boolean"
+        },
+        "default_sort": {
+          "description": "indicates field is the default sort key",
+          "type": "boolean"
+        },
+        "range_low": {
+          "description": "indicates field is the default sort key",
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "range_high": {
+          "description": "indicates field is the default sort key",
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "validation": {
+          "description": "custom validation rules",
+          "type": "string"
         }
       }
     },
