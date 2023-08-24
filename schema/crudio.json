@@ -356,6 +356,13 @@
         "thumbnail": {
           "description": "URL of a graphic to represent the model",
           "type": "string"
+        },
+        "tags": {
+          "description": "Group similar models by domain and features",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
