@@ -363,6 +363,26 @@
           "items": {
             "type": "string"
           }
+        },
+        "published_by": {
+          "description": "Identifier of the publisher / owner of the model",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL to the website or repository where further information can be sourced about the model",
+          "type": "string"
+        },
+        "license": {
+          "description": "Licensing terms for the model",
+          "type": "string"
+        },
+        "credit": {
+          "description": "Recognition of contributions from key parties",
+          "type": "string"
+        },
+        "fee": {
+          "description": "Fee payable for use of model - assumed to be US Dollars",
+          "type": "number"
         }
       },
       "required": [
