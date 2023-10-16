@@ -136,7 +136,10 @@
             "integer",
             "decimal",
             "timestamp",
-            "jsonb"
+            "jsonb",
+            "geo_linestring",
+            "geo_point",
+            "geo_polygon"
           ]
         },
         "help": {
