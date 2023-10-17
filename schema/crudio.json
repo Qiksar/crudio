@@ -123,6 +123,10 @@
           "description": "if true, the field must have a unique value amongst all entities of the same type",
           "type": "boolean"
         },
+        "indexed": {
+          "description": "if true, the field will be indexed in the database",
+          "type": "boolean"
+        },
         "generator": {
           "description": "specified the generator to use, and must be wrapped in [ ], e.g. [name]",
           "type": "string"
