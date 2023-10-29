@@ -141,7 +141,7 @@
             "decimal",
             "timestamp",
             "jsonb",
-            "geo_linestring",
+            "geo_line",
             "geo_point",
             "geo_polygon"
           ]
