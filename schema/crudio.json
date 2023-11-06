@@ -215,7 +215,10 @@
         },
         "list": {
           "description": "List of values which will be iterated in turn",
-          "type": "array",
+          "type": [
+            "string",
+            "array"
+          ],
           "items": {
             "description": "Item value",
             "type": "string"
