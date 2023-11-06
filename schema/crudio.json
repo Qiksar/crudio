@@ -3,19 +3,19 @@
   "type": "object",
   "definitions": {
     "entityProperties": {
-      "description": "specifies an entity, its fields and relationships",
+      "description": "Specifies an entity, its fields and relationships",
       "type": "object",
       "properties": {
         "help": {
-          "description": "documentation descriving the purpose of the entity",
+          "description": "Documentation descriving the purpose of the entity",
           "type": "string"
         },
         "abstract": {
-          "description": "abstract entities provide inheritable fields and do not translate to database tables",
+          "description": "Abstract entities provide inheritable fields and do not translate to database tables",
           "type": "boolean"
         },
         "count": {
-          "description": "integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
+          "description": "Integer specifying the required number of entities to create, or a [tag] which has a list of values, where an entity is created for each value",
           "type": [
             "string",
             "integer"
@@ -29,7 +29,7 @@
           ]
         },
         "inherits": {
-          "description": "a string containing the name of an entity, or an array of strings specifying multiple entities from which to inherit fields",
+          "description": "A string containing the name of an entity, or an array of strings specifying multiple entities from which to inherit fields",
           "type": [
             "string",
             "array"
@@ -39,27 +39,27 @@
           }
         },
         "snippets": {
-          "description": "array of snippet names, which specify pre-defined fields to import",
+          "description": "Array of snippet names, which specify pre-defined fields to import",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "fields": {
-          "description": "specifies aditional fields for the join table",
+          "description": "Specifies aditional fields for the join table",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/field"
           }
         },
         "relationships": {
-          "description": "array of one to many or many to many relationships",
+          "description": "Array of one to many or many to many relationships",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "name": {
-                "description": "assigns a preferred name for the relationship and which is used in the database",
+                "description": "Assigns a preferred name for the relationship and which is used in the database",
                 "type": "string"
               },
               "type": {
@@ -69,7 +69,7 @@
                 ]
               },
               "to": {
-                "description": "name of the other entity which is connected in the relationship",
+                "description": "Name of the other entity which is connected in the relationship",
                 "type": "string"
               }
             },
@@ -83,11 +83,11 @@
             "then": {
               "properties": {
                 "count": {
-                  "description": "specifies the number of entries to create per parent entity",
+                  "description": "Specifies the number of entries to create per parent entity",
                   "type": "integer"
                 },
                 "fields": {
-                  "description": "specifies aditional fields for the join table",
+                  "description": "Specifies aditional fields for the join table",
                   "type": "object",
                   "additionalProperties": {
                     "$ref": "#/definitions/field"
@@ -104,35 +104,35 @@
       }
     },
     "field": {
-      "description": "specifies an entity field",
+      "description": "Specifies an entity field",
       "type": "object",
       "properties": {
         "name": {
-          "description": "preferred fieldname, defaults to the JSON key used for this field node",
+          "description": "Preferred fieldname, defaults to the JSON key used for this field node",
           "type": "string"
         },
         "key": {
-          "description": "if true, the field is the primary key of the entity",
+          "description": "If true, the field is the primary key of the entity",
           "type": "boolean"
         },
         "required": {
-          "description": "if true, the field must have a value when saved to the database",
+          "description": "If true, the field must have a value when saved to the database",
           "type": "boolean"
         },
         "unique": {
-          "description": "if true, the field must have a unique value amongst all entities of the same type",
+          "description": "If true, the field must have a unique value amongst all entities of the same type",
           "type": "boolean"
         },
         "indexed": {
-          "description": "if true, the field will be indexed in the database",
+          "description": "If true, the field will be indexed in the database",
           "type": "boolean"
         },
         "generator": {
-          "description": "specified the generator to use, and must be wrapped in [ ], e.g. [name]",
+          "description": "Specifies the generator to use, and must be wrapped in [ ], e.g. [name]",
           "type": "string"
         },
         "type": {
-          "description": "field type",
+          "description": "Field type",
           "string": "string",
           "enum": [
             "uuid",
@@ -147,77 +147,77 @@
           ]
         },
         "help": {
-          "description": "field specific documentation",
+          "description": "Field specific documentation",
           "type": "string"
         },
         "caption": {
-          "description": "default caption to use in User Interface",
+          "description": "Default caption to use in User Interface",
           "type": "string"
         },
         "placeholder": {
-          "description": "default placeholder text to use in User Interface",
+          "description": "Default placeholder text to use in User Interface",
           "type": "string"
         },
         "sensitive_data": {
-          "description": "indicates that the field contains sensitive data",
+          "description": "Indicates that the field contains sensitive data",
           "type": "boolean"
         },
         "choices": {
-          "description": "comma separated list of choices",
+          "description": "Comma separated list of choices",
           "type": "string"
         },
         "multi_choice": {
-          "description": "indicates multiple choices are allowed",
+          "description": "Indicates multiple choices are allowed",
           "type": "boolean"
         },
         "defaultValue": {
-          "description": "default value",
+          "description": "Default value",
           "type": [
             "string",
             "number"
           ]
         },
         "can_sort": {
-          "description": "indicates field can be used to sort lists",
+          "description": "Indicates field can be used to sort lists",
           "type": "boolean"
         },
         "default_sort": {
-          "description": "indicates field is the default sort key",
+          "description": "Indicates field is the default sort key",
           "type": "boolean"
         },
         "range_low": {
-          "description": "indicates field is the default sort key",
+          "description": "Indicates field is the default sort key",
           "type": [
             "string",
             "number"
           ]
         },
         "range_high": {
-          "description": "indicates field is the default sort key",
+          "description": "Indicates field is the default sort key",
           "type": [
             "string",
             "number"
           ]
         },
         "validation": {
-          "description": "custom validation rules",
+          "description": "Custom validation rules",
           "type": "string"
         }
       }
     },
     "range_list": {
-      "dscription": "special generator used in a stream that provides values from an array",
+      "dscription": "Special generator used in a stream that provides values from an array",
       "type": "object",
       "properties": {
         "name": {
-          "description": "unique name for range",
+          "description": "Unique name for range",
           "type": "string"
         },
         "list": {
-          "description": "list of values which will be iterated in turn",
+          "description": "List of values which will be iterated in turn",
           "type": "array",
           "items": {
-            "description": "item value",
+            "description": "Item value",
             "type": "string"
           }
         }
@@ -228,24 +228,33 @@
       ]
     },
     "range_numeric": {
-      "dscription": "special generator used in a stream that provides incremental numeric values",
+      "dscription": "Special generator used in a stream that provides incremental numeric values",
       "type": "object",
       "properties": {
         "name": {
-          "description": "unique name for range",
+          "description": "Unique name for range",
           "type": "string"
         },
         "min": {
-          "description": "initial value of range",
-          "type": "number"
+          "description": "Initial value of range",
+          "type": [
+            "number",
+            "string"
+          ]
         },
         "max": {
-          "description": "maximum value of range",
-          "type": "number"
+          "description": "Maximum value of range",
+          "type": [
+            "number",
+            "string"
+          ]
         },
         "increment": {
-          "description": "incremental step size",
-          "type": "number"
+          "description": "Incremental step size",
+          "type": [
+            "number",
+            "string"
+          ]
         }
       },
       "required": [
@@ -274,7 +283,7 @@
       }
     },
     "for_loop": {
-      "description": "a loop that iterates over a specified range, and can recusrively run other for loops",
+      "description": "A loop that iterates over a specified range, and can recusrively run other for loops",
       "type": "object",
       "properties": {
         "range": {
@@ -292,29 +301,29 @@
       ]
     },
     "stream": {
-      "description": "streams create a collection of child entities beneath a parent entity using nested loops to control values of generators used in the data creation process",
+      "description": "Streams create a collection of child entities beneath a parent entity using nested loops to control values of generators used in the data creation process",
       "type": "object",
       "properties": {
         "name": {
-          "description": "unique name of the stream definition",
+          "description": "Unique name of the stream definition",
           "type": "string"
         },
         "parentEntity": {
-          "description": "the parent entity type which will have a one to many relationship reference from the child entity",
+          "description": "The parent entity type which will have a one to many relationship reference from the child entity",
           "examples": [
             "Device"
           ],
           "type": "string"
         },
         "key": {
-          "description": "path to a field on the parent entity which is used to filter which parent entities are used in the stream",
+          "description": "Path to a field on the parent entity which is used to filter which parent entities are used in the stream",
           "examples": [
             "DeviceType.name - the stream navigates in the Device object (as the parent entity), finds the DeviceType field on the Device object, and compares the 'name' field  with the 'value' attribute defined in the stream"
           ],
           "type": "string"
         },
         "value": {
-          "description": "the value of the field on the parent entity used for filtering purposes",
+          "description": "The value of the field on the parent entity used for filtering purposes",
           "examples": [
             "temperature_sensor"
           ],
@@ -325,7 +334,7 @@
           ]
         },
         "createEntity": {
-          "description": "the child entity to be created and attached to the parent entity",
+          "description": "The child entity to be created and attached to the parent entity",
           "examples": [
             "DeviceReading"
           ],
@@ -345,7 +354,7 @@
   },
   "properties": {
     "documentation": {
-      "description": "provide a thumbnail graphic and summary documentation about the model",
+      "description": "Provide a thumbnail graphic and summary documentation about the model",
       "type": "object",
       "properties": {
         "name": {
@@ -388,8 +397,8 @@
           "type": "string"
         },
         "fee": {
-          "description": "Fee payable for use of model - assumed to be US Dollars",
-          "type": "number"
+          "description": "Cost of using the model, or other form of compensation, e.g. donation.",
+          "type": "string"
         }
       },
       "required": [
@@ -400,24 +409,49 @@
       ]
     },
     "include": {
-      "description": "include other datamodels, which must be defined as JSON files and conform to the Crudio schema",
+      "description": "Include other datamodels, which must be defined as JSON files and conform to the Crudio schema",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
-    "generators": {
-      "description": "specifies data generators which create values for entity fields",
+    "variables": {
+      "description": "Specifies values that are used to initialise generators. The variable name must match one existing generator name.",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "name": {
-            "description": "name of the generator",
+            "description": "Name of the variable",
+            "type": "string"
+          },
+          "value": {
+            "description": "Value of the variable",
+            "type": [
+              "string",
+              "number",
+              "object"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ]
+      }
+    },
+    "generators": {
+      "description": "Specifies data generators which create values for entity fields",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Name of the generator",
             "type": "string"
           },
           "values": {
-            "description": "description of the values",
+            "description": "Value or values that the generator can choose from. Generators can also be initialised from values specified in the variables section.",
             "examples": [
               "'[1>10]' creates a number from 1 to 10",
               "'[word1;word2]' selects a random value from a semicolon separated list",
@@ -440,27 +474,27 @@
       }
     },
     "snippets": {
-      "description": "specify pre-defined fields which can be used by any entity in the datamodel",
+      "description": "Specify pre-defined fields which can be used by any entity in the datamodel",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/field"
       }
     },
     "entities": {
-      "description": "specify the entities in the datamodel",
+      "description": "Specify the entities in the datamodel",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/entityProperties"
       }
     },
     "assign": {
-      "description": "assign hardcoded values to entities which have been placed in data tables",
+      "description": "Assign hardcoded values to entities which have been placed in data tables",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "target": {
-            "description": "path to the target object which is to be assigned values from 'fields'",
+            "description": "Path to the target object which is to be assigned values from 'fields'",
             "examples": [
               "Organisation(0)",
               "Organisation(10).Users(3)"
@@ -478,13 +512,13 @@
       }
     },
     "triggers": {
-      "description": "instructions to execute when an entity is created",
+      "description": "Instructions to execute when an entity is created",
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
           "entity": {
-            "description": "the entity for which instructions are to be executed",
+            "description": "The entity for which instructions are to be executed",
             "type": "string"
           },
           "scripts": {
@@ -493,7 +527,7 @@
             ],
             "items": [
               {
-                "description": "instructions to execute",
+                "description": "Instructions to execute",
                 "examples": [
                   "'ConnectedEntity(index).RelationshipName?field=value' creates the connected entity and places it in a list, then forms a relationship between the new entity and the RelationshipName by searching the related table for a field having a specified value",
                   "'User(0).Role?name=CEO'",
