@@ -430,7 +430,8 @@
             "type": [
               "string",
               "number",
-              "object"
+              "object",
+              "array"
             ]
           },
           "description": {
@@ -440,6 +441,7 @@
         },
         "required": [
           "name",
+          "description",
           "value"
         ]
       }
@@ -452,6 +454,10 @@
         "properties": {
           "name": {
             "description": "Name of the generator",
+            "type": "string"
+          },
+          "description": {
+            "description": "Describe the generator and where it might be used in the model",
             "type": "string"
           },
           "values": {
