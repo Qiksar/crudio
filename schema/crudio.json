@@ -437,6 +437,15 @@
               "array"
             ]
           },
+          "type": {
+            "description": "Type of the variable",
+            "type": [
+              "string",
+              "number",
+              "object",
+              "array"
+            ]
+          },
           "description": {
             "description": "Describe the variable and how it might control the behaviour of the model",
             "type": "string"
