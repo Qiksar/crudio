@@ -454,7 +454,8 @@
         "required": [
           "name",
           "description",
-          "value"
+          "value",
+          "type"
         ]
       }
     },
